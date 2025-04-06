@@ -57,12 +57,12 @@ Nous remercions tous ceux qui ont contribué à ce projet !
 
 Les personnes suivantes ont contribué à ce projet en ajoutant des fonctionnalités, en corrigeant des bugs ou en améliorant la documentation:
 
-- [Med Aziz Garwachi](https://github.com/Garwachi-esprit) Correction de bugs et amélioration des performances etc ...
-- [Meriem Aissa](https://github.com/mariem323) Ajout de la fonctionnalité X etc...
-- [Hachem Zitouni](https://github.com/hachemzit7) Rédaction de la documentation etc ...
-- [Sarra Aroua](https://github.com/sarraaroua) Correction de bugs et amélioration des performances etc ...
-- [Lynda Chebbi](https://github.com/Lynnnn-bit) Ajout de la fonctionnalité X etc...
-- [Ahmed Salhi](https://github.com/xcxahmed) Rédaction de la documentation etc ... 
+- [Med Aziz Garwachi](https://github.com/Garwachi-esprit) Rédaction de la documentation technique du projet (README, installation, structure du code).
+- [Meriem Aissa](https://github.com/mariem323)  Ajout de la fonctionnalité de soumission dynamique du formulaire avec validation en JavaScript.
+- [Hachem Zitouni](https://github.com/hachemzit7) Correction de bugs, optimisation des performances, et refactorisation du code pour améliorer la maintenabilité.
+- [Sarra Aroua](https://github.com/sarraaroua) Débogage des composants interactifs du formulaire (slider, champs requis, etc).
+- [Lynda Chebbi](https://github.com/Lynnnn-bit) Ajout de la gestion des sliders personnalisés (montant demandé et durée de remboursement).
+- [Ahmed Salhi](https://github.com/xcxahmed) Rédaction de la documentation utilisateur (instructions pour remplir le formulaire, étapes de traitement).
 
 Si vous souhaitez contribuer, suivez les étapes ci-dessous pour faire un **fork**, créer une nouvelle branche et soumettre une pull **request**.
 
@@ -77,3 +77,12 @@ Si vous souhaitez contribuer, suivez les étapes ci-dessous pour faire un **fork
 
 ## Licence
 
+### Exemple pour **Licence** :
+```markdown
+## Licence
+
+Ce projet est sous la licence **XXX**. Pour plus de détails, consultez le fichier [LICENSE](./LICENSE).
+
+### Détails sur la licence MIT
+
+La Licence XXX est une licence de logiciel ...
