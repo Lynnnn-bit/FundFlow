@@ -1,60 +1,56 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const form = document.querySelector("form");
-    const inputs = form.querySelectorAll(".input");
-    const checkbox = document.getElementById("terms");
-  
-    form.addEventListener("submit", (e) => {
-      e.preventDefault(); // Stop form submission until validation passes
-  
-      const prenom = inputs[0].value.trim();
-      const nom = inputs[1].value.trim();
-      const email = inputs[2].value.trim();
-      const password = inputs[3].value;
-      const confirm = inputs[4].value;
-  
-      if (!prenom || !nom) {
-        alert("Veuillez remplir votre prénom et nom.");
-        return;
-      }
-  
-      if (!validateEmail(email)) {
-        alert("Veuillez entrer une adresse email valide.");
-        return;
-      }
-  
-      if (!validatePassword(password)) {
-        alert("Le mot de passe ne respecte pas les critères.");
-        return;
-      }
-  
-      if (password !== confirm) {
-        alert("Les mots de passe ne correspondent pas.");
-        return;
-      }
-  
-      if (!checkbox.checked) {
-        alert("Vous devez accepter les conditions d'utilisation.");
-        return;
-      }
-  
-      // If all validations pass:
-      alert("Formulaire envoyé avec succès !");
-      form.submit(); // Remove this line if you're handling submission manually
+// Password strength indicator
+const passwordInput = document.getElementById('mdp');
+const strengthText = document.getElementById('strengthText');
+const passwordStrength = document.getElementById('passwordStrength');
+
+if (passwordInput && strengthText) {
+    passwordInput.addEventListener('input', function() {
+        const password = this.value;
+        let strength = 0;
+        let text = 'Faible';
+        let className = 'strength-weak';
+        
+        // Check length
+        if (password.length >= 8) strength++;
+        if (password.length >= 12) strength++;
+        
+        // Check for mixed case
+        if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+        
+        // Check for numbers
+        if (/\d/.test(password)) strength++;
+        
+        // Check for special chars
+        if (/[^a-zA-Z0-9]/.test(password)) strength++;
+        
+        // Determine strength level
+        if (strength > 3) {
+            text = 'Fort';
+            className = 'strength-strong';
+        } else if (strength > 1) {
+            text = 'Moyen';
+            className = 'strength-medium';
+        }
+        
+        // Update display
+        strengthText.textContent = text;
+        strengthText.className = className;
     });
-  });
-  
-  // Validate email with regex
-  function validateEmail(email) {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(email);
-  }
-  
-  // Validate password with rules
-  function validatePassword(password) {
-    const lengthValid = password.length >= 8 && password.length <= 16;
-    const lower = /[a-z]/.test(password);
-    const upper = /[A-Z]/.test(password);
-    const digit = /[0-9]/.test(password);
-    const special = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-    return lengthValid && lower && upper && digit && special;
-  }
+}
+
+// Form validation
+const form = document.getElementById('registrationForm');
+if (form) {
+    form.addEventListener('submit', function(e) {
+        const password = document.getElementById('mdp').value;
+        const confirmPassword = document.getElementById('confirmation_mdp').value;
+        
+        if (password !== confirmPassword) {
+            e.preventDefault();
+            alert('Les mots de passe ne correspondent pas');
+            return false;
+        }
+        
+        return true;
+    });
+}
