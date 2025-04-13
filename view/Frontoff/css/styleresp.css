@@ -1,0 +1,130 @@
+/* styleresp.css */
+body {
+    background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.navbar {
+    background-color: white;
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.logo-container .brand-name {
+    color: #4A90E2;
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+.navbar nav a {
+    color: #666;
+    margin-left: 1.5rem;
+    text-decoration: none;
+}
+
+.navbar nav a:hover {
+    color: #4A90E2;
+}
+
+.main-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1.5rem;
+}
+
+.header-section h1 {
+    color: #2c3e50;
+    font-weight: 700;
+    margin-bottom: 2rem;
+}
+
+.demande-info.response-card,
+.response-card {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.response-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.badge {
+    padding: 0.5em 1em;
+    border-radius: 20px;
+    font-weight: 500;
+}
+
+.bg-success {
+    background-color: #28a745!important;
+}
+
+.bg-danger {
+    background-color: #dc3545!important;
+}
+
+.bg-warning {
+    background-color: #ffc107!important;
+    color: black;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.btn-success {
+    background-color: #28a745;
+    border: none;
+    padding: 0.375rem 0.75rem;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    border: none;
+    padding: 0.375rem 0.75rem;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border: none;
+}
+
+.btn:hover {
+    opacity: 0.9;
+}
+
+.alert {
+    border-radius: 8px;
+    margin: 1rem 0;
+    padding: 1rem;
+}
+
+.responses-list h2 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+}
+
+.response-card h3 {
+    font-size: 1.1rem;
+    color: #34495e;
+    margin-bottom: 0.5rem;
+}
+
+.response-card p {
+    color: #7f8c8d;
+    margin-bottom: 0.3rem;
+}
+
+.fa-reply,
+.fa-list {
+    margin-right: 0.5rem;
+    color: #4A90E2;
+}

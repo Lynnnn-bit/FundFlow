@@ -1,0 +1,224 @@
+/* Base Styles */
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+    color: white;
+    min-height: 100vh;
+}
+
+/* Navbar Styles */
+.navbar {
+    background-color: rgba(15, 32, 39, 0.9);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.3);
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+}
+
+.brand-name {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-left: 10px;
+    background: linear-gradient(to right, #00d09c, #1abc9c);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.navbar a {
+    color: #cbd5e1;
+    text-decoration: none;
+    margin-left: 20px;
+    font-size: 0.95rem;
+    transition: color 0.3s;
+}
+
+.navbar a:hover {
+    color: #00d09c;
+}
+
+.navbar a.logout:hover {
+    color: #e74c3c;
+}
+
+.navbar i {
+    margin-right: 8px;
+}
+
+/* Main Container */
+.main-container {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+h1 {
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+    display: flex;
+    align-items: center;
+    color: white;
+}
+
+h1 i {
+    margin-right: 15px;
+    color: #00d09c;
+}
+
+/* Demandes Section */
+.demandes-section {
+    margin-bottom: 2rem;
+}
+
+.demande-card, .response-card {
+    background: rgba(30, 60, 82, 0.6);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: transform 0.3s;
+}
+
+.demande-card:hover {
+    transform: translateY(-3px);
+}
+
+.response-card {
+    background: rgba(46, 79, 102, 0.4);
+    margin-top: 1rem;
+}
+
+/* Badge Styles */
+.badge {
+    padding: 0.35em 0.65em;
+    font-size: 0.75em;
+    font-weight: 700;
+    border-radius: 20px;
+    text-transform: capitalize;
+}
+
+.bg-success {
+    background: linear-gradient(to right, #00d09c, #2ecc71);
+}
+
+.bg-danger {
+    background: linear-gradient(to right, #e74c3c, #c0392b);
+}
+
+.bg-warning {
+    background: linear-gradient(to right, #f39c12, #e67e22);
+}
+
+/* Button Styles */
+.btn {
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    font-weight: 600;
+}
+
+.btn i {
+    margin-right: 8px;
+}
+
+.btn-warning {
+    background: linear-gradient(to right, #f39c12, #e67e22);
+    color: white;
+}
+
+.btn-danger {
+    background: linear-gradient(to right, #e74c3c, #c0392b);
+    color: white;
+}
+
+.btn-sm {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+}
+
+.btn:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Alert Styles */
+.alert {
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+}
+
+.alert-success {
+    background-color: rgba(46, 204, 113, 0.2);
+    color: #d4edda;
+    border: 1px solid rgba(46, 204, 113, 0.3);
+}
+
+.alert-danger {
+    background-color: rgba(231, 76, 60, 0.2);
+    color: #f8d7da;
+    border: 1px solid rgba(231, 76, 60, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column;
+        padding: 1rem;
+    }
+    
+    .navbar nav {
+        margin-top: 1rem;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .main-container {
+        padding: 1rem;
+    }
+    
+    .demande-card, .response-card {
+        padding: 1rem;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+    
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .brand-name {
+        font-size: 1.2rem;
+    }
+    
+    h1 {
+        font-size: 1.5rem;
+    }
+    
+    .badge {
+        font-size: 0.65em;
+    }
+}
