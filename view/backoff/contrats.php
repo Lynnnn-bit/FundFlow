@@ -46,6 +46,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new Exception("Erreur lors du rejet du partenaire");
             }
         }
+        elseif (isset($_POST['update_contract'])) {
+            $id_contrat = $_POST['id_contrat'];
+            $date_deb = $_POST['date_deb'];
+            $date_fin = $_POST['date_fin'];
+            $terms = $_POST['terms'];
+            $status = $_POST['status'];
+            
+            if ($contratController->updateContract($id_contrat, $date_deb, $date_fin, $terms, $status)) {
+                $_SESSION['success'] = "Contrat mis à jour avec succès!";
+            } else {
+                throw new Exception("Erreur lors de la mise à jour du contrat");
+            }
+        }
+        elseif (isset($_POST['add_contract'])) {
+            $id_partenaire = $_POST['id_partenaire'];
+            $date_deb = $_POST['date_deb'];
+            $date_fin = $_POST['date_fin'];
+            $terms = $_POST['terms'];
+            $status = $_POST['status'];
+            
+            if ($contratController->createContract($id_partenaire, $date_deb, $date_fin, $terms, $status)) {
+                $_SESSION['success'] = "Contrat créé avec succès!";
+            } else {
+                throw new Exception("Erreur lors de la création du contrat");
+            }
+        }
     } catch (Exception $e) {
         $_SESSION['error'] = $e->getMessage();
     }
@@ -593,6 +619,7 @@ $approvedPartenaires = $partenaireController->getAllApprovedPartenaires();
             <span class="close" onclick="closeModal('editModal')">&times;</span>
             <h2><i class="fas fa-edit me-2"></i>Modifier Contrat</h2>
             <form method="POST" id="editForm">
+                <input type="hidden" name="update_contract" value="1">
                 <input type="hidden" name="id_contrat" id="edit_id_contrat">
                 
                 <div class="form-group">
@@ -616,7 +643,7 @@ $approvedPartenaires = $partenaireController->getAllApprovedPartenaires();
                 
                 <div class="form-group">
                     <label class="form-label">Termes:</label>
-                    <textarea name="terms" id="edit_terms" rows="4" class="form-control" required></textarea>
+                    <textarea name="terms" id="edit_terms" rows="4" class="form-control"></textarea>
                 </div>
                 
                 <div class="form-actions">
@@ -639,18 +666,27 @@ $approvedPartenaires = $partenaireController->getAllApprovedPartenaires();
 
         function openEditModal(contratId) {
             fetch(`get_contract.php?id=${contratId}`)
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
                 .then(data => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                    
                     document.getElementById('edit_id_contrat').value = data.id_contrat;
                     document.getElementById('edit_date_deb').value = data.date_deb;
                     document.getElementById('edit_date_fin').value = data.date_fin;
                     document.getElementById('edit_status').value = data.status;
-                    document.getElementById('edit_terms').value = data.terms;
+                    document.getElementById('edit_terms').value = data.terms || '';
                     openModal('editModal');
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Une erreur est survenue lors du chargement du contrat');
+                    alert('Erreur lors du chargement du contrat: ' + error.message);
                 });
         }
 
