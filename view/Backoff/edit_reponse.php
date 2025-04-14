@@ -160,7 +160,8 @@ if (isset($_SESSION['error'])) {
                     <div class="form-group mb-3">
                         <label class="form-label">Montant accordé (€)</label>
                         <input type="number" class="form-control" name="montant_accorde" 
-                               min="0" step="100" value="<?= $reponse['montant_accorde'] ?>" required>
+                            min="0" step="100" value="<?= $reponse['montant_accorde'] ?>" required>
+                        <!-- Error messages will be inserted here by JS -->
                     </div>
 
                     <div class="form-group mb-3">
@@ -195,25 +196,6 @@ if (isset($_SESSION['error'])) {
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Enable/disable amount field based on decision
-        document.addEventListener('DOMContentLoaded', function() {
-            const decisionSelect = document.querySelector('select[name="decision"]');
-            const amountField = document.querySelector('input[name="montant_accorde"]');
-            
-            if (decisionSelect && amountField) {
-                decisionSelect.addEventListener('change', function() {
-                    amountField.disabled = this.value !== 'accepte';
-                    if (this.value !== 'accepte') {
-                        amountField.value = '0';
-                    }
-                });
-                
-                // Initialize on page load
-                decisionSelect.dispatchEvent(new Event('change'));
-            }
-        });
-    </script>
     <script src="../Frontoff/js/jseditreponse.js"></script>
 </body>
 </html>
