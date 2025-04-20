@@ -39,18 +39,32 @@ $projects = $controller->getAllProjects();
 $categories = $controller->getCategories();
 
 // Process form submission
+// Process form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
     try {
-        $id_projet = $_POST['id_projet'] ?? null; // Add this line
-        $titre = $_POST['titre'];
-        $description = $_POST['description'];
+        $id_projet = $_POST['id_projet'] ?? null;
+        $titre = trim($_POST['titre']);
+        $description = trim($_POST['description']);
         $montant_cible = $_POST['montant_cible'];
         $duree = $_POST['duree'];
         $id_categorie = $_POST['id_categorie'] ?: null;
         $status = $_POST['status'] ?? 'en_attente';
         
-        // Assuming user ID is from session
-        $user_id = $_SESSION['user_id'] ?? 1; // Fallback for demo
+        // Validate title
+        if (empty($titre)) {
+            throw new Exception("Le titre est obligatoire");
+        }
+        if (strlen($titre) > 100) {
+            throw new Exception("Le titre ne doit pas dépasser 100 caractères");
+        }
+        
+        // Validate description
+        if (empty($description)) {
+            throw new Exception("La description est obligatoire");
+        }
+        if (strlen($description) > 2000) {
+            throw new Exception("La description ne doit pas dépasser 2000 caractères");
+        }
         
         $project = new Project(
             $user_id, 
