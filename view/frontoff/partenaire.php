@@ -1,7 +1,4 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 require_once __DIR__ . '/../../config.php';
 require_once __DIR__ . '/../../controlle/PartenaireController.php';
 
@@ -10,37 +7,63 @@ session_start();
 $partenaireController = new PartenaireController();
 
 // Handle form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
-    try {
-        $nom = htmlspecialchars($_POST['nom']);
-        $email = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);
-        $telephone = preg_replace('/[^0-9]/', '', $_POST['telephone']);
-        $montant = floatval($_POST['montant']);
-        $description = htmlspecialchars($_POST['description']);
-
-        // Server-side validation
-        if (!$email) throw new Exception("Email invalide");
-        if (strlen($telephone) !== 8) throw new Exception("Téléphone invalide");
-        if ($montant < 1000 || $montant > 1000000) throw new Exception("Montant invalide");
-
-        $partenaire = new Partenaire($nom, $email, $telephone, $montant, $description);
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['submit'])) {
+        $partenaire = new Partenaire(
+            $_POST['nom'],
+            $_POST['email'],
+            $_POST['telephone'],
+            $_POST['montant'],
+            $_POST['description']
+        );
         
-        if ($partenaireController->createPartenaire($partenaire)) {
-            $_SESSION['success'] = "Demande envoyée avec succès!";
+        $result = $partenaireController->createPartenaire($partenaire);
+        
+        if ($result) {
+            $_SESSION['current_partner'] = $_POST['email'];
+            header("Location: partner_dashboard.php");
+            exit();
         } else {
-            throw new Exception("Erreur lors de la création");
+            $_SESSION['error'] = "Erreur lors de la création";
         }
+    }
+    elseif (isset($_POST['update_request'])) {
+        $data = [
+            'nom' => $_POST['nom'],
+            'email' => $_POST['email'],
+            'telephone' => $_POST['telephone'],
+            'montant' => $_POST['montant'],
+            'description' => $_POST['description']
+        ];
         
+        if ($partenaireController->updatePartenaire($_POST['id_partenaire'], $data)) {
+            $_SESSION['success'] = "Demande mise à jour avec succès!";
+            header("Location: partner_dashboard.php");
+            exit();
+        } else {
+            $_SESSION['error'] = "Erreur lors de la mise à jour";
+        }
+    }
+}
+
+// Handle partner login to view their request
+if (isset($_GET['view_request']) && isset($_GET['email'])) {
+    $partner = $partenaireController->getPartenaireByEmail($_GET['email']);
+    if ($partner && !$partner['is_approved']) {
+        $_SESSION['current_partner'] = $partner['email'];
+        header("Location: partner_dashboard.php");
+        exit();
+    } else {
+        $_SESSION['error'] = "Demande non trouvée ou déjà approuvée";
         header("Location: partenaire.php");
         exit();
-    } catch (Exception $e) {
-        $error_message = $e->getMessage();
     }
 }
 
 // Display messages
 $success_message = $_SESSION['success'] ?? null;
-unset($_SESSION['success']);
+$error_message = $_SESSION['error'] ?? null;
+unset($_SESSION['success'], $_SESSION['error']);
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -51,7 +74,6 @@ unset($_SESSION['success']);
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Base Styles */
         body {
             margin: 0;
             font-family: 'Inter', sans-serif;
@@ -60,7 +82,6 @@ unset($_SESSION['success']);
             min-height: 100vh;
         }
 
-        /* Navbar Styles */
         .navbar {
             background-color: rgba(15, 32, 39, 0.9);
             padding: 1rem 2rem;
@@ -85,7 +106,6 @@ unset($_SESSION['success']);
             -webkit-text-fill-color: transparent;
         }
 
-        /* Main Container */
         .main-container {
             padding: 2rem;
             max-width: 800px;
@@ -111,7 +131,26 @@ unset($_SESSION['success']);
             color: #00d09c;
         }
 
-        /* Form Styles */
+        .is-invalid {
+            border-color: #dc3545 !important;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+        }
+
+        .invalid-feedback {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        #error-container .alert-danger {
+            background-color: rgba(220, 53, 69, 0.1);
+            border: 1px solid rgba(220, 53, 69, 0.3);
+            color: #dc3545;
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            margin-bottom: 1rem;
+        }
+
         .finance-form-container {
             background: rgba(30, 60, 82, 0.6);
             border-radius: 16px;
@@ -163,7 +202,6 @@ unset($_SESSION['success']);
             background-color: rgba(46, 79, 102, 1);
         }
 
-        /* Alert Messages */
         .alert {
             padding: 0.8rem 1rem;
             border-radius: 8px;
@@ -183,7 +221,6 @@ unset($_SESSION['success']);
             border: 1px solid rgba(231, 76, 60, 0.3);
         }
 
-        /* Button Styles */
         .btn {
             padding: 0.8rem 1.5rem;
             border: none;
@@ -218,7 +255,6 @@ unset($_SESSION['success']);
             margin-top: 1.5rem;
         }
 
-        /* Responsive Adjustments */
         @media (max-width: 768px) {
             .main-container {
                 padding: 1rem;
@@ -233,7 +269,6 @@ unset($_SESSION['success']);
             }
         }
 
-        /* Custom form elements */
         .input-group-text {
             background-color: rgba(46, 79, 102, 0.8);
             color: #cbd5e1;
@@ -249,10 +284,19 @@ unset($_SESSION['success']);
         textarea.form-control {
             min-height: 120px;
         }
+        
+        .card {
+            background: rgba(30, 60, 82, 0.6);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            margin-bottom: 2rem;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
     </style>
 </head>
 <body>
-    <!-- Navbar -->
     <nav class="navbar">
         <div class="logo-container">
             <i class="fas fa-handshake fa-lg" style="color: #00d09c;"></i>
@@ -261,28 +305,44 @@ unset($_SESSION['success']);
         <nav>
             <a href="/"><i class="fas fa-home"></i> Accueil</a>
             <a href="/partenaires"><i class="fas fa-users"></i> Partenaires</a>
-            <a href="/login"><i class="fas fa-sign-in-alt"></i> Connexion</a>
+            <?php if (isset($_SESSION['current_partner'])): ?>
+                <a href="partner_dashboard.php"><i class="fas fa-user-circle"></i> Mon Espace</a>
+                <a href="logout.php" class="logout"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
+            <?php else: ?>
+                <a href="/login"><i class="fas fa-sign-in-alt"></i> Connexion</a>
+            <?php endif; ?>
         </nav>
     </nav>
 
     <div class="main-container">
+        <?php if (isset($_SESSION['current_partner'])): ?>
+            <?php header("Location: partner_dashboard.php"); exit(); ?>
+        <?php endif; ?>
+
         <div class="header-section">
             <h1><i class="fas fa-handshake"></i> Devenir Partenaire</h1>
             <p>Rejoignez notre réseau de partenaires privilégiés</p>
+            
+            <?php if (isset($_SESSION['current_partner'])): ?>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>Vous avez déjà soumis une demande. Vous pouvez la modifier ou l'annuler depuis votre espace partenaire.
+                </div>
+            <?php endif; ?>
         </div>
         
         <?php if ($success_message): ?>
             <div class="alert alert-success">
-                <i class="fas fa-check-circle me-2"></i><?= $success_message ?>
+                <i class="fas fa-check-circle me-2"></i><?= htmlspecialchars($success_message) ?>
             </div>
         <?php endif; ?>
         
-        <?php if (isset($error_message)): ?>
+        <?php if ($error_message): ?>
             <div class="alert alert-danger">
-                <i class="fas fa-exclamation-circle me-2"></i><?= $error_message ?>
+                <i class="fas fa-exclamation-circle me-2"></i><?= htmlspecialchars($error_message) ?>
             </div>
         <?php endif; ?>
 
+        <?php if (!isset($_SESSION['current_partner'])): ?>
         <div class="finance-form-container">
             <h2><i class="fas fa-file-signature"></i> Formulaire de Partenariat</h2>
             
@@ -291,7 +351,7 @@ unset($_SESSION['success']);
                     <label for="nom" class="form-label">
                         <i class="fas fa-building"></i> Nom de l'entreprise *
                     </label>
-                    <input type="text" class="form-control" id="nom" name="nom" required>
+                    <input type="text" class="form-control" id="nom" name="nom" required> 
                 </div>
                 
                 <div class="form-group">
@@ -305,8 +365,7 @@ unset($_SESSION['success']);
                     <label for="telephone" class="form-label">
                         <i class="fas fa-phone"></i> Téléphone *
                     </label>
-                    <input type="tel" class="form-control" id="telephone" name="telephone" 
-                           pattern="[0-9]{8}" title="8 chiffres requis" required>
+                    <input type="text" class="form-control" id="telephone" name="telephone" required>    
                     <small class="form-text">Format: 8 chiffres (ex: 0612345678)</small>
                 </div>
                 
@@ -314,11 +373,12 @@ unset($_SESSION['success']);
                     <label for="montant" class="form-label">
                         <i class="fas fa-euro-sign"></i> Montant investi (€) *
                     </label>
-                    <div class="input-group">
-                        <input type="number" class="form-control" id="montant" name="montant" 
-                               min="1000" max="1000000" value="1000" step="100" required>
-                        <span class="input-group-text">€</span>
+                    <div class="mb-3">
+                        <label for="montantInput" class="form-label">Montant (€)</label>
+                        <input type="text" class="form-control" id="montant" name="montant" placeholder="Entrez le montant" required>
+                        <div id="montant_error" class="invalid-feedback"></div>
                     </div>
+
                     <small class="form-text">Entre 1,000€ et 1,000,000€</small>
                 </div>
                 
@@ -339,9 +399,151 @@ unset($_SESSION['success']);
                 </div>
             </form>
         </div>
+        <?php endif; ?>
+        
+        <div class="card mt-4">
+            <div class="card-body">
+                <h3><i class="fas fa-question-circle me-2"></i>Suivi de votre demande</h3>
+                <p>Pour consulter ou modifier votre demande existante, veuillez entrer votre email :</p>
+                
+                <form method="GET" class="row g-3">
+                    <div class="col-md-8">
+                        <input type="email" name="email" class="form-control" placeholder="Votre email" required>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="submit" name="view_request" class="btn btn-primary w-100">
+                            <i class="fas fa-search me-2"></i>Voir ma demande
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/form-validation.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('partnerForm');
+            if (!form) {
+                console.error("Form not found!");
+                return;
+            }
+
+            const errorContainer = document.createElement('div');
+            errorContainer.id = 'error-container';
+            form.prepend(errorContainer);
+
+            // Telephone formatting
+            const telephone = form.querySelector('[name="telephone"]');
+            if (telephone) {
+                telephone.addEventListener('input', () => {
+                    telephone.value = telephone.value.replace(/\D/g, '').slice(0, 8);
+                });
+            }
+
+            // Amount formatting
+            const montant = form.querySelector('[name="montant"]');
+            if (montant) {
+                montant.addEventListener('input', () => {
+                    let value = montant.value.replace(/\D/g, '');
+                    value = value ? parseInt(value, 10) : '';
+                    montant.value = value === '' ? '' : value.toLocaleString('fr-FR');
+                });
+            }
+
+            if (form) {
+                form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    clearErrors();
+
+                    const errors = validateForm();
+                    if (Object.keys(errors).length > 0) return displayErrors(errors);
+
+                    // Prepare data for submission
+                    const formData = new FormData();
+                    formData.append('nom', form.nom.value.trim());
+                    formData.append('email', form.email.value.trim());
+                    formData.append('telephone', form.telephone.value.replace(/\D/g, ''));
+                    
+                    // Convert French-formatted number to database format
+                    const montantValue = parseFloat(
+                        form.montant.value.replace(/\s/g, '').replace(',', '.')
+                    ).toFixed(2);
+                    formData.append('montant', montantValue);
+                    
+                    formData.append('description', form.description.value.trim());
+                    formData.append('submit', '1');
+
+                    try {
+                        const response = await fetch(form.action, {
+                            method: 'POST',
+                            body: formData
+                        });
+                        
+                        if (response.redirected) {
+                            window.location.href = response.url;
+                        } else {
+                            const result = await response.text();
+                            if (!response.ok) throw new Error(result);
+                        }
+                    } catch (error) {
+                        console.error('Submission error:', error);
+                        alert("Erreur lors de la soumission. Voir la console pour les détails.");
+                    }
+                });
+            }
+
+            function validateForm() {
+                const errors = {};
+                const values = {
+                    nom: form.nom.value.trim(),
+                    email: form.email.value.trim(),
+                    telephone: form.telephone.value.replace(/\D/g, ''),
+                    montant: form.montant.value.replace(/\D/g, ''),
+                    description: form.description.value.trim()
+                };
+
+                if (!values.nom) errors.nom = "Nom de l'entreprise requis";
+                if (!values.email) errors.email = "Email requis";
+                else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) errors.email = "Email invalide";
+                if (!values.telephone) errors.telephone = "Téléphone requis";
+                else if (values.telephone.length !== 8) errors.telephone = "8 chiffres requis";
+                if (!values.montant) errors.montant = "Montant requis";
+                else {
+                    const amount = parseInt(values.montant);
+                    if (amount < 1000) errors.montant = "Minimum 1 000 €";
+                    if (amount > 1000000) errors.montant = "Maximum 1 000 000 €";
+                }
+                if (!values.description) errors.description = "Description requise";
+                else if (values.description.length < 20) errors.description = "20 caractères minimum";
+
+                return errors;
+            }
+
+            function displayErrors(errors) {
+                let errorHTML = '<div class="alert alert-danger"><ul>';
+                Object.entries(errors).forEach(([field, message]) => {
+                    errorHTML += `<li>${message}</li>`;
+                    const input = form[field];
+                    if (input) {
+                        input.classList.add('is-invalid');
+                        const errorElement = document.createElement('div');
+                        errorElement.className = 'invalid-feedback';
+                        errorElement.textContent = message;
+                        input.parentNode.appendChild(errorElement);
+                    }
+                });
+                errorContainer.innerHTML = errorHTML + '</ul></div>';
+            }
+
+            function clearErrors() {
+                document.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+                if (form) {
+                    Array.from(form.elements).forEach(el => el.classList.remove('is-invalid'));
+                }
+                errorContainer.innerHTML = '';
+            }
+        });
+    </script>
 </body>
 </html>

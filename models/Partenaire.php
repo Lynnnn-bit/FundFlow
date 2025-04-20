@@ -12,18 +12,28 @@ class Partenaire {
         $this->nom = $nom;
         $this->email = $email;
         $this->telephone = $telephone;
-        $this->montant = $montant;
+        
+        // Convert French-formatted numbers to database format
+        $this->montant = is_numeric($montant) 
+            ? $montant 
+            : (float)str_replace([' ', ','], ['', '.'], $montant);
+            
         $this->description = $description;
         $this->is_approved = $is_approved;
         $this->id_partenaire = $id_partenaire;
     }
-
     // Getters
     public function getId() { return $this->id_partenaire; }
     public function getNom() { return $this->nom; }
     public function getEmail() { return $this->email; }
     public function getTelephone() { return $this->telephone; }
-    public function getMontant() { return $this->montant; }
+    public function getMontant() {
+        // Ensure proper decimal format for database
+        if (is_numeric($this->montant)) {
+            return number_format((float)$this->montant, 2, '.', '');
+        }
+        return '0.00'; // Default value if invalid
+    }
     public function getDescription() { return $this->description; }
     public function isApproved() { return $this->is_approved; }
 

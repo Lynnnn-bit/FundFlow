@@ -1,104 +1,109 @@
 document.addEventListener('DOMContentLoaded', () => {
+    
     const form = document.getElementById('partnerForm');
-    const fields = {
-        nom: form.querySelector('[name="nom"]'),
-        email: form.querySelector('[name="email"]'),
-        telephone: form.querySelector('[name="telephone"]'),
-        montant: form.querySelector('[name="montant"]'),
-        description: form.querySelector('[name="description"]')
-    };
+    const errorContainer = document.createElement('div');
+    errorContainer.id = 'error-container';
+    form.prepend(errorContainer);
 
     // Input formatting
-    fields.telephone.addEventListener('input', formatPhone);
-    fields.montant.addEventListener('input', formatAmount);
+    const telephone = form.querySelector('[name="telephone"]');
+    telephone.addEventListener('input', () => {
+        telephone.value = telephone.value.replace(/\D/g, '').slice(0, 8);
+    });
 
-    form.addEventListener('submit', handleSubmit);
+    const montant = form.querySelector('[name="montant"]');
+    montant.addEventListener('input', () => {
+        let value = montant.value.replace(/\D/g, '');
+        value = value ? parseInt(value, 10) : '';
+        montant.value = value === '' ? '' : value.toLocaleString('fr-FR');
+    });
 
-    function formatPhone() {
-        this.value = this.value.replace(/\D/g, '').slice(0, 8);
-    }
-
-    function formatAmount() {
-        let value = this.value.replace(/\D/g, '');
-        value = value ? parseInt(value, 10) : 0;
-        this.value = value.toLocaleString('fr-FR');
-    }
-
-    function handleSubmit(e) {
+    // Form submission
+    form.addEventListener('submit', (e) => {
         e.preventDefault();
         clearErrors();
 
         const errors = validateForm();
         
         if (Object.keys(errors).length > 0) {
-            showErrors(errors);
+            displayErrors(errors);
         } else {
-            submitForm();
+            // Remove formatting before submission
+            montant.value = montant.value.replace(/\s/g, '');
+            form.submit();
         }
-    }
+    });
 
     function validateForm() {
         const errors = {};
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const values = {
+            nom: form.nom.value.trim(),
+            email: form.email.value.trim(),
+            telephone: form.telephone.value.replace(/\D/g, ''),
+            montant: form.montant.value.replace(/\D/g, ''),
+            description: form.description.value.trim()
+        };
 
         // Name validation
-        if (!fields.nom.value.trim()) {
+        if (!values.nom) {
             errors.nom = "Nom de l'entreprise requis";
+        } else if (values.nom.length < 2) {
+            errors.nom = "Le nom doit contenir au moins 2 caractères";
         }
 
         // Email validation
-        if (!emailRegex.test(fields.email.value.trim())) {
-            errors.email = "Email invalide";
+        if (!values.email) {
+            errors.email = "Email requis";
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) {
+            errors.email = "Format d'email invalide";
         }
 
         // Phone validation
-        const phone = fields.telephone.value.replace(/\D/g, '');
-        if (phone && phone.length !== 8) {
-            errors.telephone = "8 chiffres requis";
+        if (!values.telephone) {
+            errors.telephone = "Téléphone requis";
+        } else if (values.telephone.length !== 8) {
+            errors.telephone = "Doit contenir 8 chiffres";
         }
 
         // Amount validation
-        const amount = parseInt(fields.montant.value.replace(/\D/g, '') || 0);
-        if (isNaN(amount)) {
-            errors.montant = "Montant invalide";
-        } else if (amount = 1000 || amount > 1000000) {
-            errors.montant = "Doit être entre 1 000 € et 1 000 000 €";
+        if (!values.montant) {
+            errors.montant = "Montant requis";
+        } else {
+            const amount = parseInt(values.montant);
+            if (amount < 1000) errors.montant = "Minimum 1 000 €";
+            if (amount > 1000000) errors.montant = "Maximum 1 000 000 €";
+        }
+
+        // Description validation
+        if (!values.description) {
+            errors.description = "Description requise";
+        } else if (values.description.length < 20) {
+            errors.description = "20 caractères minimum requis";
         }
 
         return errors;
     }
 
-    function showErrors(errors) {
+    function displayErrors(errors) {
+        let errorHTML = '<div class="alert alert-danger"><ul>';
+        
         Object.entries(errors).forEach(([field, message]) => {
-            const error = document.createElement('div');
-            error.className = 'error-message';
-            error.textContent = message;
-            fields[field].parentNode.insertBefore(error, fields[field].nextSibling);
+            errorHTML += `<li>${message}</li>`;
+            const input = form[field];
+            input.classList.add('is-invalid');
+            
+            const errorElement = document.createElement('div');
+            errorElement.className = 'invalid-feedback';
+            errorElement.textContent = message;
+            input.parentNode.appendChild(errorElement);
         });
+        
+        errorContainer.innerHTML = errorHTML + '</ul></div>';
     }
 
     function clearErrors() {
-        document.querySelectorAll('.error-message').forEach(el => el.remove());
-    }
-
-    function submitForm() {
-        const formData = new FormData();
-        formData.append('nom', fields.nom.value.trim());
-        formData.append('email', fields.email.value.trim());
-        formData.append('telephone', fields.telephone.value.replace(/\D/g, ''));
-        formData.append('montant', parseInt(fields.montant.value.replace(/\D/g, '')));
-        formData.append('description', fields.description.value.trim());
-        formData.append('csrf_token', form.querySelector('[name="csrf_token"]').value);
-        formData.append('submit', '1');
-
-        fetch(form.action, {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => {
-            if (response.redirected) window.location.href = response.url;
-            else return response.text();
-        })
-        .catch(error => console.error('Error:', error));
+        document.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+        Array.from(form.elements).forEach(el => el.classList.remove('is-invalid'));
+        errorContainer.innerHTML = '';
     }
 });

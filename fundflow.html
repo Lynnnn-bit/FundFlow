@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FundFlow - Gestion des Partenariats et Contrats</title>
+  <link rel="stylesheet" href="fundflow.css">
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <!-- HEADER -->
+  <header class="navbar">
+    <div class="logo-container">
+      <img src="assets/logo.png" alt="FundFlow" height="60">
+      <span class="brand-name">FundFlow</span>
+    </div>
+    <nav>
+      <a href="apropos.html"><i class="fas fa-info-circle"></i> À propos</a>
+      <a href="contact.html"><i class="fas fa-envelope"></i> Contact</a>
+      <a href="#" class="logout"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
+    </nav>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <div class="main-container">
+    <!-- Top-Level Module Toggle -->
+    <div class="module-toggle">
+      <button id="module-partners" class="module-btn active">
+        <i class="fas fa-handshake"></i> Partenaires
+      </button>
+      <button id="module-contracts" class="module-btn">
+        <i class="fas fa-file-contract"></i> Contrats
+      </button>
+    </div>
+
+    <!-- PARTNERS MODULE -->
+    <div id="partners-module" class="module active">
+      <!-- Sub-View Toggle for Partners -->
+      <div class="view-toggle">
+        <button id="partners-list-btn" class="sub-toggle-btn active">
+          <i class="fas fa-list"></i> Liste
+        </button>
+        <button id="partners-create-btn" class="sub-toggle-btn">
+          <i class="fas fa-plus"></i> Ajouter
+        </button>
+        <button id="partners-analytics-btn" class="sub-toggle-btn">
+          <i class="fas fa-chart-line"></i> Analytics
+        </button>
+      </div>
+      <!-- Partners List View -->
+      <div id="partners-list" class="content-section active">
+        <div class="section-header">
+          <h2><i class="fas fa-list-ol"></i> Liste des Partenaires</h2>
+          <div class="actions">
+            <div class="search-box">
+              <i class="fas fa-search"></i>
+              <input type="text" id="partners-search-input" placeholder="Rechercher...">
+            </div>
+            <select id="partners-status-filter" class="styled-select">
+              <option value="all">Tous</option>
+              <option value="actif">Actif</option>
+              <option value="en_attente">En attente</option>
+              <option value="rejete">Rejeté</option>
+            </select>
+            <button id="partners-export-btn" class="action-btn">
+              <i class="fas fa-file-export"></i> Exporter
+            </button>
+            <button id="partners-refresh-btn" class="refresh-btn">
+              <i class="fas fa-sync-alt"></i>
+            </button>
+          </div>
+        </div>
+        <div class="table-container">
+          <table id="partners-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nom</th>
+                <th>Email</th>
+                <th>Téléphone</th>
+                <th>Contrat</th>
+                <th>Statut</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Partners rows will be generated on the server (or later via PHP) -->
+            </tbody>
+          </table>
+          <div class="table-footer">
+            <div class="pagination">
+              <button class="page-btn"><i class="fas fa-chevron-left"></i></button>
+              <span class="page-info">Page 1 sur 3</span>
+              <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            <div class="table-summary">
+              Affichage <span class="highlight">1-10</span> de <span class="highlight">15</span> partenaires
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Partners Create View -->
+      <div id="partners-create" class="content-section">
+        <div class="form-card">
+          <div class="form-header">
+            <h2><i class="fas fa-file-alt"></i> Ajouter un Partenaire</h2>
+          </div>
+          <form id="partnerForm">
+            <div class="form-group">
+              <label for="nom"><i class="fas fa-user"></i> Nom du partenaire *</label>
+              <input type="text" id="nom" name="nom" required>
+            </div>
+            <div class="form-group">
+              <label for="email"><i class="fas fa-envelope"></i> Email *</label>
+              <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+              <label for="telephone"><i class="fas fa-phone"></i> Téléphone *</label>
+              <input type="tel" id="telephone" name="telephone" required>
+            </div>
+            <div class="form-group">
+              <label for="contrat"><i class="fas fa-file-contract"></i> Type de contrat *</label>
+              <select id="contrat" name="contrat" required>
+                <option value="" disabled selected>Choisissez un contrat</option>
+                <option value="A">Contrat A - Stratégique</option>
+                <option value="B">Contrat B - Opérationnel</option>
+                <option value="C">Contrat C - Commercial</option>
+              </select>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="cancel-btn"><i class="fas fa-times"></i> Annuler</button>
+              <button type="submit" class="submit-btn"><i class="fas fa-paper-plane"></i> Ajouter</button>
+            </div>
+          </form>
+        </div>
+      </div>
+      <!-- Partners Analytics View (Placeholder) -->
+      <div id="partners-analytics" class="content-section">
+        <div class="analytics-header">
+          <h2><i class="fas fa-chart-pie"></i> Analytics Partenaires</h2>
+          <div class="time-filter">
+            <select class="styled-select">
+              <option>7 derniers jours</option>
+              <option selected>30 derniers jours</option>
+              <option>90 derniers jours</option>
+              <option>Cette année</option>
+            </select>
+          </div>
+        </div>
+        <div class="analytics-grid">
+          <!-- You will integrate charts here later -->
+          <div class="chart-container">
+            <div class="chart-header">
+              <h3>Status Partenaires</h3>
+              <div class="chart-legend">
+                <span class="legend-item"><span class="color-dot approved"></span> Actif</span>
+                <span class="legend-item"><span class="color-dot pending"></span> En attente</span>
+                <span class="legend-item"><span class="color-dot rejected"></span> Rejeté</span>
+              </div>
+            </div>
+            <div class="chart-placeholder">
+              <canvas id="partners-statusChart"></canvas>
+            </div>
+          </div>
+          <div class="chart-container">
+            <div class="chart-header"><h3>Répartition par Contrat</h3></div>
+            <div class="chart-placeholder">
+              <canvas id="partners-contractChart"></canvas>
+            </div>
+          </div>
+          <div class="stats-card">
+            <div class="stats-icon"><i class="fas fa-clock"></i></div>
+            <div class="stats-content">
+              <div class="stats-value">5 jours</div>
+              <div class="stats-label">Délai moyen de réponse</div>
+            </div>
+          </div>
+          <div class="stats-card">
+            <div class="stats-icon"><i class="fas fa-percentage"></i></div>
+            <div class="stats-content">
+              <div class="stats-value">80%</div>
+              <div class="stats-label">Taux de réussite</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div> <!-- End Partners Module -->
+
+    <!-- CONTRACTS MODULE -->
+    <div id="contracts-module" class="module">
+      <!-- Sub-View Toggle for Contracts -->
+      <div class="view-toggle">
+        <button id="contracts-list-btn" class="sub-toggle-btn active">
+          <i class="fas fa-list"></i> Liste
+        </button>
+        <button id="contracts-create-btn" class="sub-toggle-btn">
+          <i class="fas fa-plus"></i> Ajouter
+        </button>
+        <button id="contracts-analytics-btn" class="sub-toggle-btn">
+          <i class="fas fa-chart-line"></i> Analytics
+        </button>
+      </div>
+      <!-- Contracts List View -->
+      <div id="contracts-list" class="content-section active">
+        <div class="section-header">
+          <h2><i class="fas fa-list-ol"></i> Liste des Contrats</h2>
+          <div class="actions">
+            <div class="search-box">
+              <i class="fas fa-search"></i>
+              <input type="text" id="contracts-search-input" placeholder="Rechercher...">
+            </div>
+            <select id="contracts-status-filter" class="styled-select">
+              <option value="all">Tous</option>
+              <option value="en_cours">En cours</option>
+              <option value="termine">Terminé</option>
+              <option value="annule">Annulé</option>
+            </select>
+            <button id="contracts-export-btn" class="action-btn">
+              <i class="fas fa-file-export"></i> Exporter
+            </button>
+            <button id="contracts-refresh-btn" class="refresh-btn">
+              <i class="fas fa-sync-alt"></i>
+            </button>
+          </div>
+        </div>
+        <div class="table-container">
+          <table id="contracts-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nom du contrat</th>
+                <th>Partenaire associé</th>
+                <th>Date de début</th>
+                <th>Date de fin</th>
+                <th>Montant (€)</th>
+                <th>Statut</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Contracts rows will be generated by PHP / backend later -->
+            </tbody>
+          </table>
+          <div class="table-footer">
+            <div class="pagination">
+              <button class="page-btn"><i class="fas fa-chevron-left"></i></button>
+              <span class="page-info">Page 1 sur 3</span>
+              <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            <div class="table-summary">
+              Affichage <span class="highlight">1-10</span> de <span class="highlight">20</span> contrats
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Contracts Create View -->
+      <div id="contracts-create" class="content-section">
+        <div class="form-card">
+          <div class="form-header">
+            <h2><i class="fas fa-file-alt"></i> Ajouter un Contrat</h2>
+          </div>
+          <form id="contractForm">
+            <div class="form-group">
+              <label for="nom-contrat"><i class="fas fa-file-contract"></i> Nom du contrat *</label>
+              <input type="text" id="nom-contrat" name="nom-contrat" required>
+            </div>
+            <div class="form-group">
+              <label for="partenaire-associe"><i class="fas fa-handshake"></i> Partenaire associé *</label>
+              <input type="text" id="partenaire-associe" name="partenaire-associe" required>
+            </div>
+            <div class="form-group">
+              <label for="date-debut"><i class="fas fa-calendar-alt"></i> Date de début *</label>
+              <input type="date" id="date-debut" name="date-debut" required>
+            </div>
+            <div class="form-group">
+              <label for="date-fin"><i class="fas fa-calendar-alt"></i> Date de fin *</label>
+              <input type="date" id="date-fin" name="date-fin" required>
+            </div>
+            <div class="form-group">
+              <label for="montant-contrat"><i class="fas fa-euro-sign"></i> Montant (€) *</label>
+              <input type="number" id="montant-contrat" name="montant-contrat" required>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="cancel-btn"><i class="fas fa-times"></i> Annuler</button>
+              <button type="submit" class="submit-btn"><i class="fas fa-paper-plane"></i> Ajouter</button>
+            </div>
+          </form>
+        </div>
+      </div>
+      <!-- Contracts Analytics View -->
+      <div id="contracts-analytics" class="content-section">
+        <div class="analytics-header">
+          <h2><i class="fas fa-chart-pie"></i> Analytics Contrats</h2>
+          <div class="time-filter">
+            <select class="styled-select">
+              <option>7 derniers jours</option>
+              <option selected>30 derniers jours</option>
+              <option>90 derniers jours</option>
+              <option>Cette année</option>
+            </select>
+          </div>
+        </div>
+        <div class="analytics-grid">
+          <div class="chart-container">
+            <div class="chart-header">
+              <h3>Status Contrats</h3>
+              <div class="chart-legend">
+                <span class="legend-item"><span class="color-dot approved"></span> En cours</span>
+                <span class="legend-item"><span class="color-dot pending"></span> Terminé</span>
+                <span class="legend-item"><span class="color-dot rejected"></span> Annulé</span>
+              </div>
+            </div>
+            <div class="chart-placeholder">
+              <canvas id="contracts-statusChart"></canvas>
+            </div>
+          </div>
+          <div class="chart-container">
+            <div class="chart-header">
+              <h3>Contrats par Type</h3>
+            </div>
+            <div class="chart-placeholder">
+              <canvas id="contracts-typeChart"></canvas>
+            </div>
+          </div>
+          <div class="stats-card">
+            <div class="stats-icon"><i class="fas fa-clock"></i></div>
+            <div class="stats-content">
+              <div class="stats-value">10 jours</div>
+              <div class="stats-label">Durée moyenne</div>
+            </div>
+          </div>
+          <div class="stats-card">
+            <div class="stats-icon"><i class="fas fa-percentage"></i></div>
+            <div class="stats-content">
+              <div class="stats-value">75%</div>
+              <div class="stats-label">Taux de renouvellement</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div> <!-- End Contracts Module -->
+
+    <!-- MODALS -->
+    <!-- Partners Detail Modal -->
+    <div id="partner-modal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <h2><i class="fas fa-eye"></i> Détails du Partenaire <span id="partner-id"></span></h2>
+        <div class="partner-details">
+          <p><strong>Nom :</strong> <span id="partner-nom"></span></p>
+          <p><strong>Email :</strong> <span id="partner-email"></span></p>
+          <p><strong>Téléphone :</strong> <span id="partner-telephone"></span></p>
+          <p><strong>Contrat :</strong> <span id="partner-contrat"></span></p>
+          <p><strong>Date d'adhésion :</strong> <span id="partner-date"></span></p>
+        </div>
+      </div>
+    </div>
+    <!-- Partners Edit Modal -->
+    <div id="edit-partner-modal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <h2><i class="fas fa-edit"></i> Modifier le Partenaire <span id="edit-partner-id"></span></h2>
+        <div class="form-card">
+          <form id="editPartnerForm">
+            <div class="form-group">
+              <label for="edit-nom"><i class="fas fa-user"></i> Nom *</label>
+              <input type="text" id="edit-nom" name="edit-nom" required>
+            </div>
+            <div class="form-group">
+              <label for="edit-email"><i class="fas fa-envelope"></i> Email *</label>
+              <input type="email" id="edit-email" name="edit-email" required>
+            </div>
+            <div class="form-group">
+              <label for="edit-telephone"><i class="fas fa-phone"></i> Téléphone *</label>
+              <input type="tel" id="edit-telephone" name="edit-telephone" required>
+            </div>
+            <div class="form-group">
+              <label for="edit-contrat"><i class="fas fa-file-contract"></i> Contrat *</label>
+              <select id="edit-contrat" name="edit-contrat" required>
+                <option value="" disabled selected>Choisissez un contrat</option>
+                <option value="A">Contrat A - Stratégique</option>
+                <option value="B">Contrat B - Opérationnel</option>
+                <option value="C">Contrat C - Commercial</option>
+              </select>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="cancel-btn" onclick="toggleEditPartnerModal()">
+                <i class="fas fa-times"></i> Annuler
+              </button>
+              <button type="submit" class="submit-btn">
+                <i class="fas fa-save"></i> Enregistrer
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <!-- Contracts Detail Modal -->
+    <div id="contract-modal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <h2><i class="fas fa-eye"></i> Détails du Contrat <span id="contract-id"></span></h2>
+        <div class="contract-details">
+          <p><strong>Nom du contrat :</strong> <span id="contract-nom"></span></p>
+          <p><strong>Partenaire associé :</strong> <span id="contract-partenaire"></span></p>
+          <p><strong>Date de début :</strong> <span id="contract-debut"></span></p>
+          <p><strong>Date de fin :</strong> <span id="contract-fin"></span></p>
+          <p><strong>Montant :</strong> <span id="contract-montant"></span></p>
+          <p><strong>Statut :</strong> <span id="contract-status"></span></p>
+        </div>
+      </div>
+    </div>
+    <!-- Contracts Edit Modal -->
+    <div id="edit-contract-modal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <h2><i class="fas fa-edit"></i> Modifier le Contrat <span id="edit-contract-id"></span></h2>
+        <div class="form-card">
+          <form id="editContractForm">
+            <div class="form-group">
+              <label for="edit-nom-contrat"><i class="fas fa-file-contract"></i> Nom du contrat *</label>
+              <input type="text" id="edit-nom-contrat" name="edit-nom-contrat" required>
+            </div>
+            <div class="form-group">
+              <label for="edit-partenaire-associe"><i class="fas fa-handshake"></i> Partenaire associé *</label>
+              <input type="text" id="edit-partenaire-associe" name="edit-partenaire-associe" required>
+            </div>
+            <div class="form-group">
+              <label for="edit-date-debut"><i class="fas fa-calendar-alt"></i> Date de début *</label>
+              <input type="date" id="edit-date-debut" name="edit-date-debut" required>
+            </div>
+            <div class="form-group">
+              <label for="edit-date-fin"><i class="fas fa-calendar-alt"></i> Date de fin *</label>
+              <input type="date" id="edit-date-fin" name="edit-date-fin" required>
+            </div>
+            <div class="form-group">
+              <label for="edit-montant-contrat"><i class="fas fa-euro-sign"></i> Montant (€) *</label>
+              <input type="number" id="edit-montant-contrat" name="edit-montant-contrat" required>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="cancel-btn" onclick="toggleEditContractModal()">
+                <i class="fas fa-times"></i> Annuler
+              </button>
+              <button type="submit" class="submit-btn">
+                <i class="fas fa-save"></i> Enregistrer
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="toast">
+      <div class="toast-icon"><i class="fas fa-check-circle"></i></div>
+      <div class="toast-content">
+        <div class="toast-title">Succès</div>
+        <div class="toast-message">Opération réussie</div>
+      </div>
+      <button class="toast-close"><i class="fas fa-times"></i></button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="fundflow.js"></script>
+</body>
+</html>

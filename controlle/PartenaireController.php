@@ -13,32 +13,43 @@ class PartenaireController {
             die("Database connection failed: " . $e->getMessage());
         }
     }
-
     public function createPartenaire(Partenaire $partenaire) {
         try {
+            // Verify database connection
+            if (!$this->db) throw new PDOException("No database connection");
+            
+            // Prepare the SQL statement
             $stmt = $this->db->prepare("
                 INSERT INTO fiche_partenaire 
                 (nom, email, telephone, montant, description, is_approved, created_at) 
-                VALUES (?, ?, ?, ?, ?, ?, NOW())
+                VALUES (:nom, :email, :telephone, :montant, :description, :approved, NOW())
             ");
-            
-            $success = $stmt->execute([
-                $partenaire->getNom(),
-                $partenaire->getEmail(),
-                $partenaire->getTelephone(),
-                $partenaire->getMontant(),
-                $partenaire->getDescription(),
-                $partenaire->isApproved() ? 1 : 0
-            ]);
-            
-            return $success ? $this->db->lastInsertId() : false;
+    
+            // Bind parameters with explicit types
+            $stmt->bindValue(':nom', $partenaire->getNom() ?: null, PDO::PARAM_STR);
+            $stmt->bindValue(':email', $partenaire->getEmail() ?: null, PDO::PARAM_STR);
+            $stmt->bindValue(':telephone', $partenaire->getTelephone() ?: null, PDO::PARAM_STR);
+            $stmt->bindValue(':montant', $partenaire->getMontant(), PDO::PARAM_STR);
+            $stmt->bindValue(':description', $partenaire->getDescription() ?: null, PDO::PARAM_STR);
+            $stmt->bindValue(':approved', $partenaire->isApproved() ? 1 : 0, PDO::PARAM_INT);
+    
+            // Execute and verify
+            if (!$stmt->execute()) {
+                $error = $stmt->errorInfo();
+                throw new PDOException("Database error: " . $error[2]);
+            }
+    
+            return $this->db->lastInsertId();
             
         } catch (PDOException $e) {
-            error_log("Error creating partner: " . $e->getMessage());
+            // Log complete error information
+            error_log("Partner creation failed: " . $e->getMessage());
+            error_log("SQL State: " . ($e->errorInfo[0] ?? ''));
+            error_log("Driver Error: " . ($e->errorInfo[1] ?? ''));
+            error_log("Error Message: " . ($e->errorInfo[2] ?? ''));
             return false;
         }
     }
-
     public function approvePartenaire($id_partenaire) {
         try {
             $this->db->beginTransaction();
@@ -194,6 +205,10 @@ class PartenaireController {
             error_log("Error deleting partner: " . $e->getMessage());
             return false;
         }
+    }
+    public function getPartnerContracts($id_partenaire) {
+        $contratController = new ContratController();
+        return $contratController->getContractsByPartner($id_partenaire);
     }
     
 }
