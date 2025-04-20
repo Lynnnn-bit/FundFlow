@@ -1,21 +1,50 @@
-// jsprojet.js
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.querySelector('form[method="POST"]');
+    const titreInput = document.querySelector('input[name="titre"]');
+    const descriptionInput = document.querySelector('textarea[name="description"]');
     const montantInput = document.querySelector('input[name="montant_cible"]');
     const dureeInput = document.querySelector('input[name="duree"]');
 
     // Create error message elements
-    const montantError = document.createElement('div');
-    montantError.className = 'error-message';
-    montantError.style.color = 'red';
-    montantError.style.marginTop = '5px';
-    montantInput.parentNode.insertBefore(montantError, montantInput.nextSibling);
+    function createErrorElement(input) {
+        const error = document.createElement('div');
+        error.className = 'error-message';
+        error.style.color = 'red';
+        error.style.marginTop = '5px';
+        input.parentNode.insertBefore(error, input.nextSibling);
+        return error;
+    }
 
-    const dureeError = document.createElement('div');
-    dureeError.className = 'error-message';
-    dureeError.style.color = 'red';
-    dureeError.style.marginTop = '5px';
-    dureeInput.parentNode.insertBefore(dureeError, dureeInput.nextSibling);
+    const titreError = createErrorElement(titreInput);
+    const descriptionError = createErrorElement(descriptionInput);
+    const montantError = createErrorElement(montantInput);
+    const dureeError = createErrorElement(dureeInput);
+
+    function validateTitre() {
+        const value = titreInput.value.trim();
+        const isValid = value.length > 0 && value.length <= 20;
+        
+        if (value.length === 0) {
+            titreError.textContent = 'Le titre est obligatoire';
+        } else if (value.length > 20) {
+            titreError.textContent = 'Le titre ne doit pas dépasser 20 caractères';
+        } else {
+            titreError.textContent = '';
+        }
+        return isValid;
+    }
+
+    function validateDescription() {
+        const value = descriptionInput.value.trim();
+        const isValid = value.length > 0;
+        
+        if (value.length === 0) {
+            descriptionError.textContent = 'La description est obligatoire';
+        } else {
+            descriptionError.textContent = '';
+        }
+        return isValid;
+    }
 
     function validateMontant() {
         const value = parseFloat(montantInput.value);
@@ -42,29 +71,39 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Real-time validation
+    titreInput.addEventListener('input', validateTitre);
+    descriptionInput.addEventListener('input', validateDescription);
     montantInput.addEventListener('input', validateMontant);
     dureeInput.addEventListener('input', validateDuree);
 
     // Form submission handling
     form.addEventListener('submit', function(e) {
+        const isTitreValid = validateTitre();
+        const isDescriptionValid = validateDescription();
         const isMontantValid = validateMontant();
         const isDureeValid = validateDuree();
 
-        if (!isMontantValid || !isDureeValid) {
+        if (!isTitreValid || !isDescriptionValid || !isMontantValid || !isDureeValid) {
             e.preventDefault();
             
             // Scroll to first error
-            if (!isMontantValid) {
-                montantInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                montantInput.focus();
-            } else {
-                dureeInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                dureeInput.focus();
+            const firstInvalid = [
+                !isTitreValid && titreInput,
+                !isDescriptionValid && descriptionInput,
+                !isMontantValid && montantInput,
+                !isDureeValid && dureeInput
+            ].find(el => el);
+            
+            if (firstInvalid) {
+                firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstInvalid.focus();
             }
         }
     });
 
     // Initial validation for edit mode
+    if (titreInput.value) validateTitre();
+    if (descriptionInput.value) validateDescription();
     if (montantInput.value) validateMontant();
     if (dureeInput.value) validateDuree();
 });
