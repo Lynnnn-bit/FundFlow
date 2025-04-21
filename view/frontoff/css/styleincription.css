@@ -205,3 +205,12 @@
       font-size: 2rem;
     }
   }
+  .error-border {
+    border: 1px solid red !important;
+}
+
+.error-message {
+    color: red;
+    font-size: 0.8rem;
+    margin-top: 5px;
+}

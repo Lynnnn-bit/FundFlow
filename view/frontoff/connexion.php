@@ -96,12 +96,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <form action="connexion.php" method="POST">
             <div class="form-group">
                 <label for="email">Email</label>
-                <input type="email" id="email" name="email" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" required>
+                <input type="email" id="email" name="email" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
             </div>
             
             <div class="form-group password-toggle">
                 <label for="mdp">Mot de passe</label>
-                <input type="password" id="mdp" name="mdp" required>
+                <input type="password" id="mdp" name="mdp">
                 <i class="fas fa-eye" id="togglePassword"></i>
             </div>
             

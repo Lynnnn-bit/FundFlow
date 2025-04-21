@@ -115,23 +115,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="form-row">
                         <div class="form-group">
                             <label for="nom">Nom *</label>
-                            <input type="text" id="nom" name="nom" value="<?= htmlspecialchars($_POST['nom'] ?? '') ?>" required>
+                            <input type="text" id="nom" name="nom" value="<?= htmlspecialchars($_POST['nom'] ?? '') ?>">
                         </div>
                         
                         <div class="form-group">
                             <label for="prenom">Prénom *</label>
-                            <input type="text" id="prenom" name="prenom" value="<?= htmlspecialchars($_POST['prenom'] ?? '') ?>" required>
+                            <input type="text" id="prenom" name="prenom" value="<?= htmlspecialchars($_POST['prenom'] ?? '') ?>" >
                         </div>
                     </div>
                     
                     <div class="form-group">
                         <label for="email">Email *</label>
-                        <input type="email" id="email" name="email" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" required>
+                        <input type="email" id="email" name="email" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
                     </div>
                     
                     <div class="form-group">
                         <label for="role">Rôle *</label>
-                        <select id="role" name="role" required>
+                        <select id="role" name="role" >
+                            <option value="">Choisir Un Role</option>
                             <option value="consultant" <?= ($_POST['role'] ?? 'consultant') === 'consultant' ? 'selected' : '' ?>>Consultant</option>
                             <option value="investisseur" <?= ($_POST['role'] ?? '') === 'investisseur' ? 'selected' : '' ?>>Investisseur</option>
                             <option value="admin" <?= ($_POST['role'] ?? '') === 'admin' ? 'selected' : '' ?>>Administrateur</option>
@@ -140,13 +141,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     
                     <div class="form-group">
                         <label for="mdp">Mot de passe *</label>
-                        <input type="password" id="mdp" name="mdp" required minlength="8">
+                        <input type="password" id="mdp" name="mdp" >
                         <div class="password-strength" id="passwordStrength">Force: <span id="strengthText">Faible</span></div>
                     </div>
                     
                     <div class="form-group">
                         <label for="confirmation_mdp">Confirmer le mot de passe *</label>
-                        <input type="password" id="confirmation_mdp" name="confirmation_mdp" required minlength="8">
+                        <input type="password" id="confirmation_mdp" name="confirmation_mdp" >
                     </div>
                     
                     <div class="form-group">
@@ -169,64 +170,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 
-   <!-- <script>
-        // Password strength indicator
-        const passwordInput = document.getElementById('mdp');
-        const strengthText = document.getElementById('strengthText');
-        const passwordStrength = document.getElementById('passwordStrength');
-        
-        if (passwordInput && strengthText) {
-            passwordInput.addEventListener('input', function() {
-                const password = this.value;
-                let strength = 0;
-                let text = 'Faible';
-                let className = 'strength-weak';
-                
-                // Check length
-                if (password.length >= 8) strength++;
-                if (password.length >= 12) strength++;
-                
-                // Check for mixed case
-                if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
-                
-                // Check for numbers
-                if (/\d/.test(password)) strength++;
-                
-                // Check for special chars
-                if (/[^a-zA-Z0-9]/.test(password)) strength++;
-                
-                // Determine strength level
-                if (strength > 3) {
-                    text = 'Fort';
-                    className = 'strength-strong';
-                } else if (strength > 1) {
-                    text = 'Moyen';
-                    className = 'strength-medium';
-                }
-                
-                // Update display
-                strengthText.textContent = text;
-                strengthText.className = className;
-            });
-        }
-        
-        // Form validation
-        const form = document.getElementById('registrationForm');
-        if (form) {
-            form.addEventListener('submit', function(e) {
-                const password = document.getElementById('mdp').value;
-                const confirmPassword = document.getElementById('confirmation_mdp').value;
-                
-                if (password !== confirmPassword) {
-                    e.preventDefault();
-                    alert('Les mots de passe ne correspondent pas');
-                    return false;
-                }
-                
-                return true;
-            });
-        }
-    </script>-->
+   
     <script src="js/jsincri.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

@@ -75,7 +75,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
         $error_message = $e->getMessage();
     }
 }
-
+// Validation du téléphone (vide ou 8 chiffres)
+if (!empty($tel) && !preg_match('/^\d{8}$/', $tel)) {
+    $errors[] = "Le téléphone doit contenir exactement 8 chiffres";
+}
 // Display success message from session
 if (isset($_SESSION['success'])) {
     $success_message = $_SESSION['success'];
@@ -145,33 +148,33 @@ if (isset($_SESSION['success'])) {
                     <div class="form-group col-md-6">
                         <label class="form-label"><i class="fas fa-user" placeholder="Tapez votre nom"></i> Nom *</label>
                         <input type="text" class="form-control" name="nom" 
-                               value="<?= $editMode ? htmlspecialchars($userToEdit['nom']) : '' ?>" required>
+                               value="<?= $editMode ? htmlspecialchars($userToEdit['nom']) : '' ?>" >
                     </div>
                     <div class="form-group col-md-6">
                         <label class="form-label" ><i class="fas fa-user"></i> Prénom *</label>
                         <input type="text" class="form-control" name="prenom" 
-                               value="<?= $editMode ? htmlspecialchars($userToEdit['prenom']) : '' ?>" required>
+                               value="<?= $editMode ? htmlspecialchars($userToEdit['prenom']) : '' ?>" >
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label" ><i class="fas fa-envelope" ></i> Email *</label>
                     <input type="email" class="form-control" name="email" 
-                           value="<?= $editMode ? htmlspecialchars($userToEdit['email']) : '' ?>" required>
+                           value="<?= $editMode ? htmlspecialchars($userToEdit['email']) : '' ?>">
                 </div>
 
                 <?php if (!$editMode): ?>
                 <div class="form-group">
                     <label class="form-label" ><i class="fas fa-lock"></i> Mot de passe *</label>
-                    <input type="password" class="form-control" name="mdp" required>
+                    <input type="password" class="form-control" name="mdp" >
                 </div>
                 <?php endif; ?>
 
                 <div class="form-row">
                     <div class="form-group col-md-6">
                         <label class="form-label"><i class="fas fa-user-tag"></i> Rôle *</label>
-                        <select class="form-select" name="role" required>
-                            <!--<option value="">Tapez votre Role</option>-->
+                        <select class="form-select" name="role" >
+                            <option value="">Tapez votre Role</option>
                             <option value="entrepreneur" <?= ($editMode && $userToEdit['role'] == 'entrepreneur') ? 'selected' : '' ?>>Entrepreneur</option>
                             <option value="investisseur" <?= ($editMode && $userToEdit['role'] == 'investisseur') ? 'selected' : '' ?>>Investisseur</option>
                             <option value="consultant" <?= ($editMode && $userToEdit['role'] == 'consultant') ? 'selected' : '' ?>>Consultant</option>
@@ -180,8 +183,8 @@ if (isset($_SESSION['success'])) {
                     </div>
                     <div class="form-group col-md-6">
                         <label class="form-label"><i class="fas fa-info-circle"></i> Statut *</label>
-                        <select class="form-select" name="status" required>
-                            <!--<option value="">Tapez votre Status</option>-->
+                        <select class="form-select" name="status" >
+                            <option value="">Tapez votre Status</option>
                             <option value="actif" <?= ($editMode && $userToEdit['status'] == 'actif') ? 'selected' : '' ?>>Actif</option>
                             <option value="inactif" <?= ($editMode && $userToEdit['status'] == 'inactif') ? 'selected' : '' ?>>Inactif</option>
                             <option value="suspendu" <?= ($editMode && $userToEdit['status'] == 'suspendu') ? 'selected' : '' ?>>Suspendu</option>
@@ -197,8 +200,9 @@ if (isset($_SESSION['success'])) {
 
                 <div class="form-group">
                     <label class="form-label"><i class="fas fa-phone"></i> Téléphone</label>
-                    <input type="text" class="form-control" name="tel" 
+                    <input type="tel" class="form-control" name="tel" id="tel"
                            value="<?= $editMode ? htmlspecialchars($userToEdit['tel']) : '' ?>">
+                               
                 </div>
 
                 <div class="form-actions">
