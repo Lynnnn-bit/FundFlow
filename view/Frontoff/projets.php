@@ -39,6 +39,7 @@ $projects = $controller->getAllProjects();
 $categories = $controller->getCategories();
 
 // Process form submission
+// Process form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
     try {
         $id_projet = $_POST['id_projet'] ?? null;

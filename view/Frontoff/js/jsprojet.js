@@ -22,12 +22,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function validateTitre() {
         const value = titreInput.value.trim();
+<<<<<<< HEAD
         const isValid = value.length > 0 && value.length <= 100;
         
         if (value.length === 0) {
             titreError.textContent = 'Le titre est obligatoire';
         } else if (value.length > 100) {
             titreError.textContent = 'Le titre ne doit pas dépasser 100 caractères';
+=======
+        const isValid = value.length > 0 && value.length <= 20;
+        
+        if (value.length === 0) {
+            titreError.textContent = 'Le titre est obligatoire';
+        } else if (value.length > 20) {
+            titreError.textContent = 'Le titre ne doit pas dépasser 20 caractères';
+>>>>>>> d0210638b57fd33a4db9e98e7a8c3f062c8beab9
         } else {
             titreError.textContent = '';
         }
@@ -36,12 +45,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function validateDescription() {
         const value = descriptionInput.value.trim();
+<<<<<<< HEAD
         const isValid = value.length > 0 && value.length <= 2000;
         
         if (value.length === 0) {
             descriptionError.textContent = 'La description est obligatoire';
         } else if (value.length > 2000) {
             descriptionError.textContent = 'La description ne doit pas dépasser 2000 caractères';
+=======
+        const isValid = value.length > 0;
+        
+        if (value.length === 0) {
+            descriptionError.textContent = 'La description est obligatoire';
+>>>>>>> d0210638b57fd33a4db9e98e7a8c3f062c8beab9
         } else {
             descriptionError.textContent = '';
         }
