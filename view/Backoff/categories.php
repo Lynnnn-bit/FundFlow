@@ -11,6 +11,45 @@ if (session_status() === PHP_SESSION_NONE) {
 
 $controller = new CategorieController();
 
+// Fetch all categories
+$categories = $controller->getAllCategories();
+
+// Handle PDF export for all categories
+if (isset($_GET['export_pdf'])) {
+    require_once __DIR__ . '/../../libs/fpdf/fpdf.php'; // Ensure FPDF is included
+
+    $pdf = new FPDF();
+    $pdf->AddPage();
+    $pdf->SetFont('Arial', 'B', 16);
+
+    // Title
+    $pdf->Cell(0, 10, 'Liste des Catégories', 0, 1, 'C');
+    $pdf->Ln(10);
+
+    // Table Header
+    $pdf->SetFont('Arial', 'B', 12);
+    $pdf->Cell(30, 10, 'ID', 1);
+    $pdf->Cell(50, 10, 'Nom', 1);
+    $pdf->Cell(80, 10, 'Description', 1);
+    $pdf->Cell(30, 10, 'Projets', 1);
+    $pdf->Ln();
+
+    // Table Data
+    $pdf->SetFont('Arial', '', 12);
+    foreach ($categories as $categorie) {
+        $projectCount = $controller->countProjectsInCategory($categorie['id_categorie']);
+        $pdf->Cell(30, 10, $categorie['id_categorie'], 1);
+        $pdf->Cell(50, 10, substr($categorie['nom_categorie'], 0, 20), 1);
+        $pdf->Cell(80, 10, substr($categorie['description'] ?? 'N/A', 0, 40), 1);
+        $pdf->Cell(30, 10, $projectCount, 1);
+        $pdf->Ln();
+    }
+
+    // Output the PDF
+    $pdf->Output('D', 'Liste_Categories.pdf');
+    exit;
+}
+
 // Handle delete action
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['delete_id'])) {
     try {
@@ -25,6 +64,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['delete_id'])) {
     exit();
 }
 
+// Capture the search term from the request
+$searchTerm = $_GET['search'] ?? null;
+
+// Filter categories based on the search term
+if ($searchTerm) {
+    $categories = array_filter($categories, function ($category) use ($searchTerm) {
+        return stripos($category['nom_categorie'], $searchTerm) !== false ||
+               stripos($category['description'], $searchTerm) !== false;
+    });
+}
+
+// Capture the sorting order for ID and project count
+$idSortOrder = $_GET['id_sort'] ?? null;
+$projectCountSortOrder = $_GET['project_count_sort'] ?? null;
+
+// Sort categories based on the sorting order
+if ($idSortOrder === 'asc') {
+    usort($categories, fn($a, $b) => $a['id_categorie'] <=> $b['id_categorie']);
+} elseif ($idSortOrder === 'desc') {
+    usort($categories, fn($a, $b) => $b['id_categorie'] <=> $a['id_categorie']);
+} elseif ($projectCountSortOrder === 'asc') {
+    usort($categories, fn($a, $b) => $controller->countProjectsInCategory($a['id_categorie']) <=> $controller->countProjectsInCategory($b['id_categorie']));
+} elseif ($projectCountSortOrder === 'desc') {
+    usort($categories, fn($a, $b) => $controller->countProjectsInCategory($b['id_categorie']) <=> $controller->countProjectsInCategory($a['id_categorie']));
+}
+
 // Handle edit form display
 $editMode = false;
 $categorieToEdit = null;
@@ -34,36 +99,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['edit_id'])) {
     $categorieToEdit = $controller->getCategorieById($editId);
 }
 
-// Fetch all categories
-$categories = $controller->getAllCategories();
-
 // Process form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
     try {
-        $id_categorie = (int)$_POST['id_categorie'];
-        $nom_categorie = trim($_POST['nom_categorie']);
-        $description = trim($_POST['description']);
-        
+        // Retrieve form inputs
+        $nom_categorie = trim($_POST['nom_categorie'] ?? '');
+        $description = trim($_POST['description'] ?? '');
+
         // Validate inputs
-        if ($id_categorie <= 0) {
-            throw new Exception("L'ID de catégorie doit être un nombre positif!");
-        }
         if (empty($nom_categorie)) {
             throw new Exception("Le nom de la catégorie est obligatoire!");
         }
-        
-        $categorie = new Categorie($id_categorie, $nom_categorie, $description);
-        
-        if (isset($_POST['is_edit']) && $_POST['is_edit'] === 'true') {
+
+        // Create a new category object
+        $categorie = new Categorie(
+            $editMode ? $categorieToEdit['id_categorie'] : null, // Use the ID if editing
+            $nom_categorie,
+            $description
+        );
+
+        // Check if it's an edit or a new category
+        if ($editMode) {
             if ($controller->updateCategorie($categorie)) {
                 $_SESSION['success'] = "Catégorie mise à jour avec succès!";
             }
         } else {
             if ($controller->createCategorie($categorie)) {
-                $_SESSION['success'] = "Catégorie créée avec succès! (ID: $id_categorie)";
+                $_SESSION['success'] = "Catégorie créée avec succès!";
             }
         }
-        
+
+        // Redirect to the categories page
         header("Location: categories.php");
         exit();
     } catch (Exception $e) {
@@ -89,22 +155,6 @@ if (isset($_SESSION['error'])) {
     <title>FundFlow - Gestion des Catégories</title>
     <link rel="stylesheet" href="../Frontoff/css/stylecatego.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!--<style>
-        .badge-count {
-            background-color: #6c757d;
-            color: white;
-            border-radius: 10px;
-            padding: 2px 6px;
-            font-size: 12px;
-        }
-        .form-container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-        .table-container {
-            margin-top: 30px;
-        }
-    </style>-->
 </head>
 <body>
     <header class="navbar">
@@ -129,6 +179,34 @@ if (isset($_SESSION['error'])) {
             </div>
         </div>
 
+        <!-- Search Bar and Sorting Buttons -->
+        <div class="search-container" style="text-align: center; margin-bottom: 1.5rem;">
+            <form method="GET" class="search-box" style="display: inline-block;">
+                <input type="text" name="search" placeholder="Rechercher une catégorie..." value="<?= htmlspecialchars($searchTerm) ?>">
+                <button type="submit"><i class="fas fa-search"></i> Rechercher</button>
+            </form>
+            <div class="sort-buttons" style="display: inline-block;">
+                <a href="?id_sort=asc" class="btn btn-primary <?= $idSortOrder === 'asc' ? 'active' : '' ?>">
+                    <i class="fas fa-sort-numeric-up"></i> Trier par ID croissant
+                </a>
+                <a href="?id_sort=desc" class="btn btn-primary <?= $idSortOrder === 'desc' ? 'active' : '' ?>">
+                    <i class="fas fa-sort-numeric-down"></i> Trier par ID décroissant
+                </a>
+                <a href="?project_count_sort=asc" class="btn btn-primary <?= $projectCountSortOrder === 'asc' ? 'active' : '' ?>">
+                    <i class="fas fa-sort-amount-up"></i> Trier par nombre de projets croissant
+                </a>
+                <a href="?project_count_sort=desc" class="btn btn-primary <?= $projectCountSortOrder === 'desc' ? 'active' : '' ?>">
+                    <i class="fas fa-sort-amount-down"></i> Trier par nombre de projets décroissant
+                </a>
+            </div>
+            <!-- PDF Export Button -->
+            <div style="margin-top: 1rem;">
+                <a href="?export_pdf=true" class="btn btn-primary">
+                    <i class="fas fa-file-pdf"></i> Exporter en PDF
+                </a>
+            </div>
+        </div>
+
         <div class="form-container">
             <h2 class="text-center mb-4"><?= $editMode ? 'Modifier' : 'Nouvelle' ?> Catégorie</h2>
             
@@ -141,20 +219,7 @@ if (isset($_SESSION['error'])) {
             <?php endif; ?>
 
             <form method="POST">
-                <?php if ($editMode): ?>
-                    <input type="hidden" name="id_categorie" value="<?= $categorieToEdit['id_categorie'] ?>">
-                    <input type="hidden" name="is_edit" value="true">
-                <?php else: ?>
-                    <div class="form-group">
-                        <div id="idCategorieError" class="error-message" style="color: red; display: none;"></div>
-                        <label class="form-label"><i class="fas fa-id-card"></i> ID Catégorie *</label>
-                        <input type="number" class="form-control" name="id_categorie" 
-                               min="1" required>
-                               
-                        <!--<small class="form-text text-muted">Entrez un nombre unique positif</small>-->
-                    </div>
-                    
-                <?php endif; ?>
+                <input type="hidden" name="is_edit" value="<?= $editMode ? 'true' : 'false' ?>">
                 
                 <div class="form-group">
                     <label class="form-label"><i class="fas fa-tag"></i> Nom de la catégorie *</label>

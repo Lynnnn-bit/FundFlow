@@ -1,0 +1,210 @@
+/* BODY */
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+    color: white;
+    min-height: 100vh;
+}
+
+/* NAVBAR */
+.navbar {
+    background-color: rgba(15, 32, 39, 0.9);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.3);
+}
+
+.logo-container .brand-name {
+    font-size: 1.6rem;
+    font-weight: bold;
+    background: linear-gradient(to right, #00d09c, #1abc9c);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.navbar a {
+    color: #cbd5e1;
+    text-decoration: none;
+    margin-left: 20px;
+    font-size: 1rem;
+}
+
+.navbar a:hover {
+    color: #00d09c;
+}
+
+/* HERO SECTION */
+.hero-section {
+    text-align: center;
+    padding: 3rem 1rem;
+}
+
+.hero-section h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    color: white;
+}
+
+.hero-section p {
+    color: #cbd5e1;
+}
+
+/* FILTERS */
+.filters {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    flex-wrap: wrap;
+}
+
+.search-box {
+    display: flex;
+    flex: 1;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.search-box input {
+    flex: 1;
+    padding: 0.8rem;
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 1rem;
+}
+
+.search-box button {
+    background: linear-gradient(to right, #00d09c, #1abc9c);
+    border: none;
+    color: white;
+    padding: 0 1rem;
+    cursor: pointer;
+}
+
+.category-filter {
+    padding: 0.8rem 1rem;
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: white;
+}
+
+/* PROJECT GRID */
+.projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+    max-width: 1400px;
+    margin: 0 auto 3rem;
+    padding: 0 1rem;
+}
+
+/* PROJECT CARD */
+.project-card {
+    background: rgba(30, 60, 82, 0.6);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: transform 0.3s;
+    display: flex;
+    flex-direction: column;
+}
+
+.project-card:hover {
+    transform: translateY(-5px);
+}
+
+.project-image {
+    height: 180px;
+    background-size: cover;
+    background-position: center;
+}
+
+.project-content {
+    padding: 1.2rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.project-content h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    color: #00d09c;
+}
+
+.project-description {
+    font-size: 0.9rem;
+    color: #d1d5db;
+    margin-bottom: 1rem;
+}
+
+.project-meta {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    color: #cbd5e1;
+}
+
+.progress-bar {
+    height: 8px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+}
+
+.progress {
+    height: 100%;
+    background: linear-gradient(to right, #00d09c, #1abc9c);
+}
+
+/* FOOTER CARD */
+.project-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.category-badge {
+    display: inline-block;
+    background-color: #007bff; /* Set a visible background color */
+    color: #ffffff; /* Set text color to white for contrast */
+    padding: 5px 10px; /* Add padding for better visibility */
+    border-radius: 12px; /* Add rounded corners */
+    font-size: 0.875em; /* Adjust font size */
+    font-weight: bold; /* Make the text bold */
+    text-align: center;
+}
+
+/* Add hover effect for better user experience */
+.category-badge:hover {
+    background-color: #0056b3; /* Darker shade on hover */
+    cursor: pointer;
+}
+
+.view-btn {
+    background: linear-gradient(to right, #00d09c, #1abc9c);
+    color: white;
+    padding: 0.4rem 1rem;
+    border-radius: 10px;
+    text-decoration: none;    
+    font-size: 0.85rem;
+    transition: 0.3s;
+}
+
+.view-btn:hover {
+    background: linear-gradient(to right, #1abc9c, #3498db);
+}

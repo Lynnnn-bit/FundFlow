@@ -4,6 +4,7 @@ ini_set('display_errors', 1);
 
 require_once __DIR__ . '/../../config.php';
 require_once __DIR__ . '/../../controlle/financecontroller.php';
+require_once __DIR__ . '/../../lib/fpdf.php'; // Include FPDF library
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -37,6 +38,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['edit_id'])) {
 // Fetch all projects and existing demands
 $projects = $controller->getProjects(1);
 $existingDemands = $controller->getAllFinanceRequests();
+
+// Capture the sorting order for ID and project count
+$idSortOrder = $_GET['id_sort'] ?? null;
+$projectCountSortOrder = $_GET['project_count_sort'] ?? null;
+
+// Sort the financing requests based on the sorting order
+if ($idSortOrder === 'asc') {
+    usort($existingDemands, fn($a, $b) => $a['id_demande'] <=> $b['id_demande']);
+} elseif ($idSortOrder === 'desc') {
+    usort($existingDemands, fn($a, $b) => $b['id_demande'] <=> $a['id_demande']);
+} elseif ($projectCountSortOrder === 'asc') {
+    usort($existingDemands, fn($a, $b) => $a['nb_reponses'] <=> $b['nb_reponses']);
+} elseif ($projectCountSortOrder === 'desc') {
+    usort($existingDemands, fn($a, $b) => $b['nb_reponses'] <=> $a['nb_reponses']);
+}
 
 // Generate a new unique ID
 $newId = 1;
@@ -78,6 +94,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
     }
 }
 
+// Handle PDF export for all financing requests
+if (isset($_GET['export_pdf'])) {
+    $pdf = new FPDF();
+    $pdf->AddPage();
+    $pdf->SetFont('Arial', 'B', 16);
+
+    // Title
+    $pdf->Cell(0, 10, 'Liste des Demandes de Financement', 0, 1, 'C');
+    $pdf->Ln(10);
+
+    // Table Header
+    $pdf->SetFont('Arial', 'B', 12);
+    $pdf->Cell(30, 10, 'ID Demande', 1);
+    $pdf->Cell(50, 10, 'Projet', 1);
+    $pdf->Cell(30, 10, 'Montant', 1);
+    $pdf->Cell(20, 10, 'Durée', 1);
+    $pdf->Cell(30, 10, 'Statut', 1);
+    $pdf->Cell(30, 10, 'Réponses', 1);
+    $pdf->Ln();
+
+    // Table Data
+    $pdf->SetFont('Arial', '', 12);
+    foreach ($existingDemands as $demand) {
+        $project = $controller->getProjectById($demand['id_project']);
+        $projectTitle = $project ? $project['titre'] : 'Projet inconnu';
+
+        $pdf->Cell(30, 10, $demand['id_demande'], 1);
+        $pdf->Cell(50, 10, substr($projectTitle, 0, 20), 1);
+        $pdf->Cell(30, 10, number_format($demand['montant_demandee'], 2) . ' €', 1);
+        $pdf->Cell(20, 10, $demand['duree'] . ' mois', 1);
+        $pdf->Cell(30, 10, ucfirst($demand['status']), 1);
+        $pdf->Cell(30, 10, $demand['nb_reponses'], 1);
+        $pdf->Ln();
+    }
+
+    // Output the PDF
+    $pdf->Output('D', 'Demandes_Financement.pdf');
+    exit;
+}
+
 // Display success message from session
 if (isset($_SESSION['success'])) {
     $success_message = $_SESSION['success'];
@@ -92,6 +148,7 @@ if (isset($_SESSION['success'])) {
     <title>FundFlow - Gestion des Financements</title>
     <link rel="stylesheet" href="css/stylefinan.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 </head>
 <body>
@@ -123,6 +180,17 @@ if (isset($_SESSION['success'])) {
                     <div class="stat-label">Total demandé</div>
                 </div>
             </div>
+        </div>
+
+        <!-- Search Bar and Export Button -->
+        <div class="search-container" style="text-align: center; margin-bottom: 1.5rem;">
+            <form method="GET" class="search-box" style="display: inline-block;">
+                <input type="text" name="search" placeholder="Rechercher une demande..." value="<?= htmlspecialchars($_GET['search'] ?? '') ?>">
+                <button type="submit"><i class="fas fa-search"></i> Rechercher</button>
+            </form>
+            <a href="?export_pdf=true" class="btn btn-primary" style="margin-left: 10px;">
+                <i class="fas fa-file-pdf"></i> Exporter en PDF
+            </a>
         </div>
 
         <div class="finance-form-container">

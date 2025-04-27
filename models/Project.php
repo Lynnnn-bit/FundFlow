@@ -3,6 +3,7 @@ class Project
 {
     private $id_projet;
     private $id_utilisateur;
+    private $user_id;
     private $titre;
     private $description;
     private $montant_cible;
@@ -13,6 +14,7 @@ class Project
     public function __construct($id_utilisateur, $titre, $description, $montant_cible, $duree, $id_categorie = null, $status = 'en_attente', $id_projet = null)
     {
         $this->id_utilisateur = $id_utilisateur;
+        $this->user_id = $id_utilisateur;
         $this->titre = $titre;
         $this->description = $description;
         $this->montant_cible = $montant_cible;
@@ -25,6 +27,7 @@ class Project
     // Getters
     public function getIdProjet() { return $this->id_projet; }
     public function getIdUtilisateur() { return $this->id_utilisateur; }
+    public function getUserId() { return $this->user_id; }
     public function getTitre() { return $this->titre; }
     public function getDescription() { return $this->description; }
     public function getMontantCible() { return $this->montant_cible; }
