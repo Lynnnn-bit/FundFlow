@@ -120,17 +120,36 @@ class PartenaireController {
         }
     }
     
-    public function getUnapprovedPartenaires() {
+    public function getUnapprovedPartenaires($sortOrder = 'created_at DESC') {
         try {
-            $stmt = $this->db->query("
+            $query = "
                 SELECT * FROM fiche_partenaire 
-                WHERE is_approved = 0
+                WHERE is_approved = 0 
                 AND is_deleted = 0
-                ORDER BY created_at DESC
-            ");
+                ORDER BY $sortOrder
+            ";
+
+            $stmt = $this->db->prepare($query);
+            $stmt->execute();
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             error_log("Error fetching unapproved partners: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    public function getUnapprovedPartenairesSortedByMontant($order = 'ASC') {
+        try {
+            $stmt = $this->db->prepare("
+                SELECT * FROM fiche_partenaire 
+                WHERE is_approved = 0 
+                AND is_deleted = 0 
+                ORDER BY montant $order
+            ");
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Error fetching unapproved partners sorted by montant: " . $e->getMessage());
             return [];
         }
     }
@@ -183,7 +202,7 @@ class PartenaireController {
                 SET nom = ?, email = ?, telephone = ?, montant = ?, description = ?
                 WHERE id_partenaire = ?
             ");
-            return $stmt->execute([
+            $success = $stmt->execute([
                 $data['nom'],
                 $data['email'],
                 $data['telephone'],
@@ -191,6 +210,7 @@ class PartenaireController {
                 $data['description'],
                 $id_partenaire
             ]);
+            return $success && $stmt->rowCount() > 0; // Ensure rows were affected
         } catch (PDOException $e) {
             error_log("Error updating partner: " . $e->getMessage());
             return false;
@@ -207,8 +227,109 @@ class PartenaireController {
         }
     }
     public function getPartnerContracts($id_partenaire) {
-        $contratController = new ContratController();
-        return $contratController->getContractsByPartner($id_partenaire);
+        try {
+            $contratController = new ContratController();
+            return $contratController->getContractsByPartner($id_partenaire);
+        } catch (Exception $e) {
+            error_log("Error fetching contracts for partner: " . $e->getMessage());
+            return [];
+        }
+    }
+    public function addContractForPartner($id_partenaire, $date_deb, $date_fin, $terms, $status) {
+        try {
+            $contratController = new ContratController();
+            return $contratController->createContract($id_partenaire, $date_deb, $date_fin, $terms, $status);
+        } catch (PDOException $e) {
+            error_log("Contract creation failed: " . $e->getMessage());
+            return false;
+        }
     }
     
+    public function updatePartnerContract($id_contrat, $id_partenaire, $date_deb, $date_fin, $terms, $status) {
+        try {
+            $contratController = new ContratController();
+            // Verify contract belongs to partner
+            $contract = $contratController->getContract($id_contrat, $id_partenaire);
+            if (!$contract) {
+                throw new PDOException("Contract not found or access denied");
+            }
+            return $contratController->updateContract($id_contrat, $date_deb, $date_fin, $terms, $status);
+        } catch (PDOException $e) {
+            error_log("Contract update failed: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    public function deletePartnerContract($id_contrat, $id_partenaire) {
+        try {
+            $contratController = new ContratController();
+            // Verify contract belongs to partner
+            $contract = $contratController->getContract($id_contrat, $id_partenaire);
+            if (!$contract) {
+                throw new PDOException("Contract not found or access denied");
+            }
+            return $contratController->deleteContract($id_contrat);
+        } catch (PDOException $e) {
+            error_log("Contract deletion failed: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    public function addContract($contractData) {
+        try {
+            $contratController = new ContratController();
+            return $contratController->createContract(
+                $contractData['id_partenaire'],
+                $contractData['date_deb'],
+                $contractData['date_fin'],
+                $contractData['terms'],
+                'en attente'
+            );
+        } catch (Exception $e) {
+            error_log("Error adding contract: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function submitContractForApproval($contractData) {
+        try {
+            $contratController = new ContratController();
+            return $contratController->createContract(
+                $contractData['id_partenaire'],
+                $contractData['date_deb'],
+                $contractData['date_fin'],
+                $contractData['terms'],
+                'en attente'
+            );
+        } catch (Exception $e) {
+            error_log("Error submitting contract for approval: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function deleteContract($id_contrat) {
+        try {
+            $contratController = new ContratController();
+            return $contratController->deleteContract($id_contrat);
+        } catch (Exception $e) {
+            error_log("Error deleting contract: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function updateContract($contractData) {
+        try {
+            $contratController = new ContratController();
+            return $contratController->updateContract(
+                $contractData['id_contrat'],
+                $contractData['date_deb'],
+                $contractData['date_fin'],
+                $contractData['terms'],
+                'en attente' // Keep the status as 'en attente' after update
+            );
+        } catch (Exception $e) {
+            error_log("Error updating contract in PartenaireController: " . $e->getMessage());
+            return false;
+        }
+    }
 }

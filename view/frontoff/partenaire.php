@@ -1,4 +1,6 @@
 <?php
+ob_start(); // Start output buffering to prevent premature output
+
 require_once __DIR__ . '/../../config.php';
 require_once __DIR__ . '/../../controlle/PartenaireController.php';
 
@@ -16,9 +18,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_POST['montant'],
             $_POST['description']
         );
-        
+
         $result = $partenaireController->createPartenaire($partenaire);
-        
+
         if ($result) {
             $_SESSION['current_partner'] = $_POST['email'];
             header("Location: partner_dashboard.php");
@@ -26,8 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $_SESSION['error'] = "Erreur lors de la création";
         }
-    }
-    elseif (isset($_POST['update_request'])) {
+    } elseif (isset($_POST['update_request'])) {
         $data = [
             'nom' => $_POST['nom'],
             'email' => $_POST['email'],
@@ -35,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'montant' => $_POST['montant'],
             'description' => $_POST['description']
         ];
-        
+
         if ($partenaireController->updatePartenaire($_POST['id_partenaire'], $data)) {
             $_SESSION['success'] = "Demande mise à jour avec succès!";
             header("Location: partner_dashboard.php");
@@ -43,6 +44,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $_SESSION['error'] = "Erreur lors de la mise à jour";
         }
+    } elseif (isset($_POST['add_contract'])) {
+        $result = $partenaireController->addContractForPartner(
+            $_POST['id_partenaire'],
+            $_POST['date_deb'],
+            $_POST['date_fin'],
+            $_POST['terms'],
+            'en attente'
+        );
+
+        if ($result) {
+            $_SESSION['success'] = "Contrat ajouté avec succès!";
+        } else {
+            $_SESSION['error'] = "Erreur lors de l'ajout du contrat";
+        }
+        header("Location: partenaire.php");
+        exit();
+    } elseif (isset($_POST['update_contract'])) {
+        $result = $partenaireController->updatePartnerContract(
+            $_POST['id_contrat'],
+            $_POST['id_partenaire'],
+            $_POST['date_deb'],
+            $_POST['date_fin'],
+            $_POST['terms'],
+            $_POST['status']
+        );
+
+        if ($result) {
+            $_SESSION['success'] = "Contrat mis à jour avec succès!";
+        } else {
+            $_SESSION['error'] = "Erreur lors de la mise à jour du contrat";
+        }
+        header("Location: partner_dashboard.php");
+        exit();
+    } elseif (isset($_POST['delete_contract'])) {
+        $result = $partenaireController->deletePartnerContract(
+            $_POST['id_contrat'],
+            $_POST['id_partenaire']
+        );
+
+        if ($result) {
+            $_SESSION['success'] = "Contrat supprimé avec succès!";
+        } else {
+            $_SESSION['error'] = "Erreur lors de la suppression du contrat";
+        }
+        header("Location: partenaire.php");
+        exit();
     }
 }
 
@@ -51,6 +98,7 @@ if (isset($_GET['view_request']) && isset($_GET['email'])) {
     $partner = $partenaireController->getPartenaireByEmail($_GET['email']);
     if ($partner && !$partner['is_approved']) {
         $_SESSION['current_partner'] = $partner['email'];
+        $_SESSION['current_partner_id'] = $partner['id_partenaire'];
         header("Location: partner_dashboard.php");
         exit();
     } else {
@@ -58,6 +106,12 @@ if (isset($_GET['view_request']) && isset($_GET['email'])) {
         header("Location: partenaire.php");
         exit();
     }
+}
+
+// Get partner's contracts
+$contracts = [];
+if (isset($_SESSION['current_partner_id'])) {
+    $contracts = $partenaireController->getPartnerContracts($_SESSION['current_partner_id']);
 }
 
 // Display messages
@@ -173,7 +227,6 @@ unset($_SESSION['success'], $_SESSION['error']);
         }
 
         .form-label {
-            display: block;
             margin-bottom: 0.6rem;
             font-weight: 500;
             color: #cbd5e1;
@@ -418,8 +471,13 @@ unset($_SESSION['success'], $_SESSION['error']);
                 </form>
             </div>
         </div>
-    </div>
 
+        <div class="card mb-4">
+            <div class="card-body">
+                <h3>Proposer un Contrat</h3>
+                <form method="POST">
+                    <input type="hidden" name="id_partenaire" value="<?= $_SESSION['current_partner_id'] ?? '' ?>">
+                    <div class="mb-3">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -547,3 +605,6 @@ unset($_SESSION['success'], $_SESSION['error']);
     </script>
 </body>
 </html>
+<?php
+ob_end_flush(); // Flush the output buffer
+?>

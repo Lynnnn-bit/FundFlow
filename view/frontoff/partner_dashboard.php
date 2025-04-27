@@ -30,22 +30,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'montant' => $_POST['montant'],
             'description' => $_POST['description']
         ];
-        
-        // Update partner info
+
         if ($partenaireController->updatePartenaire($partner['id_partenaire'], $data)) {
-            // Refresh partner data after update
-            $partner = $partenaireController->getPartenaireByEmail($_POST['email']);
-            $_SESSION['current_partner'] = $_POST['email']; // Update session email if changed
+            $partner = $partenaireController->getPartenaireByEmail($data['email']);
+            $_SESSION['current_partner'] = $partner['email'];
+            $_SESSION['partner_data'] = $partner;
             $_SESSION['success'] = "Demande mise à jour avec succès!";
         } else {
             $_SESSION['error'] = "Erreur lors de la mise à jour";
         }
-        
-        // Redirect to prevent form resubmission
+
         header("Location: partner_dashboard.php");
         exit();
-    }
-    elseif (isset($_POST['cancel'])) {
+    } elseif (isset($_POST['cancel'])) {
         if ($partenaireController->deletePartenaire($partner['id_partenaire'])) {
             unset($_SESSION['current_partner']);
             $_SESSION['success'] = "Demande annulée avec succès";
@@ -54,21 +51,85 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $_SESSION['error'] = "Erreur lors de l'annulation";
         }
+    } elseif (isset($_POST['add_contract'])) {
+        $contractData = [
+            'id_partenaire' => $partner['id_partenaire'],
+            'date_deb' => $_POST['date_deb'],
+            'date_fin' => $_POST['date_fin'],
+            'terms' => $_POST['terms']
+        ];
+
+        // Validate input
+        if (empty($contractData['id_partenaire']) || empty($contractData['date_deb']) || empty($contractData['date_fin']) || empty($contractData['terms'])) {
+            $_SESSION['error'] = "Tous les champs sont obligatoires.";
+        } elseif ($contractData['date_deb'] > $contractData['date_fin']) {
+            $_SESSION['error'] = "La date de début ne peut pas être après la date de fin.";
+        } else {
+            if ($partenaireController->submitContractForApproval($contractData)) {
+                $_SESSION['success'] = "Contrat soumis pour approbation!";
+            } else {
+                $_SESSION['error'] = "Erreur lors de la soumission du contrat.";
+            }
+        }
+
+        header("Location: partner_dashboard.php");
+        exit();
+    } elseif (isset($_POST['delete_contract'])) {
+        $contractId = $_POST['id_contrat'];
+
+        if ($partenaireController->deleteContract($contractId)) {
+            $_SESSION['success'] = "Contrat supprimé avec succès!";
+        } else {
+            $_SESSION['error'] = "Erreur lors de la suppression du contrat";
+        }
+
+        header("Location: partner_dashboard.php");
+        exit();
+    } elseif (isset($_POST['update_contract'])) {
+        $contractData = [
+            'id_contrat' => $_POST['id_contrat'],
+            'date_deb' => $_POST['date_deb'],
+            'date_fin' => $_POST['date_fin'],
+            'terms' => $_POST['terms']
+        ];
+
+        // Validate input
+        if (empty($contractData['id_contrat']) || empty($contractData['date_deb']) || empty($contractData['date_fin']) || empty($contractData['terms'])) {
+            $_SESSION['error'] = "Tous les champs sont obligatoires.";
+        } elseif ($contractData['date_deb'] > $contractData['date_fin']) {
+            $_SESSION['error'] = "La date de début ne peut pas être après la date de fin.";
+        } else {
+            if ($partenaireController->updateContract($contractData)) {
+                $_SESSION['success'] = "Contrat mis à jour avec succès!";
+            } else {
+                $_SESSION['error'] = "Erreur lors de la mise à jour du contrat.";
+            }
+        }
+
+        header("Location: partner_dashboard.php");
+        exit();
     }
 }
+
+// Get partner's contracts
+$contracts = $partenaireController->getPartnerContracts($partner['id_partenaire']);
 
 // Display messages
 $success_message = $_SESSION['success'] ?? null;
 $error_message = $_SESSION['error'] ?? null;
 unset($_SESSION['success'], $_SESSION['error']);
 ?>
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Espace Partenaire - FundFlow</title>
+    <!-- Dans le <head> -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Avant la fermeture du </body> -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -194,7 +255,6 @@ unset($_SESSION['success'], $_SESSION['error']);
         }
 
         .form-label {
-            display: block;
             margin-bottom: 0.6rem;
             font-weight: 500;
             color: #cbd5e1;
@@ -230,11 +290,210 @@ unset($_SESSION['success'], $_SESSION['error']);
             .main-container {
                 padding: 1rem;
             }
-            
+
             .card {
                 padding: 1.5rem;
             }
         }
+        /* Ajoutez ceci dans votre balise <style> */
+.modal-content {
+    background-color: rgba(30, 41, 59, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-backdrop {
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+.btn-close-white {
+    filter: invert(1) brightness(100%);
+}
+
+.form-control.bg-secondary:focus {
+    background-color: #3a4a6b !important;
+    border-color: #00d09c;
+    box-shadow: 0 0 0 0.25rem rgba(0, 208, 156, 0.25);
+}
+/* Styles pour la nouvelle modale */
+.contract-modal-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.contract-modal-container {
+  width: 90%;
+  max-width: 600px;
+  animation: modalFadeIn 0.3s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.contract-modal-content {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.contract-modal-header {
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(15, 23, 42, 0.8);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.contract-modal-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #e2e8f0;
+}
+
+.contract-modal-title h3 {
+  margin: 0;
+  font-weight: 600;
+}
+
+.close-modal-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 24px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.close-modal-btn:hover {
+  color: #e2e8f0;
+}
+
+.contract-modal-body {
+  padding: 20px;
+}
+
+.form-field-group {
+  margin-bottom: 20px;
+}
+
+.form-field-label {
+  display: block;
+  margin-bottom: 8px;
+  color: #94a3b8;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.date-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.date-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.date-field label {
+  margin-bottom: 6px;
+  color: #cbd5e1;
+  font-size: 13px;
+}
+
+.date-input {
+  padding: 10px 12px;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: #f8fafc;
+  font-size: 14px;
+}
+
+.date-input:focus {
+  outline: none;
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+}
+
+.contract-terms {
+  width: 100%;
+  min-height: 150px;
+  padding: 12px;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: #f8fafc;
+  font-size: 14px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.contract-terms:focus {
+  outline: none;
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+}
+
+.contract-modal-footer {
+  padding: 15px 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  background: rgba(15, 23, 42, 0.8);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.cancel-btn, .submit-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.cancel-btn {
+  background: rgba(255, 255, 255, 0.05);
+  color: #94a3b8;
+}
+
+.cancel-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+}
+
+.submit-btn {
+  background: #38bdf8;
+  color: #082f49;
+}
+
+.submit-btn:hover {
+  background: #0ea5e9;
+}
+
+/* Icônes (utilisez Font Awesome ou un système similaire) */
+.icon-edit:before { content: "\f044"; font-family: "Font Awesome"; }
+.icon-cancel:before { content: "\f00d"; font-family: "Font Awesome"; }
+.icon-save:before { content: "\f0c7"; font-family: "Font Awesome"; }
     </style>
 </head>
 <body>
@@ -247,6 +506,7 @@ unset($_SESSION['success'], $_SESSION['error']);
             <a href="/"><i class="fas fa-home"></i> Accueil</a>
             <a href="/partenaires"><i class="fas fa-users"></i> Partenaires</a>
             <a href="logout.php" class="logout"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
+            <a href="partenaire.php" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Retour au Front Office</a>
         </nav>
     </nav>
 
@@ -255,13 +515,13 @@ unset($_SESSION['success'], $_SESSION['error']);
             <h1><i class="fas fa-user-circle me-2"></i>Votre Demande de Partenariat</h1>
             <p class="text-muted">Connecté en tant que: <?= htmlspecialchars($partner['email']) ?></p>
         </div>
-        
+
         <?php if ($success_message): ?>
             <div class="alert alert-success">
                 <i class="fas fa-check-circle me-2"></i><?= htmlspecialchars($success_message) ?>
             </div>
         <?php endif; ?>
-        
+
         <?php if ($error_message): ?>
             <div class="alert alert-danger">
                 <i class="fas fa-exclamation-circle me-2"></i><?= htmlspecialchars($error_message) ?>
@@ -299,24 +559,162 @@ unset($_SESSION['success'], $_SESSION['error']);
                         <label class="form-label">Description</label>
                         <textarea class="form-control" name="description" rows="4" required><?= htmlspecialchars($partner['description']) ?></textarea>
                     </div>
-                    <!-- Add this button in your card-body div -->
-                    <div class="mb-3">
-                        <a href="partenaire.php" class="btn btn-secondary">
-                            <i class="fas fa-arrow-left me-2"></i>Retour au formulaire
-                        </a>
-                    </div>
                     
                     <div class="d-flex justify-content-between">
                         <button type="submit" name="update" class="btn btn-primary">
                             <i class="fas fa-save me-2"></i>Mettre à jour
                         </button>
-                        
-                        <button type="submit" name="cancel" class="btn btn-danger" 
+
+                        <button type="submit" name="cancel" class="btn btn-danger"
                             onclick="return confirm('Êtes-vous sûr de vouloir annuler votre demande?')">
                             <i class="fas fa-trash-alt me-2"></i>Annuler la demande
                         </button>
                     </div>
                 </form>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-body">
+                <h3><i class="fas fa-file-signature me-2"></i>Gérer vos Contrats</h3>
+
+                <!-- Add Contract Form -->
+                <form method="POST" class="mb-4">
+                    <input type="hidden" name="id_partenaire" value="<?= $partner['id_partenaire'] ?>">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="date_deb" class="form-label">Date Début</label>
+                            <input type="date" class="form-control" id="date_deb" name="date_deb" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="date_fin" class="form-label">Date Fin</label>
+                            <input type="date" class="form-control" id="date_fin" name="date_fin" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="terms" class="form-label">Termes</label>
+                        <textarea class="form-control" id="terms" name="terms"></textarea>
+                    </div>
+                    <button type="submit" name="add_contract" class="btn btn-primary">
+                        <i class="fas fa-plus-circle me-2"></i>Ajouter un Contrat
+                    </button>
+                </form>
+
+                <!-- List of Contracts -->
+                <h4>Vos Contrats</h4>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Date Début</th>
+                            <th>Date Fin</th>
+                            <th>Termes</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($contracts as $contract): ?>
+                            <tr>
+                                <td><?= htmlspecialchars($contract['id_contrat']) ?></td>
+                                <td><?= htmlspecialchars($contract['date_deb']) ?></td>
+                                <td><?= htmlspecialchars($contract['date_fin']) ?></td>
+                                <td><?= htmlspecialchars($contract['terms']) ?></td>
+                                <td>
+                                    <?php if ($contract['status'] === 'en attente'): ?>
+                                        <span class="badge bg-warning text-dark">En attente</span>
+                                    <?php elseif ($contract['status'] === 'approuvé'): ?>
+                                        <span class="badge bg-success">Approuvé</span>
+                                    <?php else: ?>
+                                        <span class="badge bg-secondary">Inconnu</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <form method="POST" class="d-inline">
+                                        <input type="hidden" name="id_contrat" value="<?= $contract['id_contrat'] ?>">
+                                       <!-- Remplacez le bouton actuel par ceci -->
+<button type="button" class="btn btn-primary btn-sm" 
+        data-bs-toggle="modal" 
+        data-modal-target="editContractModal<?= $contract['id_contrat'] ?>">
+    <i class="fas fa-edit"></i> Modifier
+</button>
+                                    </form>
+                                    <?php if ($contract['status'] === 'en attente'): ?>
+                                        <form method="POST" class="d-inline">
+                                            <input type="hidden" name="id_contrat" value="<?= $contract['id_contrat'] ?>">
+                                            <button type="submit" name="delete_contract" class="btn btn-danger btn-sm"
+                                                onclick="return confirm('Voulez-vous vraiment supprimer ce contrat?')">
+                                                <i class="fas fa-trash"></i> Supprimer
+                                            </button>
+                                        </form>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+
+                            <!-- Update Contract Modal -->
+                         <!-- Update Contract Modal -->
+                          <!-- Nouveau design de modal -->
+<div class="contract-modal-wrapper" id="editContractModal<?= $contract['id_contrat'] ?>" aria-hidden="true">
+  <div class="contract-modal-container">
+    <div class="contract-modal-content">
+      <form method="POST" class="contract-form">
+        <div class="contract-modal-header">
+          <div class="contract-modal-title">
+            <i class="icon-edit"></i>
+            <h3>Édition du contrat #<?= $contract['id_contrat'] ?></h3>
+          </div>
+          <button type="button" class="close-modal-btn" aria-label="Fermer">
+            &times;
+          </button>
+        </div>
+        
+        <div class="contract-modal-body">
+          <input type="hidden" name="id_contrat" value="<?= $contract['id_contrat'] ?>">
+          
+          <div class="form-field-group">
+            <label class="form-field-label">Dates du contrat</label>
+            <div class="date-fields">
+              <div class="date-field">
+                <label>Début</label>
+                <input type="date" name="date_deb" 
+                       value="<?= date('Y-m-d', strtotime($contract['date_deb'])) ?>" 
+                       class="date-input" required>
+              </div>
+              <div class="date-field">
+                <label>Fin</label>
+                <input type="date" name="date_fin" 
+                       value="<?= date('Y-m-d', strtotime($contract['date_fin'])) ?>" 
+                       class="date-input" required>
+              </div>
+            </div>
+          </div>
+          
+          <div class="form-field-group">
+            <label class="form-field-label">Termes du contrat</label>
+            <textarea name="terms" class="contract-terms"><?= htmlspecialchars($contract['terms']) ?></textarea>
+          </div>
+        </div>
+        
+        <div class="contract-modal-footer">
+          <button type="button" class="cancel-btn">
+            <i class="icon-cancel"></i> Annuler
+          </button>
+          <button type="submit" name="update_contract" class="submit-btn">
+            <i class="icon-save"></i> Enregistrer
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+                            <?php endforeach; ?>
+                        <?php if (empty($contracts)): ?>
+                            <tr>
+                                <td colspan="6" class="text-center">Aucun contrat trouvé</td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -329,11 +727,245 @@ unset($_SESSION['success'], $_SESSION['error']);
         });
 
         // Amount formatting
-        document.querySelector('input[name="montant"]')?.addEventListener('input', function() {
-            let value = this.value.replace(/\D/g, '');
-            value = value ? parseInt(value, 10) : '';
-            this.value = value === '' ? '' : value.toLocaleString('fr-FR');
+        document.querySelector('input[name="montant"]')?.addEventListener('input', function () {
+            let value = this.value.replace(/\D/g, ''); // Allow only digits
+            value = parseInt(value, 10) || 0; // Parse as integer or default to 0
+            if (value < 1000) {
+                this.classList.add('is-invalid'); // Add invalid class if less than 1000
+            } else {
+                this.classList.remove('is-invalid'); // Remove invalid class if valid
+            }
+            this.value = value; // Set the cleaned value back to the input
         });
     </script>
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Vérifie que Bootstrap est bien chargé
+    if (typeof bootstrap === 'undefined') {
+        console.error("Bootstrap 5 n'est pas chargé correctement");
+        alert("Erreur technique - Veuillez recharger la page");
+    } else {
+        console.log("Bootstrap est correctement chargé");
+        
+        // Active le débogage des modales
+        document.querySelectorAll('[data-bs-toggle="modal"]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                console.log("Ouverture de la modale:", this.dataset.bsTarget);
+            });
+        });
+    }
+    
+    // Formatage du téléphone
+    document.querySelector('input[name="telephone"]')?.addEventListener('input', function() {
+        this.value = this.value.replace(/\D/g, '').slice(0, 10);
+    });
+});
+</script>
+<script>
+// Fonctions pour gérer la modale
+function openContractModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function closeContractModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+}
+
+// Gestion des clics
+document.addEventListener('DOMContentLoaded', function() {
+  // Boutons d'ouverture
+  document.querySelectorAll('[data-modal-target]').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const modalId = this.getAttribute('data-modal-target');
+      openContractModal(modalId);
+    });
+  });
+  
+  // Boutons de fermeture
+  document.querySelectorAll('.close-modal-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const modal = this.closest('.contract-modal-wrapper');
+      closeContractModal(modal.id);
+    });
+  });
+  
+  // Fermer en cliquant à l'extérieur
+  document.querySelectorAll('.contract-modal-wrapper').forEach(modal => {
+    modal.addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeContractModal(this.id);
+      }
+    });
+  });
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const updateForm = document.querySelector('form');
+    const nomInput = document.querySelector('input[name="nom"]');
+    const emailInput = document.querySelector('input[name="email"]');
+    const telephoneInput = document.querySelector('input[name="telephone"]');
+    const montantInput = document.querySelector('input[name="montant"]');
+    const descriptionInput = document.querySelector('textarea[name="description"]');
+
+    // Helper function to show error
+    function showError(input, message) {
+        const formGroup = input.closest('.mb-3');
+        const errorElement = formGroup.querySelector('.error-message');
+        if (!errorElement) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message text-danger mt-1';
+            errorDiv.textContent = message;
+            formGroup.appendChild(errorDiv);
+        } else {
+            errorElement.textContent = message;
+        }
+        input.classList.add('is-invalid');
+    }
+
+    // Helper function to clear error
+    function clearError(input) {
+        const formGroup = input.closest('.mb-3');
+        const errorElement = formGroup.querySelector('.error-message');
+        if (errorElement) {
+            errorElement.remove();
+        }
+        input.classList.remove('is-invalid');
+    }
+
+    // Validation functions
+    function validateNom() {
+        const nom = nomInput.value.trim();
+        if (nom.length < 2 || nom.length > 50) {
+            showError(nomInput, 'Le nom doit contenir entre 2 et 50 caractères.');
+            return false;
+        }
+        clearError(nomInput);
+        return true;
+    }
+
+    function validateEmail() {
+        const email = emailInput.value.trim();
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            showError(emailInput, 'Veuillez entrer une adresse email valide.');
+            return false;
+        }
+        clearError(emailInput);
+        return true;
+    }
+
+    function validateTelephone() {
+        const telephone = telephoneInput.value.trim();
+        const telephoneRegex = /^[0-9]{8}$/;
+        if (!telephoneRegex.test(telephone)) {
+            showError(telephoneInput, 'Le téléphone doit contenir exactement 8 chiffres.');
+            return false;
+        }
+        clearError(telephoneInput);
+        return true;
+    }
+
+    function validateMontant() {
+        const montant = parseFloat(montantInput.value.replace(/\s/g, '').replace(',', '.'));
+        if (isNaN(montant) || montant <= 0) {
+            showError(montantInput, 'Le montant doit être un nombre positif.');
+            return false;
+        }
+        clearError(montantInput);
+        return true;
+    }
+
+    function validateDescription() {
+        const description = descriptionInput.value.trim();
+        if (description.length < 20 || description.length > 500) {
+            showError(descriptionInput, 'La description doit contenir entre 10 et 500 caractères.');
+            return false;
+        }
+        clearError(descriptionInput);
+        return true;
+    }
+
+    // Attach blur event listeners for real-time validation
+    nomInput.addEventListener('blur', validateNom);
+    emailInput.addEventListener('blur', validateEmail);
+    telephoneInput.addEventListener('blur', validateTelephone);
+    montantInput.addEventListener('blur', validateMontant);
+    descriptionInput.addEventListener('blur', validateDescription);
+
+    // Form submission validation
+    updateForm.addEventListener('submit', function (e) {
+        const isNomValid = validateNom();
+        const isEmailValid = validateEmail();
+        const isTelephoneValid = validateTelephone();
+        const isMontantValid = validateMontant();
+        const isDescriptionValid = validateDescription();
+
+        if (!isNomValid || !isEmailValid || !isTelephoneValid || !isMontantValid || !isDescriptionValid) {
+            e.preventDefault(); // Prevent form submission if validation fails
+            alert('Veuillez corriger les erreurs avant de soumettre le formulaire.');
+        }
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const termsInput = document.querySelector('textarea[name="terms"]');
+    const addContractForm = document.querySelector('form[method="POST"]');
+
+    // Helper function to show error
+    function showError(input, message) {
+        const formGroup = input.closest('.mb-3');
+        const errorElement = formGroup.querySelector('.error-message');
+        if (!errorElement) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message text-danger mt-1';
+            errorDiv.textContent = message;
+            formGroup.appendChild(errorDiv);
+        } else {
+            errorElement.textContent = message;
+        }
+        input.classList.add('is-invalid');
+    }
+
+    // Helper function to clear error
+    function clearError(input) {
+        const formGroup = input.closest('.mb-3');
+        const errorElement = formGroup.querySelector('.error-message');
+        if (errorElement) {
+            errorElement.remove();
+        }
+        input.classList.remove('is-invalid');
+    }
+
+    // Validation function for "Termes"
+    function validateTerms() {
+        const terms = termsInput.value.trim();
+        if (terms === '') {
+            showError(termsInput, 'Les termes doivent être remplis.');
+            return false;
+        }
+        clearError(termsInput);
+        return true;
+    }
+
+    // Attach blur event listener for real-time validation
+    termsInput.addEventListener('blur', validateTerms);
+
+    // Form submission validation
+    addContractForm.addEventListener('submit', function (e) {
+        const isTermsValid = validateTerms();
+
+       
+    });
+});
+</script>
 </body>
 </html>

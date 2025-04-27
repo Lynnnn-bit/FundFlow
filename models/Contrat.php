@@ -16,6 +16,8 @@ class Contrat {
 
     // Getters
     public function getId() { return $this->id_contrat; }
+
+
     public function getPartnerId() { return $this->id_partenaire; }
     public function getStatus() { return $this->status; }
     public function getStartDate() { return $this->date_deb; }

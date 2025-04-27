@@ -14,19 +14,22 @@ class ContratController {
             $stmt = $this->db->prepare("
                 INSERT INTO contrat 
                 (id_partenaire, date_deb, date_fin, terms, status, created_at)
-                VALUES (?, ?, ?, ?, ?, NOW())
+                VALUES (:id_partenaire, :date_deb, :date_fin, :terms, :status, NOW())
             ");
-            $result = $stmt->execute([
-                $id_partenaire, 
-                $date_deb, 
-                $date_fin, 
-                $terms, 
-                $status
-            ]);
-            
-            // Return true only if a row was affected
-            return $result && $stmt->rowCount() > 0;
-            
+            $stmt->bindParam(':id_partenaire', $id_partenaire, PDO::PARAM_INT);
+            $stmt->bindParam(':date_deb', $date_deb, PDO::PARAM_STR);
+            $stmt->bindParam(':date_fin', $date_fin, PDO::PARAM_STR);
+            $stmt->bindParam(':terms', $terms, PDO::PARAM_STR);
+            $stmt->bindParam(':status', $status, PDO::PARAM_STR);
+
+            $result = $stmt->execute();
+
+            if (!$result) {
+                error_log("Failed to create contract: " . implode(", ", $stmt->errorInfo()));
+                return false;
+            }
+
+            return $stmt->rowCount() > 0;
         } catch (PDOException $e) {
             error_log("Error creating contract: " . $e->getMessage());
             return false;
@@ -37,25 +40,27 @@ class ContratController {
         try {
             $stmt = $this->db->prepare("
                 UPDATE contrat 
-                SET date_deb = ?,
-                    date_fin = ?,
-                    terms = ?,
-                    status = ?
-                WHERE id_contrat = ?
+                SET date_deb = :date_deb, 
+                    date_fin = :date_fin, 
+                    terms = :terms, 
+                    status = :status
+                WHERE id_contrat = :id_contrat
             ");
-            
-            $result = $stmt->execute([
-                $date_deb,
-                $date_fin,
-                $terms,
-                $status,
-                $id_contrat
-            ]);
-            
-            return $result && $stmt->rowCount() > 0;
-            
+            $stmt->bindParam(':date_deb', $date_deb, PDO::PARAM_STR);
+            $stmt->bindParam(':date_fin', $date_fin, PDO::PARAM_STR);
+            $stmt->bindParam(':terms', $terms, PDO::PARAM_STR);
+            $stmt->bindParam(':status', $status, PDO::PARAM_STR);
+            $stmt->bindParam(':id_contrat', $id_contrat, PDO::PARAM_INT);
+
+            $result = $stmt->execute();
+
+            if ($stmt->rowCount() === 0) {
+                error_log("No rows updated for contract ID: $id_contrat");
+            }
+
+            return $result;
         } catch (PDOException $e) {
-            error_log("Update Contract Error: " . $e->getMessage());
+            error_log("Error updating contract: " . $e->getMessage());
             return false;
         }
     }
@@ -92,12 +97,33 @@ class ContratController {
     }
 
     public function getContractsByPartner($id_partenaire) {
-        $stmt = $this->db->prepare("
-            SELECT * FROM contrat 
-            WHERE id_partenaire = ?
-            ORDER BY created_at DESC
-        ");
-        $stmt->execute([$id_partenaire]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        try {
+            $stmt = $this->db->prepare("
+                SELECT * FROM contrat 
+                WHERE id_partenaire = ?
+                ORDER BY created_at DESC
+            ");
+            $stmt->execute([$id_partenaire]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Error fetching contracts by partner: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    public function getContractStatistics() {
+        try {
+            $stmt = $this->db->query("
+                SELECT 
+                    SUM(CASE WHEN status = 'expiré' THEN 1 ELSE 0 END) AS expired,
+                    SUM(CASE WHEN status = 'actif' THEN 1 ELSE 0 END) AS active,
+                    SUM(CASE WHEN status = 'en attente' THEN 1 ELSE 0 END) AS pending
+                FROM contrats
+            ");
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Error fetching contract statistics: " . $e->getMessage());
+            return ['expired' => 0, 'active' => 0, 'pending' => 0];
+        }
     }
 }

@@ -5,85 +5,44 @@ require_once __DIR__ . '/../../controlle/PartenaireController.php';
 
 session_start();
 
-// Admin check
-/*if (!isset($_SESSION['admin_logged_in'])) {
-    header("Location: login.php");
-    exit();
-}*/
-
 $contratController = new ContratController();
 $partenaireController = new PartenaireController();
 
-// Handle all form submissions
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    try {
-        if (isset($_POST['delete_id'])) {
-            if ($contratController->deleteContract($_POST['delete_id'])) {
-                $_SESSION['success'] = "Contrat supprimé avec succès!";
-            } else {
-                throw new Exception("Erreur lors de la suppression du contrat");
-            }
-        } 
-        elseif (isset($_POST['approve_partner'])) {
-            $partner_id = $_POST['approve_partner'];
-            
-            if ($partenaireController->approvePartenaire($partner_id)) {
-                $_SESSION['success'] = "Partenaire approuvé avec succès!";
-            } else {
-                throw new Exception("Erreur lors de l'approbation du partenaire");
-            }
-        }
-        elseif (isset($_POST['reject_partner'])) {
-            $partner_id = $_POST['id_partenaire'] ?? null;
-            
-            if (!$partner_id) {
-                throw new Exception("ID partenaire manquant");
-            }
-            
-            if ($partenaireController->rejectPartenaire($partner_id)) {
-                $_SESSION['success'] = "Partenaire rejeté avec succès";
-            } else {
-                throw new Exception("Erreur lors du rejet du partenaire");
-            }
-        }
-        elseif (isset($_POST['update_contract'])) {
-            $id_contrat = $_POST['id_contrat'];
-            $date_deb = $_POST['date_deb'];
-            $date_fin = $_POST['date_fin'];
-            $terms = $_POST['terms'];
-            $status = $_POST['status'];
-            
-            if ($contratController->updateContract($id_contrat, $date_deb, $date_fin, $terms, $status)) {
-                $_SESSION['success'] = "Contrat mis à jour avec succès!";
-            } else {
-                throw new Exception("Erreur lors de la mise à jour du contrat");
-            }
-        }
-        elseif (isset($_POST['add_contract'])) {
-            $id_partenaire = $_POST['id_partenaire'];
-            $date_deb = $_POST['date_deb'];
-            $date_fin = $_POST['date_fin'];
-            $terms = $_POST['terms'];
-            $status = $_POST['status'];
-            
-            if ($contratController->createContract($id_partenaire, $date_deb, $date_fin, $terms, $status)) {
-                $_SESSION['success'] = "Contrat créé avec succès!";
-            } else {
-                throw new Exception("Erreur lors de la création du contrat");
-            }
-        }
-    } catch (Exception $e) {
-        $_SESSION['error'] = $e->getMessage();
-    }
-    
-    header("Location: contrats.php");
-    exit();
+// Handle search inputs for "Demandes de Partenariat"
+$searchPartenaireId = $_GET['search_partenaire_id'] ?? null;
+$sortOrder = $_GET['sort_order'] ?? 'created_at DESC';
+if ($searchPartenaireId) {
+    $unapprovedPartenaires = [$partenaireController->getPartenaire($searchPartenaireId)];
+    $unapprovedPartenaires = array_filter($unapprovedPartenaires); // Remove null results
+} else {
+    $unapprovedPartenaires = $partenaireController->getUnapprovedPartenaires($sortOrder);
 }
 
-// Get data
-$contrats = $contratController->getAllContracts();
-$unapprovedPartenaires = $partenaireController->getUnapprovedPartenaires();
+// Handle search inputs for "Contrats"
+$searchContratId = $_GET['search_contrat_id'] ?? null;
+if ($searchContratId) {
+    $contrats = [$contratController->getContract($searchContratId)];
+    $contrats = array_filter($contrats); // Remove null results
+} else {
+    $contrats = $contratController->getAllContracts();
+}
+
+// Get all approved partners for adding new contracts
 $approvedPartenaires = $partenaireController->getAllApprovedPartenaires();
+
+// Fetch contract statistics
+$contractStats = $contratController->getContractStatistics();
+
+$today = new DateTime();
+$expiryThreshold = (clone $today)->modify('+30 days');
+$expiringContracts = [];
+
+foreach ($contrats as $contrat) {
+    $dateFin = new DateTime($contrat['date_fin']);
+    if ($dateFin <= $expiryThreshold && $dateFin >= $today) {
+        $expiringContracts[] = $contrat;
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -309,6 +268,15 @@ $approvedPartenaires = $partenaireController->getAllApprovedPartenaires();
             background: linear-gradient(to right, #c0392b, #a5281b);
         }
 
+        .btn-info {
+            background: linear-gradient(to right, #3498db, #2980b9);
+            color: white;
+        }
+
+        .btn-info:hover {
+            background: linear-gradient(to right, #2980b9, #1abc9c);
+        }
+
         .btn-sm {
             padding: 0.4rem 0.8rem;
             font-size: 0.8rem;
@@ -429,23 +397,53 @@ $approvedPartenaires = $partenaireController->getAllApprovedPartenaires();
     </nav>
 
     <div class="main-container">
+        <!-- Expiring Contracts Notification -->
+        <div class="alert text-center" style="background: linear-gradient(to right,rgb(32, 52, 90),rgb(57, 82, 105)); color: white; border: none;">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <strong><?= count($expiringContracts) ?></strong> contrat(s) expirent dans les 30 prochains jours.
+            <?php if (!empty($expiringContracts)): ?>
+                <ul class="mt-2">
+                    <?php foreach ($expiringContracts as $contrat): ?>
+                        <li>
+                            <strong>ID:</strong> <?= htmlspecialchars($contrat['id_contrat']) ?>, 
+                            <strong>Nom Partenaire:</strong> <?= htmlspecialchars($contrat['partenaire_nom']) ?>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php endif; ?>
+        </div>
+
         <div class="header-section">
             <h1><i class="fas fa-handshake"></i> Gestion des Partenaires et Contrats</h1>
         </div>
 
-        <?php if (isset($_SESSION['success'])): ?>
-            <div class="alert alert-success">
-                <i class="fas fa-check-circle me-2"></i><?= htmlspecialchars($_SESSION['success']) ?>
-            </div>
-            <?php unset($_SESSION['success']); ?>
-        <?php endif; ?>
         
-        <?php if (isset($_SESSION['error'])): ?>
-            <div class="alert alert-danger">
-                <i class="fas fa-exclamation-circle me-2"></i><?= htmlspecialchars($_SESSION['error']) ?>
-            </div>
-            <?php unset($_SESSION['error']); ?>
-        <?php endif; ?>
+
+        <!-- Download PDF Button -->
+        <div class="mb-4">
+            <a href="download_pdf.php" class="btn btn-primary">
+                <i class="fas fa-file-pdf"></i> Télécharger le PDF
+            </a>
+        </div>
+
+        <!-- Search and Sort Form for Demandes de Partenariat -->
+        <div class="card mb-4">
+            <h2><i class="fas fa-search me-2"></i>Rechercher et Trier les Demandes de Partenariat</h2>
+            <form method="GET" class="mb-4">
+                <div class="row">
+                    
+                    <div class="col-md-6">
+                        <label for="search_partenaire_id" class="form-label">ID Partenaire</label>
+                        <input type="text" class="form-control" id="search_partenaire_id" name="search_partenaire_id" placeholder="Entrez l'ID du partenaire" value="<?= htmlspecialchars($_GET['search_partenaire_id'] ?? '') ?>">
+                    </div>
+                    <div class="col-md-6 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary me-2"><i class="fas fa-search"></i> Rechercher</button>
+                        <a href="?sort_order=montant ASC" class="btn btn-secondary me-2"><i class="fas fa-sort-amount-up"></i> Montant Ascendant</a>
+                        <a href="?sort_order=montant DESC" class="btn btn-secondary"><i class="fas fa-sort-amount-down"></i> Montant Descendant</a>
+                    </div>
+                </div>
+            </form>
+        </div>
 
         <!-- Partner Requests Section -->
         <div class="card">
@@ -476,13 +474,13 @@ $approvedPartenaires = $partenaireController->getAllApprovedPartenaires();
                             <td><?= date('d/m/Y H:i', strtotime($partner['created_at'])) ?></td>
                             <td>
                                 <div class="btn-group">
-                                    <form method="POST">
-                                        <input type="hidden" name="approve_partner" value="<?= $partner['id_partenaire'] ?>">
+                                    <form method="POST" action="auto_approve.php">
+                                        <input type="hidden" name="id_partenaire" value="<?= $partner['id_partenaire'] ?>">
                                         <button type="submit" class="btn btn-success btn-sm">
                                             <i class="fas fa-check"></i> Approuver
                                         </button>
                                     </form>
-                                    <form method="POST">
+                                    <form method="POST" action="auto_approve.php">
                                         <input type="hidden" name="id_partenaire" value="<?= $partner['id_partenaire'] ?>">
                                         <button type="submit" name="reject_partner" class="btn btn-danger btn-sm" 
                                         onclick="return confirm('Voulez-vous vraiment rejeter cette demande?')">
@@ -503,13 +501,32 @@ $approvedPartenaires = $partenaireController->getAllApprovedPartenaires();
             </div>
         </div>
 
+        <!-- Search Form for Contrats -->
+        <div class="card mb-4">
+            <h2><i class="fas fa-search me-2"></i>Rechercher un Contrat par ID</h2>
+            <form method="GET" class="mb-4">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="search_contrat_id" class="form-label">ID Contrat</label>
+                        <input type="text" class="form-control" id="search_contrat_id" name="search_contrat_id" placeholder="Entrez l'ID du contrat">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary mt-3">Rechercher</button>
+            </form>
+        </div>
+
         <!-- Contracts Section -->
         <div class="card">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                 <h2><i class="fas fa-file-signature me-2"></i>Contrats</h2>
-                <button onclick="openModal('addModal')" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> Nouveau Contrat
-                </button>
+                <div>
+                    <a href="contrats_stats.php" class="btn btn-primary me-2">
+                        <i class="fas fa-chart-pie me-2"></i> Voir les Statistiques des Contrats
+                    </a>
+                    <button onclick="openModal('addModal')" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Nouveau Contrat
+                    </button>
+                </div>
             </div>
             <div class="table-container">
                 <table>
@@ -538,31 +555,31 @@ $approvedPartenaires = $partenaireController->getAllApprovedPartenaires();
                                 ?>">
                                     <?= ucfirst($contrat['status']) ?>
                                 </span>
-                                <?php if ($contrat['status'] === 'en attente'): ?>
-                                <form method="POST" action="activate_contract.php" style="display:inline; margin-left:5px;">
-                                    <input type="hidden" name="id_contrat" value="<?= $contrat['id_contrat'] ?>">
-                                    <button type="submit" class="btn btn-success btn-sm">
-                                        <i class="fas fa-power-off"></i> Activer
-                                    </button>
-                                </form>
-                                <?php endif; ?>
                             </td>
                             <td><?= date('d/m/Y H:i', strtotime($contrat['created_at'])) ?></td>
                             <td>
                                 <div class="btn-group">
-                                    <button onclick="openEditModal(<?= $contrat['id_contrat'] ?>)" class="btn btn-primary btn-sm">
+                                    <button onclick="openEditModal(<?= $contrat['id_contrat'] ?>)" class="btn btn-info btn-sm">
                                         <i class="fas fa-edit"></i> Modifier
                                     </button>
-                                    <form method="POST" style="display:inline;">
-                                        <input type="hidden" name="delete_id" value="<?= $contrat['id_contrat'] ?>">
+                                    <form method="POST" style="display:inline;" action="supprimer.php">
+                                        <input type="hidden" name="id_contrat" value="<?= $contrat['id_contrat'] ?>">
                                         <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Supprimer ce contrat?')">
                                             <i class="fas fa-trash"></i> Supprimer
                                         </button>
                                     </form>
+                                    <button class="btn btn-secondary btn-sm" onclick="generateQrCode(<?= $contrat['id_contrat'] ?>)">
+                                        <i class="fas fa-qrcode"></i> QR Code
+                                    </button>
                                 </div>
                             </td>
                         </tr>
                         <?php endforeach; ?>
+                        <?php if (empty($contrats)): ?>
+                        <tr>
+                            <td colspan="7" style="text-align:center;">Aucun contrat trouvé</td>
+                        </tr>
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>
@@ -574,7 +591,7 @@ $approvedPartenaires = $partenaireController->getAllApprovedPartenaires();
         <div class="modal-content">
             <span class="close" onclick="closeModal('addModal')">&times;</span>
             <h2><i class="fas fa-plus-circle me-2"></i>Nouveau Contrat</h2>
-            <form method="POST">
+            <form method="POST" action="ajouter.php">
                 <input type="hidden" name="add_contract" value="1">
                 <div class="form-group">
                     <label class="form-label">Partenaire:</label>
@@ -656,45 +673,234 @@ $approvedPartenaires = $partenaireController->getAllApprovedPartenaires();
     </div>
 
     <script>
-        function openModal(modalId) {
-            document.getElementById(modalId).style.display = 'block';
-        }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
-
-        function openEditModal(contratId) {
-            fetch(`get_contract.php?id=${contratId}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.error) {
-                        throw new Error(data.error);
-                    }
-                    
-                    document.getElementById('edit_id_contrat').value = data.id_contrat;
-                    document.getElementById('edit_date_deb').value = data.date_deb;
-                    document.getElementById('edit_date_fin').value = data.date_fin;
-                    document.getElementById('edit_status').value = data.status;
-                    document.getElementById('edit_terms').value = data.terms || '';
-                    openModal('editModal');
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Erreur lors du chargement du contrat: ' + error.message);
-                });
-        }
-
-        window.onclick = function(event) {
-            if (event.target.className === 'modal') {
-                event.target.style.display = 'none';
+    // Fonction pour ouvrir la modale d'édition
+    async function openEditModal(contratId) {
+        try {
+            // Récupérer les données du contrat
+            const response = await fetch(`get_contract.php?id=${contratId}`);
+            
+            if (!response.ok) {
+                throw new Error(`Erreur HTTP: ${response.status}`);
             }
+            
+            const data = await response.json();
+            
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            
+            // Remplir le formulaire
+            document.getElementById('edit_id_contrat').value = data.id_contrat;
+            document.getElementById('edit_date_deb').value = data.date_deb.split(' ')[0]; // Format YYYY-MM-DD
+            document.getElementById('edit_date_fin').value = data.date_fin.split(' ')[0];
+            document.getElementById('edit_status').value = data.status;
+            document.getElementById('edit_terms').value = data.terms || '';
+            
+            // Ouvrir la modale
+            openModal('editModal');
+            
+        } catch (error) {
+            console.error('Erreur:', error);
+            alert('Erreur lors du chargement du contrat: ' + error.message);
         }
-    </script>
+    }
+
+    // Gestion de la soumission du formulaire
+    document.getElementById('editForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    // Afficher un indicateur de chargement
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> En cours...';
+    submitBtn.disabled = true;
+    
+    try {
+        const formData = new FormData(this);
+        const response = await fetch('modifier.php', {
+            method: 'POST',
+            body: formData
+        });
+        
+        // Vérifier si la réponse est JSON
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            const text = await response.text();
+            throw new Error(`Réponse inattendue: ${text.substring(0, 100)}...`);
+        }
+        
+        const result = await response.json();
+        
+        if (!response.ok || result.error) {
+            throw new Error(result.error || 'Erreur inconnue');
+        }
+        
+        alert('Contrat mis à jour avec succès!');
+        window.location.reload();
+        
+    } catch (error) {
+        console.error('Erreur:', error);
+        alert('Erreur lors de la mise à jour: ' + error.message);
+    } finally {
+        
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    }
+});
+
+    async function generateQrCode(contratId) {
+        try {
+            const response = await fetch('qrcode.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id_contrat: contratId })
+            });
+
+            const result = await response.json();
+
+            if (!result.success) {
+                throw new Error(result.error || 'Erreur lors de la génération du QR Code');
+            }
+
+            // Display the QR code in a smaller modal
+            const qrModal = document.createElement('div');
+            qrModal.className = 'modal';
+            qrModal.style.display = 'block';
+            qrModal.innerHTML = `
+                <div class="modal-content" style="width: 300px; padding: 1rem; text-align: center;">
+                    <span class="close" onclick="this.parentElement.parentElement.remove()" style="cursor: pointer;">&times;</span>
+                    <h5>QR Code</h5>
+                    <p><strong>Partenaire:</strong> ${result.partenaire}</p>
+                    <img src="${result.qr_url}" alt="QR Code" style="width: 200px; height: 200px;">
+                </div>
+            `;
+            document.body.appendChild(qrModal);
+        } catch (error) {
+            alert(error.message);
+        }
+    }
+    
+    function openModal(modalId) {
+        document.getElementById(modalId).style.display = 'block';
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
+
+    
+    window.onclick = function(event) {
+        if (event.target.className === 'modal') {
+            event.target.style.display = 'none';
+        }
+    }
+   
+document.querySelector('#addModal form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const form = this;
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    
+    // Afficher le loader
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> En cours...';
+    submitBtn.disabled = true;
+    
+    try {
+        const formData = new FormData(form);
+        const response = await fetch(form.action, {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (!result.success) {
+            throw new Error(result.message || 'Erreur lors de la création');
+        }
+        
+        alert(result.message);
+        closeModal('addModal');
+        window.location.reload(); // Recharger pour voir le nouveau contrat
+        
+    } catch (error) {
+        console.error('Erreur:', error);
+        alert(error.message);
+    } finally {
+        // Restaurer le bouton
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const editForm = document.getElementById('editForm');
+    const dateDebInput = document.getElementById('edit_date_deb');
+    const dateFinInput = document.getElementById('edit_date_fin');
+
+    // Helper function to show error
+    function showError(input, message) {
+        const formGroup = input.closest('.form-group');
+        let errorElement = formGroup.querySelector('.error-message');
+        if (!errorElement) {
+            errorElement = document.createElement('div');
+            errorElement.className = 'error-message text-danger mt-1';
+            formGroup.appendChild(errorElement);
+        }
+        errorElement.textContent = message;
+        input.classList.add('is-invalid');
+    }
+
+    // Helper function to clear error
+    function clearError(input) {
+        const formGroup = input.closest('.form-group');
+        const errorElement = formGroup.querySelector('.error-message');
+        if (errorElement) {
+            errorElement.remove();
+        }
+        input.classList.remove('is-invalid');
+    }
+
+    // Validation functions
+    function validateDateDeb() {
+        const dateDeb = dateDebInput.value.trim();
+        if (!dateDeb) {
+            showError(dateDebInput, 'La date de début est obligatoire.');
+            return false;
+        }
+        clearError(dateDebInput);
+        return true;
+    }
+
+    function validateDateFin() {
+        const dateDeb = new Date(dateDebInput.value);
+        const dateFin = new Date(dateFinInput.value);
+        if (!dateFinInput.value.trim()) {
+            showError(dateFinInput, 'La date de fin est obligatoire.');
+            return false;
+        }
+        if (dateFin < dateDeb) {
+            showError(dateFinInput, 'La date de fin ne peut pas être avant la date de début.');
+            return false;
+        }
+        clearError(dateFinInput);
+        return true;
+    }
+
+    // Attach blur event listeners for real-time validation
+    dateDebInput.addEventListener('blur', validateDateDeb);
+    dateFinInput.addEventListener('blur', validateDateFin);
+
+    // Form submission validation
+    editForm.addEventListener('submit', function (e) {
+        const isDateDebValid = validateDateDeb();
+        const isDateFinValid = validateDateFin();
+
+     
+    });
+});
+</script>
 </body>
 </html>
