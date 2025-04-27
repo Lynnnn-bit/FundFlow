@@ -28,23 +28,32 @@ if (!$demande) {
     exit();
 }
 
+// Calculate the remaining amount required for the demande
+$totalAcceptedResponses = array_sum(array_map(function ($response) {
+    return $response['montant_accorde'];
+}, $responseController->getAcceptedResponsesByDemande($demande_id)));
+$remainingAmount = $demande['montant_demandee'] - $totalAcceptedResponses;
+
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
     try {
-        $decision = $_POST['decision'];
-        $message = $_POST['message'];
         $montant_accorde = $_POST['montant_accorde'];
+        $message = $_POST['message'];
         $date_reponse = $_POST['date_reponse'];
-        
+
+        if ($montant_accorde > $remainingAmount) {
+            throw new Exception("Le montant accordé dépasse le montant restant requis.");
+        }
+
         // Create new Response object
         $response = new Response(
             $demande_id,
-            $decision,
+            'accepte', // Default decision is "accepte"
             $message,
             $montant_accorde,
             $date_reponse
         );
-        
+
         if ($responseController->createResponse($response)) {
             $_SESSION['success'] = "Réponse enregistrée avec succès!";
             header("Location: demands_list.php?demande_id=$demande_id");
@@ -87,7 +96,7 @@ if (isset($_SESSION['error'])) {
     </header>
 
     <div class="main-container">
-        <a href="responses.php?demande_id=<?= $demande_id ?>" class="btn btn-secondary mb-3">
+        <a href="demands_list.php?demande_id=<?= $demande_id ?>" class="btn btn-secondary mb-3">
             <i class="fas fa-arrow-left"></i> Retour aux réponses
         </a>
 
@@ -107,36 +116,17 @@ if (isset($_SESSION['error'])) {
             <form method="POST">
                 <input type="hidden" name="id_demande" value="<?= $demande_id ?>">
                 
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group mb-3">
-                            <label class="form-label">Décision *</label>
-                            <select class="form-select" name="decision" required>
-                                <option value="accepte">Accepter</option>
-                                <option value="refuse">Refuser</option>
-                            </select>
-                        </div>
-                        
-                        <!--<div class="form-group mb-3">
-                            <label class="form-label">Montant accordé (€)</label>
-                            <input type="number" class="form-control" name="montant_accorde" 
-                                   min="0" step="100" value="<?= $demande['montant_demandee'] ?>">
-                        </div>-->
+                <div class="form-group mb-3">
+                    <label class="form-label">Montant accordé (€) *</label>
+                    <input type="number" class="form-control" name="montant_accorde" 
+                           min="0" max="<?= $remainingAmount ?>" step="100" required>
+                    <div class="error-message text-danger mt-1" id="montantError" style="display: none;"></div>
+                </div>
 
-                        <div class="form-group mb-3">
-    <label class="form-label">Montant accordé (€)</label>
-    <input type="number" class="form-control" name="montant_accorde" 
-           min="0" step="100" value="<?= $demande['montant_demandee'] ?>">
-    <div class="error-message text-danger mt-1" id="montantError" style="display: none; ; color: red;"></div>
-</div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group mb-3">
-                            <label class="form-label">Date de réponse *</label>
-                            <input type="date" class="form-control" name="date_reponse" 
-                                   value="<?= date('Y-m-d') ?>" required>
-                        </div>
-                    </div>
+                <div class="form-group mb-3">
+                    <label class="form-label">Date de réponse *</label>
+                    <input type="date" class="form-control" name="date_reponse" 
+                           value="<?= date('Y-m-d') ?>" required>
                 </div>
                 
                 <div class="form-group mb-3">
@@ -151,27 +141,24 @@ if (isset($_SESSION['error'])) {
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-   
-    <script src="js/jsnewrep.js"></script></body>
-    <!--<script>
-        // Enable/disable amount field based on decision
+    <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const decisionSelect = document.querySelector('select[name="decision"]');
             const amountField = document.querySelector('input[name="montant_accorde"]');
-            
-            if (decisionSelect && amountField) {
-                decisionSelect.addEventListener('change', function() {
-                    amountField.disabled = this.value !== 'accepte';
-                    if (this.value !== 'accepte') {
-                        amountField.value = '0';
-                    }
-                });
-                
-                // Initialize on page load
-                decisionSelect.dispatchEvent(new Event('change'));
-            }
+            const montantError = document.getElementById('montantError');
+            const maxAmount = <?= $remainingAmount ?>;
+
+            // Real-time validation feedback
+            amountField.addEventListener('input', function() {
+                const montant = parseFloat(this.value);
+
+                if (montant > maxAmount) {
+                    montantError.textContent = `Le montant ne peut pas dépasser ${maxAmount.toLocaleString()} €.`;
+                    montantError.style.display = 'block';
+                } else {
+                    montantError.style.display = 'none';
+                }
+            });
         });
-    </script>-->
+    </script>
 </body>
 </html>

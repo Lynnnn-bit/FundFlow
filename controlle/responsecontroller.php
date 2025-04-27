@@ -80,6 +80,17 @@ class ResponseController
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getAcceptedResponsesByDemande($id_demande)
+    {
+        $stmt = $this->db->prepare("
+            SELECT * 
+            FROM reponse 
+            WHERE id_demande = ? AND status = 'accepte'
+        ");
+        $stmt->execute([$id_demande]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function getAllDemandesWithResponses()
     {
         $stmt = $this->db->query("
@@ -99,26 +110,38 @@ class ResponseController
         try {
             // Get the response
             $reponse = $this->getResponseById($id_reponse);
-            
-            // Update the response status
+
+            // Update the response status to 'accepte'
             $this->updateResponseStatus($id_reponse, 'accepte');
-            
-            // Update all other responses for this demand to 'rejete'
+
+            // Calculate the total accepted amount for the demande
             $stmt = $this->db->prepare("
-                UPDATE reponse 
-                SET status = 'rejete' 
-                WHERE id_demande = ? AND id_reponse != ?
+                SELECT SUM(montant_accorde) as total_accepted 
+                FROM reponse 
+                WHERE id_demande = ? AND status = 'accepte'
             ");
-            $stmt->execute([$reponse['id_demande'], $id_reponse]);
-            
-            // Update the demand status
+            $stmt->execute([$reponse['id_demande']]);
+            $totalAccepted = $stmt->fetchColumn();
+
+            // Get the demande details
             $stmt = $this->db->prepare("
-                UPDATE demande_financement 
-                SET status = 'accepte' 
+                SELECT montant_demandee 
+                FROM demande_financement 
                 WHERE id_demande = ?
             ");
             $stmt->execute([$reponse['id_demande']]);
-            
+            $montantDemandee = $stmt->fetchColumn();
+
+            // Update the demande status to 'accepte' if the total accepted amount equals the montant demandée
+            if ($totalAccepted >= $montantDemandee) {
+                $stmt = $this->db->prepare("
+                    UPDATE demande_financement 
+                    SET status = 'accepte' 
+                    WHERE id_demande = ?
+                ");
+                $stmt->execute([$reponse['id_demande']]);
+            }
+
             $this->db->commit();
             return true;
         } catch (Exception $e) {

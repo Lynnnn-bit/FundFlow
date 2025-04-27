@@ -45,6 +45,7 @@ body {
     padding: 2rem;
     max-width: 1400px;
     margin: 0 auto;
+    color: white;
 }
 
 .header-section h1 {
@@ -56,46 +57,56 @@ body {
     color: #00d09c;
 }
 
-/* Table Styles */
+/* Enhanced Table Styles */
 .table-container {
-    background: rgba(30, 60, 82, 0.6);
+    background: #1e3c5299;
     border-radius: 16px;
     padding: 2rem;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
     backdrop-filter: blur(5px);
     border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.table-responsive {
+  }
+  
+  .table-container h3 {
+    margin-bottom: 1.5rem;
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+  }
+  
+  .table-container h3 i {
+    margin-right: 10px;
+    color: #00d09c;
+  }
+  
+  .table-responsive {
     overflow-x: auto;
-}
-
-.table {
+  }
+  
+  table {
     width: 100%;
     border-collapse: collapse;
-    color: white;
-}
-
-.table th {
+  }
+  
+  th, td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  th {
     background-color: rgba(15, 32, 39, 0.8);
     color: white;
     font-weight: 600;
-    padding: 1rem;
-    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
-}
-
-.table td {
-    padding: 1rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.table-striped tbody tr:nth-of-type(odd) {
-    background-color: rgba(255, 255, 255, 0.05);
-}
-
-.table-hover tbody tr:hover {
-    background-color: rgba(46, 79, 102, 0.4);
-}
+    position: sticky;
+    top: 0;
+  }
+  
+  tr:hover {
+    background-color: #1e3c5299;
+  }
 
 /* Badges */
 .badge {

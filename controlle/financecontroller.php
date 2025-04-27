@@ -63,6 +63,16 @@ class FinanceController
         ]);
     }
 
+    public function updateDemandeStatus($id_demande, $status)
+    {
+        $stmt = $this->db->prepare("
+            UPDATE demande_financement 
+            SET status = ? 
+            WHERE id_demande = ?
+        ");
+        return $stmt->execute([$status, $id_demande]);
+    }
+
     public function getFinanceRequestById($id_demande)
     {
         $stmt = $this->db->prepare("

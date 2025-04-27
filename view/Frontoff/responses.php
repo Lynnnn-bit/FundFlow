@@ -14,11 +14,20 @@ if (session_status() === PHP_SESSION_NONE) {
 $responseController = new ResponseController();
 $financeController = new FinanceController();
 
-// Handle accept/reject actions
+// Handle accept and delete actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['accept_response'])) {
         try {
             if ($responseController->acceptResponse($_POST['response_id'])) {
+                // Check if the sum of accepted responses meets the requested amount
+                $acceptedResponses = $responseController->getAcceptedResponsesByDemande($_POST['demande_id']);
+                $totalAcceptedAmount = array_sum(array_column($acceptedResponses, 'montant_accorde'));
+
+                $demande = $financeController->getFinanceRequestById($_POST['demande_id']);
+                if ($totalAcceptedAmount >= $demande['montant_demandee']) {
+                    $financeController->updateDemandeStatus($_POST['demande_id'], 'accepte');
+                }
+
                 $_SESSION['success'] = "Réponse acceptée avec succès!";
             }
         } catch (Exception $e) {
@@ -26,30 +35,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         header("Location: responses.php?demande_id=" . $_POST['demande_id']);
         exit();
-    } elseif (isset($_POST['reject_response'])) {
+    } elseif (isset($_POST['delete_response'])) {
         try {
-            if ($responseController->rejectResponse($_POST['response_id'])) {
-                $_SESSION['success'] = "Réponse rejetée avec succès!";
-            }
+            $responseController->rejectResponse($_POST['response_id']);
+            $_SESSION['success'] = "Réponse rejetée et supprimée avec succès!";
         } catch (Exception $e) {
             $_SESSION['error'] = $e->getMessage();
         }
         header("Location: responses.php?demande_id=" . $_POST['demande_id']);
         exit();
-    }
-}
-
-// Handle delete action
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['delete_id'])) {
-    try {
-        $deleteId = $_GET['delete_id'];
-        if ($responseController->deleteResponse($deleteId)) {
-            $_SESSION['success'] = "Réponse supprimée avec succès!";
-            header("Location: responses.php?demande_id=" . $_GET['demande_id']);
-            exit();
-        }
-    } catch (Exception $e) {
-        $error_message = $e->getMessage();
     }
 }
 
@@ -88,8 +82,6 @@ if (isset($_SESSION['error'])) {
     <link rel="stylesheet" href="css/styleresp.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-   
-    
 </head>
 <body>
     <header class="navbar">
@@ -185,19 +177,14 @@ if (isset($_SESSION['error'])) {
                                         <i class="fas fa-check"></i> Accepter
                                     </button>
                                 </form>
-                                <form method="POST">
-                                    <input type="hidden" name="response_id" value="<?= $response['id_reponse'] ?>">
-                                    <input type="hidden" name="demande_id" value="<?= $demande_id ?>">
-                                    <button type="submit" name="reject_response" class="btn btn-sm btn-danger">
-                                        <i class="fas fa-times"></i> Rejeter
-                                    </button>
-                                </form>
                             <?php endif; ?>
-                            <a href="responses.php?delete_id=<?= $response['id_reponse'] ?>&demande_id=<?= $demande_id ?>" 
-                               class="btn btn-sm btn-danger"
-                               onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette réponse?')">
-                                <i class="fas fa-trash"></i> Supprimer
-                            </a>
+                            <form method="POST">
+                                <input type="hidden" name="response_id" value="<?= $response['id_reponse'] ?>">
+                                <input type="hidden" name="demande_id" value="<?= $demande_id ?>">
+                                <button type="submit" name="delete_response" class="btn btn-sm btn-danger">
+                                    <i class="fas fa-trash"></i> Supprimer
+                                </button>
+                            </form>
                         </div>
                     </div>
                 <?php endforeach; ?>
