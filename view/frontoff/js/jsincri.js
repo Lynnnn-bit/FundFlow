@@ -151,15 +151,60 @@ function showError(input, message) {
     input.parentNode.appendChild(errorElement);
 }
 
-// Add real-time validation for telephone field
-/*const telInput = document.getElementById('tel');
-if (telInput) {
-    telInput.addEventListener('input', function() {
-        // Remove non-digit characters
-        this.value = this.value.replace(/\D/g, '');
-        // Limit to 8 characters
-        if (this.value.length > 8) {
-            this.value = this.value.slice(0, 8);
+// Image upload validation
+const imageInput = document.getElementById('image');
+if (imageInput) {
+    imageInput.addEventListener('change', function() {
+        // Reset previous errors
+        this.classList.remove('error-border');
+        const existingError = this.parentNode.querySelector('.error-message');
+        if (existingError) {
+            existingError.remove();
+        }
+
+        if (this.files && this.files[0]) {
+            const file = this.files[0];
+            const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+            const maxSize = 2 * 1024 * 1024; // 2MB
+
+            // Check file type
+            if (!validTypes.includes(file.type)) {
+                showError(this, "Type de fichier non supporté. Seuls JPEG, PNG et GIF sont autorisés.");
+                this.value = ''; // Clear the input
+                return;
+            }
+
+            // Check file size
+            if (file.size > maxSize) {
+                showError(this, "La taille de l'image ne doit pas dépasser 2MB");
+                this.value = ''; // Clear the input
+                return;
+            }
+
+            // Preview image (optional)
+            const preview = document.getElementById('image-preview');
+            if (preview) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            }
         }
     });
-}*/
+}
+
+// Helper function to display error messages (if not already defined)
+function showError(input, message) {
+    input.classList.add('error-border');
+    
+    const errorElement = document.createElement('div');
+    errorElement.className = 'error-message';
+    errorElement.style.color = 'red';
+    errorElement.style.fontSize = '0.8rem';
+    errorElement.style.marginTop = '5px';
+    errorElement.textContent = message;
+    
+    input.parentNode.appendChild(errorElement);
+}

@@ -95,3 +95,23 @@ body {
     font-size: 14px;
     color: #aaa;
   }
+
+
+  .mail {
+    font-size: 18px;
+    color: #e0f0f0;
+    max-width: 600px;
+    margin-bottom: 50px;
+  }
+
+  .mail a {
+    color: white; /* Link color set to white */
+    text-decoration: none;
+    font-weight: bolder; /* Strong bold effect */
+    transition: color 0.3s ease;
+  }
+
+  .mail a:hover {
+    color: #e0e0e0; /* Slightly lighter white on hover */
+    text-decoration: underline;
+  }

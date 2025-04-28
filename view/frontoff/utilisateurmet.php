@@ -41,6 +41,59 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['edit_id'])) {
 $users = $controller->getAllUsers();
 $newId = $controller->getNextUserId();
 
+// Filter users by search ID if provided
+$filteredUsers = $users;
+if (isset($_GET['search_id']) && $_GET['search_id'] !== '') {
+    $searchId = (int)$_GET['search_id'];
+    $filteredUsers = array_filter($users, fn($user) => $user['id_utilisateur'] == $searchId);
+}
+
+// Sort users if sorting is requested
+if (isset($_GET['sort'])) {
+    if ($_GET['sort'] === 'asc') {
+        usort($filteredUsers, fn($a, $b) => $a['id_utilisateur'] - $b['id_utilisateur']);
+    } elseif ($_GET['sort'] === 'desc') {
+        usort($filteredUsers, fn($a, $b) => $b['id_utilisateur'] - $a['id_utilisateur']);
+    }
+}
+
+// Handle PDF export
+if (isset($_GET['export_pdf'])) {
+    require_once __DIR__ . '/../../libs/fpdf/fpdf.php';
+
+    $pdf = new FPDF();
+    $pdf->AddPage();
+    $pdf->SetFont('Arial', 'B', 12);
+
+    // Title
+    $pdf->Cell(0, 10, 'Liste des Utilisateurs', 0, 1, 'C');
+    $pdf->Ln(10);
+
+    // Table header
+    $pdf->SetFont('Arial', 'B', 10);
+    $pdf->Cell(20, 10, 'ID', 1);
+    $pdf->Cell(40, 10, 'Nom', 1);
+    $pdf->Cell(40, 10, 'Prenom', 1);
+    $pdf->Cell(60, 10, 'Email', 1);
+    $pdf->Cell(30, 10, 'Role', 1);
+    $pdf->Ln();
+
+    // Table rows
+    $pdf->SetFont('Arial', '', 10);
+    foreach ($filteredUsers as $user) {
+        $pdf->Cell(20, 10, $user['id_utilisateur'], 1);
+        $pdf->Cell(40, 10, $user['nom'], 1);
+        $pdf->Cell(40, 10, $user['prenom'], 1);
+        $pdf->Cell(60, 10, $user['email'], 1);
+        $pdf->Cell(30, 10, ucfirst($user['role']), 1);
+        $pdf->Ln();
+    }
+
+    // Output PDF
+    $pdf->Output('D', 'Liste_Utilisateurs.pdf');
+    exit();
+}
+
 // Process form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
     try {
@@ -91,10 +144,21 @@ if (isset($_SESSION['success'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FundFlow - Gestion des Utilisateurs</title>
-    <link rel="stylesheet" href="css/styleutilisateur.css">
+    <link rel="stylesheet" href="css/styleutilisateur.css?v=1.1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+   
 </head>
 <body>
+    <div class="sidebar">
+        <h2>Menu</h2>
+        <a href="utilisateurmet.php">Gestion des Utilisateurs</a>
+        <a href="adduser.php">Ajouter un Utilisateur</a>
+        <a href="allconsult.php">Liste des Consultants</a>
+        <a href="contact.html">Contact</a>
+        <a href="apropos.html">À propos</a>
+        <a href="accueil.html">Accueil</a>
+    </div>
+
     <header class="navbar">
         <div class="logo-container">
         <img src="assets/logo.png" alt="FundFlow" height="60">
@@ -105,7 +169,7 @@ if (isset($_SESSION['success'])) {
             <a href="accueil.html" class="logout"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
         </nav>
     </header>
-
+  
     <div class="main-container">
         <div class="header-section">
             <h1><i class="fas fa-users"></i> Gestion des Utilisateurs</h1>
@@ -128,95 +192,43 @@ if (isset($_SESSION['success'])) {
                 </div>
             </div>
         </div>
-
-        <div class="finance-form-container">
-            <h2 class="text-center mb-4"><?= $editMode ? 'Modifier' : 'Nouvel' ?> Utilisateur</h2>
-            
-            <?php if (isset($success_message)): ?>
-                <div class="alert alert-success"><?= htmlspecialchars($success_message) ?></div>
-            <?php endif; ?>
-            
-            <?php if (isset($error_message)): ?>
-                <div class="alert alert-danger"><?= htmlspecialchars($error_message) ?></div>
-            <?php endif; ?>
-
-            <form method="POST">
-                <input type="hidden" name="id_utilisateur" value="<?= $editMode ? $userToEdit['id_utilisateur'] : $newId ?>">
-                <input type="hidden" name="is_edit" value="<?= $editMode ? 'true' : 'false' ?>">
-                
-                <div class="form-row">
-                    <div class="form-group col-md-6">
-                        <label class="form-label"><i class="fas fa-user" placeholder="Tapez votre nom"></i> Nom *</label>
-                        <input type="text" class="form-control" name="nom" 
-                               value="<?= $editMode ? htmlspecialchars($userToEdit['nom']) : '' ?>" >
-                    </div>
-                    <div class="form-group col-md-6">
-                        <label class="form-label" ><i class="fas fa-user"></i> Prénom *</label>
-                        <input type="text" class="form-control" name="prenom" 
-                               value="<?= $editMode ? htmlspecialchars($userToEdit['prenom']) : '' ?>" >
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label" ><i class="fas fa-envelope" ></i> Email *</label>
-                    <input type="email" class="form-control" name="email" 
-                           value="<?= $editMode ? htmlspecialchars($userToEdit['email']) : '' ?>">
-                </div>
-
-                <?php if (!$editMode): ?>
-                <div class="form-group">
-                    <label class="form-label" ><i class="fas fa-lock"></i> Mot de passe *</label>
-                    <input type="password" class="form-control" name="mdp" >
-                </div>
-                <?php endif; ?>
-
-                <div class="form-row">
-                    <div class="form-group col-md-6">
-                        <label class="form-label"><i class="fas fa-user-tag"></i> Rôle *</label>
-                        <select class="form-select" name="role" >
-                            <option value="">Tapez votre Role</option>
-                            <option value="entrepreneur" <?= ($editMode && $userToEdit['role'] == 'entrepreneur') ? 'selected' : '' ?>>Entrepreneur</option>
-                            <option value="investisseur" <?= ($editMode && $userToEdit['role'] == 'investisseur') ? 'selected' : '' ?>>Investisseur</option>
-                            <option value="consultant" <?= ($editMode && $userToEdit['role'] == 'consultant') ? 'selected' : '' ?>>Consultant</option>
-                            <option value="admin" <?= ($editMode && $userToEdit['role'] == 'admin') ? 'selected' : '' ?>>Administrateur</option>
-                        </select>
-                    </div>
-                    <div class="form-group col-md-6">
-                        <label class="form-label"><i class="fas fa-info-circle"></i> Statut *</label>
-                        <select class="form-select" name="status" >
-                            <option value="">Tapez votre Status</option>
-                            <option value="actif" <?= ($editMode && $userToEdit['status'] == 'actif') ? 'selected' : '' ?>>Actif</option>
-                            <option value="inactif" <?= ($editMode && $userToEdit['status'] == 'inactif') ? 'selected' : '' ?>>Inactif</option>
-                            <option value="suspendu" <?= ($editMode && $userToEdit['status'] == 'suspendu') ? 'selected' : '' ?>>Suspendu</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label"><i class="fas fa-map-marker-alt"></i> Adresse</label>
-                    <input type="text" class="form-control" name="adresse" 
-                           value="<?= $editMode ? htmlspecialchars($userToEdit['adresse']) : '' ?>">
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label"><i class="fas fa-phone"></i> Téléphone</label>
-                    <input type="tel" class="form-control" name="tel" id="tel"
-                           value="<?= $editMode ? htmlspecialchars($userToEdit['tel']) : '' ?>">
-                               
-                </div>
-
-                <div class="form-actions">
-                    <button type="submit" name="submit" class="btn btn-primary">
+    <a href="adduser.php"><button type="submit" name="submit" class="btn btn-primary">
                         <i class="fas fa-<?= $editMode ? 'save' : 'user-plus' ?>"></i>
-                        <?= $editMode ? 'Mettre à jour' : 'Créer' ?>
+                        <?= $editMode = 'Créer' ?>
+                    </button></a>
+
+                    <form method="GET" action="utilisateurmet.php" class="search-form">
+                <div class="input-group">
+                    <input type="number" name="search_id" class="form-control" placeholder="Rechercher par ID" 
+                           value="<?= isset($_GET['search_id']) ? htmlspecialchars($_GET['search_id']) : '' ?>">
+                    <button type="submit" class="btn btn-info">
+                        <i class="fas fa-search"></i> Rechercher
                     </button>
-                    <?php if ($editMode): ?>
-                        <a href="utilisateurmet.php" class="btn btn-secondary">
+                    <?php if (isset($_GET['search_id'])): ?>
+                        <a href="utilisateurmet.php" class="btn btn-danger">
                             <i class="fas fa-times"></i> Annuler
                         </a>
                     <?php endif; ?>
                 </div>
             </form>
+                    <!-- Boutons de tri -->
+            <a href="utilisateurmet.php?sort=asc">
+                <button type="button" class="btn btn-secondary">
+                    <i class="fas fa-sort-amount-up"></i> Tri croissant
+                </button>
+            </a>
+            <a href="utilisateurmet.php?sort=desc">
+                <button type="button" class="btn btn-secondary">
+                    <i class="fas fa-sort-numeric-down-alt"></i> Tri décroissant
+                </button>
+            </a>
+
+            <!-- Export PDF Button -->
+            <div class="export-pdf">
+                <a href="utilisateurmet.php?export_pdf=1" class="btn btn-success">
+                    <i class="fas fa-file-pdf"></i> Exporter en PDF
+                </a>
+            </div>
         </div>
 
         <div class="table-container">
@@ -232,49 +244,55 @@ if (isset($_SESSION['success'])) {
                             <th>Rôle</th>
                             <th>Statut</th>
                             <th>Création</th>
+                            <th>Image</th> <!-- Added column for image -->
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($users as $user): ?>
-                            <tr>
-                                <td><?= $user['id_utilisateur'] ?></td>
-                                <td><?= htmlspecialchars($user['nom']) ?></td>
-                                <td><?= htmlspecialchars($user['prenom']) ?></td>
-                                <td><?= htmlspecialchars($user['email']) ?></td>
-                                <td>
-                                    <span class="badge <?= 
-                                        $user['role'] == 'admin' ? 'bg-danger' :
-                                        ($user['role'] == 'consultant' ? 'bg-info' :
-                                        ($user['role'] == 'investisseur' ? 'bg-warning' : 'bg-success'))
-                                    ?>">
-                                        <?= ucfirst($user['role']) ?>
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="badge <?= 
-                                        $user['status'] == 'actif' ? 'bg-success' :
-                                        ($user['status'] == 'inactif' ? 'bg-secondary' : 'bg-warning')
-                                    ?>">
-                                        <?= ucfirst($user['status']) ?>
-                                    </span>
-                                </td>
-                                <td><?= date('d/m/Y', strtotime($user['date_creation'])) ?></td>
-                                <td class="action-buttons">
-                                    <a href="utilisateurmet.php?edit_id=<?= $user['id_utilisateur'] ?>"
-                                       class="btn btn-warning btn-sm"
-                                       title="Modifier">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <a href="utilisateurmet.php?delete_id=<?= $user['id_utilisateur'] ?>"
-                                       class="btn btn-danger btn-sm"
-                                       onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur?')"
-                                       title="Supprimer">
-                                        <i class="fas fa-trash"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
+                    <?php foreach ($filteredUsers as $user): ?>
+                        <tr>
+                            <td><?= $user['id_utilisateur'] ?></td>
+                            <td><?= htmlspecialchars($user['nom']) ?></td>
+                            <td><?= htmlspecialchars($user['prenom']) ?></td>
+                            <td><?= htmlspecialchars($user['email']) ?></td>
+                            <td>
+                                <span class="badge <?= 
+                                    $user['role'] == 'admin' ? 'bg-danger' :
+                                    ($user['role'] == 'consultant' ? 'bg-info' :
+                                    ($user['role'] == 'investisseur' ? 'bg-warning' : 'bg-success'))
+                                ?>">
+                                    <?= ucfirst($user['role']) ?>
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge <?= 
+                                    $user['status'] == 'actif' ? 'bg-success' :
+                                    ($user['status'] == 'inactif' ? 'bg-secondary' : 'bg-warning')
+                                ?>">
+                                    <?= ucfirst($user['status']) ?>
+                                </span>
+                            </td>
+                            <td><?= date('d/m/Y', strtotime($user['date_creation'])) ?></td>
+                            <td>
+                                <img src="<?= htmlspecialchars($user['image'] ?: 'assets/default-avatar.png') ?>" 
+                                     alt="Image de <?= htmlspecialchars($user['nom']) ?>" 
+                                     style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
+                            </td> <!-- Display user image -->
+                            <td class="action-buttons">
+                                <a href="userlist.php?edit_id=<?= $user['id_utilisateur'] ?>"
+                                   class="btn btn-warning btn-sm"
+                                   title="Modifier">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="utilisateurmet.php?delete_id=<?= $user['id_utilisateur'] ?>"
+                                   class="btn btn-danger btn-sm"
+                                   onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur?')"
+                                   title="Supprimer">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>

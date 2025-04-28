@@ -35,21 +35,25 @@ document.addEventListener("DOMContentLoaded", () => {
         mdp: {
             element: document.querySelector("[name='mdp']"),
             error: null,
-            validate: value => {
-                // Validation seulement si en mode création (pas en édition)
-                if (!document.querySelector("[name='is_edit']") || 
-                    document.querySelector("[name='is_edit']").value !== "true") {
-                    return 
-                        value.length >= 8 &&
-                        /[a-z]/.test(value) && // Au moins une minuscule
-                        /[A-Z]/.test(value) && // Au moins une majuscule
-                        /[0-9]/.test(value)    // Au moins un chiffre
-                }
-                return true; // En mode édition, on ne valide pas le mot de passe
+            validate: function(value) {
+                // Si en mode édition et que le champ mdp n'existe pas, on skip
+                const isEditMode = document.querySelector("[name='is_edit']") && 
+                                 document.querySelector("[name='is_edit']").value === "true";
+                
+                if (isEditMode) return true;
+                
+                // Validation en mode création
+                return value.length >= 8 &&
+                       /[a-z]/.test(value) && // Au moins une minuscule
+                       /[A-Z]/.test(value) && // Au moins une majuscule
+                       /[0-9]/.test(value);   // Au moins un chiffre
             },
-            required: !(document.querySelector("[name='is_edit']") && 
-                      document.querySelector("[name='is_edit']").value === "true")
+            required: function() {
+                return !(document.querySelector("[name='is_edit']") && 
+                       document.querySelector("[name='is_edit']").value === "true");
+            }
         },
+               
         tel: {
             element: document.querySelector("[name='tel']"),
             error: null,
@@ -151,11 +155,13 @@ document.addEventListener("DOMContentLoaded", () => {
         const isEmpty = value.trim() === "";
         
         // Si le champ est obligatoire et vide
-        if (field.required && isEmpty) {
-            field.error.textContent = getErrorMessage(key, true);
-            field.element.style.borderColor = "#e74c3c";
-            return false;
-        }
+        // Si le champ est obligatoire et vide
+if (field.required && isEmpty) {
+    field.error.textContent = getErrorMessage(key, true);
+    field.element.style.borderColor = "#e74c3c";
+    return false;
+}
+
         // Si le champ n'est pas vide mais invalide
         else if (!isEmpty && !field.validate(value)) {
             field.error.textContent = getErrorMessage(key, false);

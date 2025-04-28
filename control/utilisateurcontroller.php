@@ -15,9 +15,9 @@ class UtilisateurController
     {
         $stmt = $this->db->prepare("
             INSERT INTO utilisateur
-            (id_utilisateur, nom, prenom, email, mdp, role, status, adresse, date_creation, tel)
+            (id_utilisateur, nom, prenom, email, mdp, role, status, adresse, date_creation, tel, image)
             VALUES
-            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
         
         // Hash password
@@ -33,7 +33,8 @@ class UtilisateurController
             $user->getStatus(),
             $user->getAdresse(),
             $user->getDateCreation(),
-            $user->getTel()
+            $user->getTel(),
+            $user->getImage() // Added image field
         ]);
     }
 
@@ -41,7 +42,7 @@ class UtilisateurController
     {
         $stmt = $this->db->prepare("
             UPDATE utilisateur
-            SET nom = ?, prenom = ?, email = ?, role = ?, status = ?, adresse = ?, tel = ?
+            SET nom = ?, prenom = ?, email = ?, role = ?, status = ?, adresse = ?, tel = ?, image = ?
             WHERE id_utilisateur = ?
         ");
         
@@ -53,6 +54,7 @@ class UtilisateurController
             $user->getStatus(),
             $user->getAdresse(),
             $user->getTel(),
+            $user->getImage(), // Added image field
             $user->getId()
         ]);
     }
