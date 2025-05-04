@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
     try {
         $montant_accorde = $_POST['montant_accorde'];
         $message = $_POST['message'];
-        $date_reponse = $_POST['date_reponse'];
+        $date_reponse = date('Y-m-d'); // Automatically set the current date
 
         if ($montant_accorde > $remainingAmount) {
             throw new Exception("Le montant accordé dépasse le montant restant requis.");
@@ -113,25 +113,20 @@ if (isset($_SESSION['error'])) {
         <?php endif; ?>
 
         <div class="response-form">
-            <form method="POST">
+            <form method="POST" id="responseForm">
                 <input type="hidden" name="id_demande" value="<?= $demande_id ?>">
                 
                 <div class="form-group mb-3">
                     <label class="form-label">Montant accordé (€) *</label>
                     <input type="number" class="form-control" name="montant_accorde" 
-                           min="0" max="<?= $remainingAmount ?>" step="100" required>
-                    <div class="error-message text-danger mt-1" id="montantError" style="display: none;"></div>
-                </div>
-
-                <div class="form-group mb-3">
-                    <label class="form-label">Date de réponse *</label>
-                    <input type="date" class="form-control" name="date_reponse" 
-                           value="<?= date('Y-m-d') ?>" required>
+                           min="0" max="<?= $remainingAmount ?>" step="100">
+                    <div class="error-message" id="montantError" style="display: none;"></div>
                 </div>
                 
                 <div class="form-group mb-3">
-                    <label class="form-label">Message</label>
-                    <textarea class="form-control" name="message" rows="3"></textarea>
+                    <label class="form-label">Message *</label>
+                    <textarea class="form-control" name="message" rows="3" placeholder="Ajoutez un message..."></textarea>
+                    <div class="error-message" id="messageError" style="display: none;"></div>
                 </div>
                 
                 <button type="submit" name="submit" class="btn btn-primary">
@@ -142,20 +137,36 @@ if (isset($_SESSION['error'])) {
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const amountField = document.querySelector('input[name="montant_accorde"]');
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('responseForm');
+            const montantInput = document.querySelector('input[name="montant_accorde"]');
+            const messageInput = document.querySelector('textarea[name="message"]');
             const montantError = document.getElementById('montantError');
-            const maxAmount = <?= $remainingAmount ?>;
+            const messageError = document.getElementById('messageError');
 
-            // Real-time validation feedback
-            amountField.addEventListener('input', function() {
-                const montant = parseFloat(this.value);
+            form.addEventListener('submit', function (e) {
+                let isValid = true;
 
-                if (montant > maxAmount) {
-                    montantError.textContent = `Le montant ne peut pas dépasser ${maxAmount.toLocaleString()} €.`;
+                // Validate Montant accordé
+                if (!montantInput.value || parseFloat(montantInput.value) <= 0) {
+                    montantError.textContent = 'Veuillez entrer un montant valide.';
                     montantError.style.display = 'block';
+                    isValid = false;
                 } else {
                     montantError.style.display = 'none';
+                }
+
+                // Validate Message
+                if (!messageInput.value.trim()) {
+                    messageError.textContent = 'Veuillez entrer un message.';
+                    messageError.style.display = 'block';
+                    isValid = false;
+                } else {
+                    messageError.style.display = 'none';
+                }
+
+                if (!isValid) {
+                    e.preventDefault();
                 }
             });
         });

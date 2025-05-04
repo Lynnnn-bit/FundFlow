@@ -153,9 +153,7 @@ if (!empty($sortColumn) && in_array($sortColumn, ['id_demande', 'projet_titre', 
         <h1 class="mb-4"><i class="fas fa-list-ol"></i> Liste des Demandes</h1>
 
         <div class="text-end mb-3">
-            <a href="export_demands_pdf.php" class="btn btn-primary">
-                <i class="fas fa-file-pdf"></i> Exporter en PDF
-            </a>
+            <!-- Removed PDF export button -->
         </div>
 
         <!-- Search and Sort Form -->

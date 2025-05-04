@@ -74,26 +74,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
         $montant_demandee = $_POST['montant'];
         $duree = $_POST['duree'];
         $status = $editMode ? $_POST['status'] : 'en_attente'; // Get status from form if in edit mode
-        
-        $user_id = $controller->getProjectOwner($id_project);
-        
-        $finance = new Finance($id_project, $user_id, $duree, $montant_demandee, $status, $id_demande);
+
         $project = $controller->getProjectById($id_project);
         if (!$project) {
-            throw new Exception("Le projet sélectionné n'existe pas");
-        }
-        if (isset($_POST['is_edit']) && $_POST['is_edit'] === 'true') {
-            if ($controller->updateFinanceRequest($finance)) {
-                $_SESSION['success'] = "Demande mise à jour avec succès! (ID: $id_demande)";
-            }
+            $projectError = "Veuillez sélectionner un projet valide.";
         } else {
-            if ($controller->createFinanceRequest($finance)) {
-                $_SESSION['success'] = "Demande enregistrée avec succès! (ID: $id_demande)";
+            $user_id = $controller->getProjectOwner($id_project);
+            $finance = new Finance($id_project, $user_id, $duree, $montant_demandee, $status, $id_demande);
+
+            if (isset($_POST['is_edit']) && $_POST['is_edit'] === 'true') {
+                if ($controller->updateFinanceRequest($finance)) {
+                    $_SESSION['success'] = "Demande mise à jour avec succès! (ID: $id_demande)";
+                }
+            } else {
+                if ($controller->createFinanceRequest($finance)) {
+                    $_SESSION['success'] = "Demande enregistrée avec succès! (ID: $id_demande)";
+                }
             }
+
+            header("Location: financemet.php");
+            exit();
         }
-        
-        header("Location: financemet.php");
-        exit();
     } catch (Exception $e) {
         $error_message = $e->getMessage();
     }
@@ -125,62 +126,6 @@ $totalAcceptedAmount = array_sum(array_map(function ($d) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        .section {
-            display: none;
-        }
-        .section.active {
-            display: block;
-        }
-        .nav-buttons {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 1.5rem;
-        }
-        .nav-buttons .btn {
-            margin: 0 0.5rem;
-        }
-        .stats-section {
-            display: none;
-        }
-        .stats-section.active {
-            display: block;
-        }
-        .stats-card {
-            background: rgba(30, 60, 82, 0.6);
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            text-align: center;
-            margin-bottom: 1.5rem;
-            color: white;
-        }
-        .stats-card h3 {
-            font-size: 1.2rem;
-            margin-bottom: 0.5rem;
-        }
-        .stats-card .value {
-            font-size: 2rem;
-            font-weight: bold;
-            background: linear-gradient(to right, #00d09c, #1abc9c);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .chart-container {
-            width: 100%;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 2rem;
-            background: rgba(30, 60, 82, 0.6);
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            text-align: center;
-        }
-        .chart-container h3 {
-            color: white;
-            margin-bottom: 1rem;
-        }
-    </style>
 </head>
 <body>
     <header class="navbar">
@@ -221,7 +166,7 @@ $totalAcceptedAmount = array_sum(array_map(function ($d) {
                     
                     <div class="form-group">
                         <label class="form-label"><i class="fas fa-project-diagram"></i> Projet *</label>
-                        <select class="form-select" name="id_project" required>
+                        <select class="form-select" name="id_project" >
                             <option value="">Sélectionnez un projet</option>
                             <?php foreach ($projects as $project): ?>
                                 <option value="<?= $project['id_projet'] ?>" 
@@ -230,18 +175,21 @@ $totalAcceptedAmount = array_sum(array_map(function ($d) {
                                 </option>
                             <?php endforeach; ?>
                         </select>
+                        <?php if (isset($projectError)): ?>
+                            <div class="error-message text-danger mt-1"><?= htmlspecialchars($projectError) ?></div>
+                        <?php endif; ?>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label"><i class="fas fa-euro-sign"></i> Montant (€) *</label>
                         <input type="number" class="form-control" name="montant" min="10000" max="10000000" 
-                               value="<?= $editMode ? $financeToEdit['montant_demandee'] : '500000' ?>" required>
+                               value="<?= $editMode ? $financeToEdit['montant_demandee'] : '500000' ?>" >
                     </div>
 
                     <div class="form-group">
                         <label class="form-label"><i class="fas fa-calendar-alt"></i> Durée (mois) *</label>
                         <input type="number" class="form-control" name="duree" min="6" max="60" 
-                               value="<?= $editMode ? $financeToEdit['duree'] : '24' ?>" required>
+                               value="<?= $editMode ? $financeToEdit['duree'] : '24' ?>" >
                     </div>
 
                     <div class="form-actions">

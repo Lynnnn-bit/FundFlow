@@ -140,9 +140,7 @@ $totalAcceptedAmount = array_sum(array_map(function ($d) {
         <h1 class="mb-4"><i class="fas fa-chart-bar"></i> Statistiques</h1>
 
         <div class="text-end mb-3">
-            <a href="export_statistics_pdf.php" class="btn btn-primary">
-                <i class="fas fa-file-pdf"></i> Exporter en PDF
-            </a>
+            <!-- Removed PDF export button -->
         </div>
 
         <div class="stats-container">

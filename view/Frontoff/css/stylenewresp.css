@@ -29,6 +29,7 @@ body {
     margin-left: 10px;
     background: linear-gradient(to right, #00d09c, #1abc9c);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
@@ -137,6 +138,13 @@ body {
     background-repeat: no-repeat;
     background-position: right 1rem center;
     background-size: 16px;
+}
+
+/* Error Message Styles */
+.error-message {
+    color: red;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
 }
 
 /* Alert Messages */
