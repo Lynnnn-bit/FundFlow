@@ -332,4 +332,40 @@ class PartenaireController {
             return false;
         }
     }
+
+    public function filterPartenairesByName($name) {
+        $query = "SELECT * FROM fiche_partenaire WHERE nom LIKE :name";
+        try {
+            $stmt = $this->db->prepare($query);
+            $stmt->execute([':name' => '%' . $name . '%']);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Error filtering partners by name: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    public function filterPartenairesByMontantRange($min = null, $max = null) {
+        $query = "SELECT * FROM fiche_partenaire WHERE 1=1";
+        $params = [];
+
+        if ($min !== null) {
+            $query .= " AND montant >= :min";
+            $params[':min'] = $min;
+        }
+
+        if ($max !== null) {
+            $query .= " AND montant <= :max";
+            $params[':max'] = $max;
+        }
+
+        try {
+            $stmt = $this->db->prepare($query);
+            $stmt->execute($params);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Error filtering partners by montant range: " . $e->getMessage());
+            return [];
+        }
+    }
 }

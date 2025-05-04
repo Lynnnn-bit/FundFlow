@@ -118,6 +118,17 @@ $contracts = $partenaireController->getPartnerContracts($partner['id_partenaire'
 $success_message = $_SESSION['success'] ?? null;
 $error_message = $_SESSION['error'] ?? null;
 unset($_SESSION['success'], $_SESSION['error']);
+
+// Map status values to their corresponding labels
+function getStatusLabel($status) {
+    $statusLabels = [
+        'en attente' => 'En attente',
+        'actif' => 'Actif',
+        'expiré' => 'Expiré',
+        'approuvé' => 'Approuvé'
+    ];
+    return $statusLabels[$status] ?? 'Inconnu';
+}
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -494,6 +505,110 @@ unset($_SESSION['success'], $_SESSION['error']);
 .icon-edit:before { content: "\f044"; font-family: "Font Awesome"; }
 .icon-cancel:before { content: "\f00d"; font-family: "Font Awesome"; }
 .icon-save:before { content: "\f0c7"; font-family: "Font Awesome"; }
+
+/* Table Styles for "Vos Contrats" Section */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    background-color: rgba(30, 60, 82, 0.8);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.table th, .table td {
+    padding: 1rem;
+    text-align: left;
+    color: #e2e8f0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.table td:first-child, /* ID column */
+.table td:nth-child(2), /* Date Début column */
+.table td:nth-child(3), /* Date Fin column */
+.table td:nth-child(4) { /* Termes column */
+    color: #1abc9c; /* Brighter color for better readability */
+    font-weight: 600; /* Slightly bolder text */
+    background-color: rgba(26, 188, 156, 0.1); /* Subtle background highlight */
+    border-radius: 4px; /* Rounded corners for the highlight */
+    padding: 0.8rem; /* Add padding for better spacing */
+}
+
+.table th {
+    background-color: rgba(15, 32, 39, 0.9);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(46, 79, 102, 0.6);
+    transition: background-color 0.3s ease;
+}
+
+.table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Badge Styles */
+.badge {
+    display: inline-block;
+    padding: 0.4rem 0.8rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.badge-success {
+    background: linear-gradient(to right, #00d09c, #2ecc71);
+    color: white;
+}
+
+.badge-warning {
+    background: linear-gradient(to right, #f39c12, #e67e22);
+    color: white;
+}
+
+.badge-danger {
+    background: linear-gradient(to right, #e74c3c, #c0392b);
+    color: white;
+}
+
+.badge-secondary {
+    background: linear-gradient(to right, #95a5a6, #7f8c8d);
+    color: white;
+}
+
+/* Button Styles */
+.btn-sm {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+    border-radius: 8px;
+}
+
+.btn-primary {
+    background: linear-gradient(to right, #3498db, #2980b9);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(to right, #2980b9, #1abc9c);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+
+.btn-danger {
+    background: linear-gradient(to right, #e74c3c, #c0392b);
+    color: white;
+}
+
+.btn-danger:hover {
+    background: linear-gradient(to right, #c0392b, #a5281b);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+}
     </style>
 </head>
 <body>
@@ -621,25 +736,20 @@ unset($_SESSION['success'], $_SESSION['error']);
                                 <td><?= htmlspecialchars($contract['date_fin']) ?></td>
                                 <td><?= htmlspecialchars($contract['terms']) ?></td>
                                 <td>
-                                    <?php if ($contract['status'] === 'en attente'): ?>
-                                        <span class="badge bg-warning text-dark">En attente</span>
-                                    <?php elseif ($contract['status'] === 'approuvé'): ?>
-                                        <span class="badge bg-success">Approuvé</span>
-                                    <?php else: ?>
-                                        <span class="badge bg-secondary">Inconnu</span>
-                                    <?php endif; ?>
+                                    <span class="badge bg-<?= $contract['status'] === 'actif' ? 'success' : ($contract['status'] === 'en attente' ? 'warning text-dark' : ($contract['status'] === 'expiré' ? 'danger' : 'secondary')) ?>">
+                                        <?= htmlspecialchars(getStatusLabel($contract['status'])) ?>
+                                    </span>
                                 </td>
                                 <td>
                                     <form method="POST" class="d-inline">
                                         <input type="hidden" name="id_contrat" value="<?= $contract['id_contrat'] ?>">
-                                       <!-- Remplacez le bouton actuel par ceci -->
-<button type="button" class="btn btn-primary btn-sm" 
-        data-bs-toggle="modal" 
-        data-modal-target="editContractModal<?= $contract['id_contrat'] ?>">
-    <i class="fas fa-edit"></i> Modifier
-</button>
+                                        <button type="button" class="btn btn-primary btn-sm" 
+                                                data-bs-toggle="modal" 
+                                                data-modal-target="editContractModal<?= $contract['id_contrat'] ?>">
+                                            <i class="fas fa-edit"></i> Modifier
+                                        </button>
                                     </form>
-                                    <?php if ($contract['status'] === 'en attente'): ?>
+                                    <?php if (in_array($contract['status'], ['en attente', 'actif'])): ?>
                                         <form method="POST" class="d-inline">
                                             <input type="hidden" name="id_contrat" value="<?= $contract['id_contrat'] ?>">
                                             <button type="submit" name="delete_contract" class="btn btn-danger btn-sm"
@@ -652,62 +762,60 @@ unset($_SESSION['success'], $_SESSION['error']);
                             </tr>
 
                             <!-- Update Contract Modal -->
-                         <!-- Update Contract Modal -->
-                          <!-- Nouveau design de modal -->
-<div class="contract-modal-wrapper" id="editContractModal<?= $contract['id_contrat'] ?>" aria-hidden="true">
-  <div class="contract-modal-container">
-    <div class="contract-modal-content">
-      <form method="POST" class="contract-form">
-        <div class="contract-modal-header">
-          <div class="contract-modal-title">
-            <i class="icon-edit"></i>
-            <h3>Édition du contrat #<?= $contract['id_contrat'] ?></h3>
-          </div>
-          <button type="button" class="close-modal-btn" aria-label="Fermer">
-            &times;
-          </button>
-        </div>
-        
-        <div class="contract-modal-body">
-          <input type="hidden" name="id_contrat" value="<?= $contract['id_contrat'] ?>">
-          
-          <div class="form-field-group">
-            <label class="form-field-label">Dates du contrat</label>
-            <div class="date-fields">
-              <div class="date-field">
-                <label>Début</label>
-                <input type="date" name="date_deb" 
-                       value="<?= date('Y-m-d', strtotime($contract['date_deb'])) ?>" 
-                       class="date-input" required>
-              </div>
-              <div class="date-field">
-                <label>Fin</label>
-                <input type="date" name="date_fin" 
-                       value="<?= date('Y-m-d', strtotime($contract['date_fin'])) ?>" 
-                       class="date-input" required>
-              </div>
-            </div>
-          </div>
-          
-          <div class="form-field-group">
-            <label class="form-field-label">Termes du contrat</label>
-            <textarea name="terms" class="contract-terms"><?= htmlspecialchars($contract['terms']) ?></textarea>
-          </div>
-        </div>
-        
-        <div class="contract-modal-footer">
-          <button type="button" class="cancel-btn">
-            <i class="icon-cancel"></i> Annuler
-          </button>
-          <button type="submit" name="update_contract" class="submit-btn">
-            <i class="icon-save"></i> Enregistrer
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-                            <?php endforeach; ?>
+                            <div class="contract-modal-wrapper" id="editContractModal<?= $contract['id_contrat'] ?>" aria-hidden="true">
+                                <div class="contract-modal-container">
+                                    <div class="contract-modal-content">
+                                        <form method="POST" class="contract-form">
+                                            <div class="contract-modal-header">
+                                                <div class="contract-modal-title">
+                                                    <i class="icon-edit"></i>
+                                                    <h3>Édition du contrat #<?= $contract['id_contrat'] ?></h3>
+                                                </div>
+                                                <button type="button" class="close-modal-btn" aria-label="Fermer">
+                                                    &times;
+                                                </button>
+                                            </div>
+                                            
+                                            <div class="contract-modal-body">
+                                                <input type="hidden" name="id_contrat" value="<?= $contract['id_contrat'] ?>">
+                                                
+                                                <div class="form-field-group">
+                                                    <label class="form-field-label">Dates du contrat</label>
+                                                    <div class="date-fields">
+                                                        <div class="date-field">
+                                                            <label>Début</label>
+                                                            <input type="date" name="date_deb" 
+                                                                   value="<?= date('Y-m-d', strtotime($contract['date_deb'])) ?>" 
+                                                                   class="date-input" required>
+                                                        </div>
+                                                        <div class="date-field">
+                                                            <label>Fin</label>
+                                                            <input type="date" name="date_fin" 
+                                                                   value="<?= date('Y-m-d', strtotime($contract['date_fin'])) ?>" 
+                                                                   class="date-input" required>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="form-field-group">
+                                                    <label class="form-field-label">Termes du contrat</label>
+                                                    <textarea name="terms" class="contract-terms"><?= htmlspecialchars($contract['terms']) ?></textarea>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="contract-modal-footer">
+                                                <button type="button" class="cancel-btn">
+                                                    <i class="icon-cancel"></i> Annuler
+                                                </button>
+                                                <button type="submit" name="update_contract" class="submit-btn">
+                                                    <i class="icon-save"></i> Enregistrer
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
                         <?php if (empty($contracts)): ?>
                             <tr>
                                 <td colspan="6" class="text-center">Aucun contrat trouvé</td>

@@ -76,23 +76,21 @@ class ContratController {
     }
 
     public function getContract($id_contrat) {
-        $stmt = $this->db->prepare("
-            SELECT c.*, p.nom as partenaire_nom 
-            FROM contrat c
-            JOIN fiche_partenaire p ON c.id_partenaire = p.id_partenaire
-            WHERE c.id_contrat = ?
-        ");
+        $query = "SELECT c.*, p.nom AS partenaire_nom 
+                  FROM contrat c
+                  LEFT JOIN fiche_partenaire p ON c.id_partenaire = p.id_partenaire
+                  WHERE c.id_contrat = ?";
+        $stmt = $this->db->prepare($query);
         $stmt->execute([$id_contrat]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     public function getAllContracts() {
-        $stmt = $this->db->query("
-            SELECT c.*, p.nom as partenaire_nom 
-            FROM contrat c
-            JOIN fiche_partenaire p ON c.id_partenaire = p.id_partenaire
-            ORDER BY c.created_at DESC
-        ");
+        $query = "SELECT c.*, p.nom AS partenaire_nom 
+                  FROM contrat c
+                  LEFT JOIN fiche_partenaire p ON c.id_partenaire = p.id_partenaire
+                  ORDER BY c.created_at DESC";
+        $stmt = $this->db->query($query);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -124,6 +122,52 @@ class ContratController {
         } catch (PDOException $e) {
             error_log("Error fetching contract statistics: " . $e->getMessage());
             return ['expired' => 0, 'active' => 0, 'pending' => 0];
+        }
+    }
+
+    public function filterContractsByAdvancedSearch($dateStart = null, $dateEnd = null, $status = null) {
+        $query = "SELECT c.*, p.nom AS partenaire_nom 
+                  FROM contrat c
+                  LEFT JOIN fiche_partenaire p ON c.id_partenaire = p.id_partenaire 
+                  WHERE 1=1";
+        $params = [];
+
+        if ($dateStart) {
+            $query .= " AND c.date_deb >= :dateStart";
+            $params[':dateStart'] = $dateStart;
+        }
+
+        if ($dateEnd) {
+            $query .= " AND c.date_fin <= :dateEnd";
+            $params[':dateEnd'] = $dateEnd;
+        }
+
+        if ($status) {
+            $query .= " AND c.status = :status";
+            $params[':status'] = $status;
+        }
+
+        $query .= " ORDER BY c.created_at DESC";
+
+        try {
+            $stmt = $this->db->prepare($query);
+            $stmt->execute($params);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Error filtering contracts: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    public function updateExpiredContracts() {
+        $query = "UPDATE contrat 
+                  SET status = 'expiré' 
+                  WHERE status != 'expiré' AND date_fin < CURDATE()";
+        try {
+            $stmt = $this->db->prepare($query);
+            $stmt->execute();
+        } catch (PDOException $e) {
+            error_log("Error updating expired contracts: " . $e->getMessage());
         }
     }
 }

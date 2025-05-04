@@ -404,21 +404,21 @@ unset($_SESSION['success'], $_SESSION['error']);
                     <label for="nom" class="form-label">
                         <i class="fas fa-building"></i> Nom de l'entreprise *
                     </label>
-                    <input type="text" class="form-control" id="nom" name="nom" required> 
+                    <input type="text" class="form-control" id="nom" name="nom" > 
                 </div>
                 
                 <div class="form-group">
                     <label for="email" class="form-label">
                         <i class="fas fa-envelope"></i> Email *
                     </label>
-                    <input type="email" class="form-control" id="email" name="email" required>
+                    <input type="email" class="form-control" id="email" name="email" >
                 </div>
                 
                 <div class="form-group">
                     <label for="telephone" class="form-label">
                         <i class="fas fa-phone"></i> Téléphone *
                     </label>
-                    <input type="text" class="form-control" id="telephone" name="telephone" required>    
+                    <input type="text" class="form-control" id="telephone" name="telephone" >    
                     <small class="form-text">Format: 8 chiffres (ex: 0612345678)</small>
                 </div>
                 
@@ -428,7 +428,7 @@ unset($_SESSION['success'], $_SESSION['error']);
                     </label>
                     <div class="mb-3">
                         <label for="montantInput" class="form-label">Montant (€)</label>
-                        <input type="text" class="form-control" id="montant" name="montant" placeholder="Entrez le montant" required>
+                        <input type="text" class="form-control" id="montant" name="montant" placeholder="Entrez le montant" >
                         <div id="montant_error" class="invalid-feedback"></div>
                     </div>
 
@@ -439,7 +439,7 @@ unset($_SESSION['success'], $_SESSION['error']);
                     <label for="description" class="form-label">
                         <i class="fas fa-align-left"></i> Description *
                     </label>
-                    <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
+                    <textarea class="form-control" id="description" name="description" rows="4" ></textarea>
                     <small class="form-text">Décrivez votre entreprise et vos motivations</small>
                 </div>
                 
@@ -461,7 +461,7 @@ unset($_SESSION['success'], $_SESSION['error']);
                 
                 <form method="GET" class="row g-3">
                     <div class="col-md-8">
-                        <input type="email" name="email" class="form-control" placeholder="Votre email" required>
+                        <input type="email" name="email" class="form-control" placeholder="Votre email" 
                     </div>
                     <div class="col-md-4">
                         <button type="submit" name="view_request" class="btn btn-primary w-100">

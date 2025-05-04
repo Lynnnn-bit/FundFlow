@@ -18,11 +18,41 @@ if ($searchPartenaireId) {
     $unapprovedPartenaires = $partenaireController->getUnapprovedPartenaires($sortOrder);
 }
 
-// Handle search inputs for "Contrats"
+// Handle advanced search filters for "Demandes de Partenariat"
+$searchPartenaireType = $_GET['search_partenaire_type'] ?? null;
+$searchPartenaireId = $_GET['search_partenaire_id'] ?? null;
+$searchPartenaireNom = $_GET['search_partenaire_nom'] ?? null;
+$searchMontantMin = $_GET['search_montant_min'] ?? null;
+$searchMontantMax = $_GET['search_montant_max'] ?? null;
+
+if ($searchPartenaireType === 'id' && $searchPartenaireId) {
+    $unapprovedPartenaires = [$partenaireController->getPartenaire($searchPartenaireId)];
+    $unapprovedPartenaires = array_filter($unapprovedPartenaires); // Remove null results
+} elseif ($searchPartenaireType === 'nom' && $searchPartenaireNom) {
+    $unapprovedPartenaires = $partenaireController->filterPartenairesByName($searchPartenaireNom);
+} elseif ($searchPartenaireType === 'montant_range' && ($searchMontantMin || $searchMontantMax)) {
+    $unapprovedPartenaires = $partenaireController->filterPartenairesByMontantRange($searchMontantMin, $searchMontantMax);
+} else {
+    $unapprovedPartenaires = $partenaireController->getUnapprovedPartenaires($sortOrder);
+}
+
+// Update expired contracts
+$contratController->updateExpiredContracts();
+
+// Handle advanced search filters for "Contrats"
+$searchType = $_GET['search_type'] ?? null;
 $searchContratId = $_GET['search_contrat_id'] ?? null;
-if ($searchContratId) {
+$searchDateStart = $_GET['search_date_start'] ?? null;
+$searchDateEnd = $_GET['search_date_end'] ?? null;
+$searchStatus = $_GET['search_status'] ?? null;
+
+if ($searchType === 'id' && $searchContratId) {
     $contrats = [$contratController->getContract($searchContratId)];
     $contrats = array_filter($contrats); // Remove null results
+} elseif ($searchType === 'status' && $searchStatus) {
+    $contrats = $contratController->filterContractsByAdvancedSearch(null, null, $searchStatus);
+} elseif ($searchType === 'date_range' && ($searchDateStart || $searchDateEnd)) {
+    $contrats = $contratController->filterContractsByAdvancedSearch($searchDateStart, $searchDateEnd, null);
 } else {
     $contrats = $contratController->getAllContracts();
 }
@@ -395,6 +425,7 @@ foreach ($contrats as $contrat) {
             <a href="/logout" class="logout"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
         </nav>
     </nav>
+    
 
     <div class="main-container">
         <!-- Expiring Contracts Notification -->
@@ -420,27 +451,61 @@ foreach ($contrats as $contrat) {
         
 
         <!-- Download PDF Button -->
+         
         <div class="mb-4">
             <a href="download_pdf.php" class="btn btn-primary">
                 <i class="fas fa-file-pdf"></i> Télécharger le PDF
             </a>
         </div>
+       
 
-        <!-- Search and Sort Form for Demandes de Partenariat -->
+        
+
+        <!-- Advanced Search Form for Demandes de Partenariat -->
         <div class="card mb-4">
-            <h2><i class="fas fa-search me-2"></i>Rechercher et Trier les Demandes de Partenariat</h2>
+            <h2><i class="fas fa-search me-2"></i>Recherche Avancée des Demandes de Partenariat</h2>
             <form method="GET" class="mb-4">
                 <div class="row">
-                    
+                    <div class="col-md-4">
+                        <label for="search_partenaire_type" class="form-label">Type de Recherche</label>
+                        <select class="form-select" id="search_partenaire_type" name="search_partenaire_type" onchange="togglePartenaireSearchFields()">
+                            <option value="">Sélectionnez</option>
+                            <option value="id" <?= ($searchPartenaireType === 'id') ? 'selected' : '' ?>>Par ID</option>
+                            <option value="nom" <?= ($searchPartenaireType === 'nom') ? 'selected' : '' ?>>Par Nom</option>
+                            <option value="montant_range" <?= ($searchPartenaireType === 'montant_range') ? 'selected' : '' ?>>Par Intervalle de Montant</option>
+                        </select>
+                    </div>
+                </div>
+                
+                
+
+                <div class="row mt-3" id="search_partenaire_by_id" style="display: none;">
                     <div class="col-md-6">
                         <label for="search_partenaire_id" class="form-label">ID Partenaire</label>
-                        <input type="text" class="form-control" id="search_partenaire_id" name="search_partenaire_id" placeholder="Entrez l'ID du partenaire" value="<?= htmlspecialchars($_GET['search_partenaire_id'] ?? '') ?>">
+                        <input type="text" class="form-control" id="search_partenaire_id" name="search_partenaire_id" value="<?= htmlspecialchars($searchPartenaireId) ?>">
                     </div>
-                    <div class="col-md-6 d-flex align-items-end">
-                        <button type="submit" class="btn btn-primary me-2"><i class="fas fa-search"></i> Rechercher</button>
-                        <a href="?sort_order=montant ASC" class="btn btn-secondary me-2"><i class="fas fa-sort-amount-up"></i> Montant Ascendant</a>
-                        <a href="?sort_order=montant DESC" class="btn btn-secondary"><i class="fas fa-sort-amount-down"></i> Montant Descendant</a>
+                </div>
+
+                <div class="row mt-3" id="search_partenaire_by_nom" style="display: none;">
+                    <div class="col-md-6">
+                        <label for="search_partenaire_nom" class="form-label">Nom Partenaire</label>
+                        <input type="text" class="form-control" id="search_partenaire_nom" name="search_partenaire_nom" value="<?= htmlspecialchars($searchPartenaireNom) ?>">
                     </div>
+                </div>
+
+                <div class="row mt-3" id="search_partenaire_by_montant_range" style="display: none;">
+                    <div class="col-md-4">
+                        <label for="search_montant_min" class="form-label">Montant Minimum</label>
+                        <input type="number" class="form-control" id="search_montant_min" name="search_montant_min" value="<?= htmlspecialchars($searchMontantMin) ?>">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="search_montant_max" class="form-label">Montant Maximum</label>
+                        <input type="number" class="form-control" id="search_montant_max" name="search_montant_max" value="<?= htmlspecialchars($searchMontantMax) ?>">
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Rechercher</button>
                 </div>
             </form>
         </div>
@@ -501,18 +566,77 @@ foreach ($contrats as $contrat) {
             </div>
         </div>
 
-        <!-- Search Form for Contrats -->
-        <div class="card mb-4">
-            <h2><i class="fas fa-search me-2"></i>Rechercher un Contrat par ID</h2>
-            <form method="GET" class="mb-4">
-                <div class="row">
-                    <div class="col-md-6">
-                        <label for="search_contrat_id" class="form-label">ID Contrat</label>
-                        <input type="text" class="form-control" id="search_contrat_id" name="search_contrat_id" placeholder="Entrez l'ID du contrat">
+        <!-- Advanced Search Form -->
+        <div class="card mb-4 shadow-sm rounded-4">
+            <div class="card-body">
+                <h2 class="mb-4"><i class="fas fa-search me-2"></i>Recherche Avancée</h2>
+                <form method="GET">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label for="search_type" class="form-label">Type de Recherche</label>
+                            <select class="form-select" id="search_type" name="search_type" onchange="toggleSearchFields()">
+                                <option value="">Sélectionnez</option>
+                                <option value="id" <?= ($searchType === 'id') ? 'selected' : '' ?>>Par ID</option>
+                                <option value="status" <?= ($searchType === 'status') ? 'selected' : '' ?>>Par Statut</option>
+                                <option value="date_range" <?= ($searchType === 'date_range') ? 'selected' : '' ?>>Par Intervalle de Dates</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
-                <button type="submit" class="btn btn-primary mt-3">Rechercher</button>
-            </form>
+
+                    <div class="row mt-3" id="search_by_id" style="display: none;">
+                        <div class="col-md-6">
+                            <label for="search_contrat_id" class="form-label">ID Contrat</label>
+                            <input type="text" class="form-control" id="search_contrat_id" name="search_contrat_id" value="<?= htmlspecialchars($searchContratId) ?>">
+                        </div>
+                    </div>
+
+                    <div class="row mt-3" id="search_by_status" style="display: none;">
+                        <div class="col-md-6">
+                            <label for="search_status" class="form-label">Statut</label>
+                            <select class="form-select" id="search_status" name="search_status">
+                                <option value="">Tous</option>
+                                <option value="actif" <?= ($searchStatus === 'actif') ? 'selected' : '' ?>>Actif</option>
+                                <option value="en attente" <?= ($searchStatus === 'en attente') ? 'selected' : '' ?>>En attente</option>
+                                <option value="expiré" <?= ($searchStatus === 'expiré') ? 'selected' : '' ?>>Expiré</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3" id="search_by_date_range" style="display: none;">
+                        <div class="col-md-4">
+                            <label for="search_date_start" class="form-label">Date Début</label>
+                            <input type="date" class="form-control" id="search_date_start" name="search_date_start" value="<?= htmlspecialchars($searchDateStart) ?>">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="search_date_end" class="form-label">Date Fin</label>
+                            <input type="date" class="form-control" id="search_date_end" name="search_date_end" value="<?= htmlspecialchars($searchDateEnd) ?>">
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Rechercher</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card mb-4 shadow-sm rounded-4">
+            <div class="card-body text-center">
+                <h2><i class="fas fa-microphone me-2"></i>Recherche Vocale</h2>
+                <p class="text-muted">Utilisez votre voix pour rechercher rapidement un contrat</p>
+                <button id="voiceSearchBtn" class="btn btn-outline-primary btn-lg px-4 rounded-pill">
+                    <i class="fas fa-microphone"></i> Commencer à parler
+                </button>
+                <div id="voiceStatus" class="mt-2 text-secondary small"></div>
+            </div>
+        </div>
+
+        <!-- Résultats de la recherche vocale -->
+        <div id="voiceSearchResults" class="card shadow-sm rounded-4 mb-4" style="display: none;">
+            <div class="card-body">
+                <h3 class="mb-3"><i class="fas fa-list me-2"></i>Résultats de la recherche vocale</h3>
+                <div id="contractDetails"></div>
+            </div>
         </div>
 
         <!-- Contracts Section -->
@@ -545,7 +669,7 @@ foreach ($contrats as $contrat) {
                         <?php foreach ($contrats as $contrat): ?>
                         <tr>
                             <td><?= htmlspecialchars($contrat['id_contrat']) ?></td>
-                            <td><?= htmlspecialchars($contrat['partenaire_nom']) ?></td>
+                            <td><?= htmlspecialchars($contrat['partenaire_nom'] ?? 'N/A') ?></td>
                             <td><?= date('d/m/Y', strtotime($contrat['date_deb'])) ?></td>
                             <td><?= date('d/m/Y', strtotime($contrat['date_fin'])) ?></td>
                             <td>
@@ -641,20 +765,21 @@ foreach ($contrats as $contrat) {
                 
                 <div class="form-group">
                     <label class="form-label">Date Début:</label>
-                    <input type="date" name="date_deb" id="edit_date_deb" class="form-control" required>
+                    <input type="date" name="date_deb" id="edit_date_deb" class="form-control" 
                 </div>
                 
                 <div class="form-group">
                     <label class="form-label">Date Fin:</label>
-                    <input type="date" name="date_fin" id="edit_date_fin" class="form-control" required>
+                    <input type="date" name="date_fin" id="edit_date_fin" class="form-control" 
                 </div>
                 
                 <div class="form-group">
                     <label class="form-label">Statut:</label>
-                    <select name="status" id="edit_status" class="form-control" required>
-                        <option value="en attente">En attente</option>
-                        <option value="actif">Actif</option>
+                    <select name="status" id="edit_status" class="form-control" 
                         <option value="expiré">Expiré</option>
+                        <option value="actif">Actif</option>
+                        <option value="en attente">En attente</option>
+                        
                     </select>
                 </div>
                 
@@ -735,8 +860,7 @@ foreach ($contrats as $contrat) {
             throw new Error(result.error || 'Erreur inconnue');
         }
         
-        alert('Contrat mis à jour avec succès!');
-        window.location.reload();
+       
         
     } catch (error) {
         console.error('Erreur:', error);
@@ -900,6 +1024,161 @@ document.addEventListener('DOMContentLoaded', function () {
 
      
     });
+});
+
+function toggleSearchFields() {
+    const searchType = document.getElementById('search_type').value;
+    document.getElementById('search_by_id').style.display = (searchType === 'id') ? 'block' : 'none';
+    document.getElementById('search_by_status').style.display = (searchType === 'status') ? 'block' : 'none';
+    document.getElementById('search_by_date_range').style.display = (searchType === 'date_range') ? 'block' : 'none';
+}
+
+// Initialize the form based on the selected search type
+document.addEventListener('DOMContentLoaded', toggleSearchFields);
+
+function togglePartenaireSearchFields() {
+    const searchType = document.getElementById('search_partenaire_type').value;
+    document.getElementById('search_partenaire_by_id').style.display = (searchType === 'id') ? 'block' : 'none';
+    document.getElementById('search_partenaire_by_nom').style.display = (searchType === 'nom') ? 'block' : 'none';
+    document.getElementById('search_partenaire_by_montant_range').style.display = (searchType === 'montant_range') ? 'block' : 'none';
+}
+
+// Initialize the form based on the selected search type
+document.addEventListener('DOMContentLoaded', togglePartenaireSearchFields);
+// Reconnaissance vocale
+document.addEventListener('DOMContentLoaded', function() {
+    const voiceSearchBtn = document.getElementById('voiceSearchBtn');
+    const voiceStatus = document.getElementById('voiceStatus');
+    const voiceSearchResults = document.getElementById('voiceSearchResults');
+    const contractDetails = document.getElementById('contractDetails');
+
+    if ('webkitSpeechRecognition' in window) {
+        const recognition = new webkitSpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = 'fr-FR';
+
+        voiceSearchBtn.addEventListener('click', function() {
+            startVoiceRecognition();
+        });
+
+        function startVoiceRecognition() {
+            try {
+                // Changer l'apparence du bouton pendant l'écoute
+                voiceSearchBtn.innerHTML = '<i class="fas fa-microphone-slash"></i> Ecoute en cours...';
+                voiceSearchBtn.classList.remove('btn-primary');
+                voiceSearchBtn.classList.add('btn-danger');
+                voiceStatus.textContent = "Parlez maintenant...";
+                voiceStatus.style.color = "green";
+                
+                recognition.start();
+            } catch (error) {
+                console.error('Erreur reconnaissance vocale:', error);
+                resetVoiceRecognition();
+                voiceStatus.textContent = "Erreur: " + error.message;
+                voiceStatus.style.color = "red";
+            }
+        }
+
+        recognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript.trim();
+            voiceStatus.textContent = "Vous avez dit: " + transcript;
+            voiceStatus.style.color = "blue";
+            
+            // Extraire un numéro de contrat (séquence de chiffres)
+            const contractId = transcript.match(/\d+/)?.[0];
+            
+            if (contractId) {
+                voiceStatus.textContent += " - ID détecté: " + contractId;
+                fetchContractDetails(contractId);
+            } else {
+                voiceStatus.textContent += " - Aucun ID de contrat détecté";
+                voiceStatus.style.color = "orange";
+                resetVoiceRecognition();
+            }
+        };
+
+        recognition.onerror = function(event) {
+            console.error('Erreur reconnaissance:', event.error);
+            voiceStatus.textContent = "Erreur: " + getErrorText(event.error);
+            voiceStatus.style.color = "red";
+            resetVoiceRecognition();
+        };
+
+        recognition.onend = function() {
+            resetVoiceRecognition();
+        };
+
+        function resetVoiceRecognition() {
+            voiceSearchBtn.innerHTML = '<i class="fas fa-microphone"></i> Commencer à parler';
+            voiceSearchBtn.classList.remove('btn-danger');
+            voiceSearchBtn.classList.add('btn-primary');
+        }
+
+        function getErrorText(error) {
+            const errors = {
+                'no-speech': 'Aucune parole détectée',
+                'audio-capture': 'Problème de microphone',
+                'not-allowed': 'Microphone non autorisé',
+                'aborted': 'Reconnaissance interrompue',
+                'network': 'Erreur réseau',
+                'language-not-supported': 'Langue non supportée'
+            };
+            return errors[error] || 'Erreur inconnue';
+        }
+
+        async function fetchContractDetails(contractId) {
+            try {
+                voiceStatus.textContent = "Recherche du contrat #" + contractId + "...";
+                
+                const response = await fetch(`get_contract_info.php?id=${contractId}`);
+                if (!response.ok) throw new Error('Erreur réseau');
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                // Afficher les résultats
+                displayContractDetails(data);
+                
+            } catch (error) {
+                console.error('Erreur:', error);
+                voiceStatus.textContent = "Erreur: " + error.message;
+                voiceStatus.style.color = "red";
+            }
+        }
+
+        function displayContractDetails(contract) {
+            voiceSearchResults.style.display = 'block';
+            contractDetails.innerHTML = `
+                <div class="alert alert-success">
+                    <h4>Contrat #${contract.id_contrat}</h4>
+                    <p><strong>Partenaire:</strong> ${contract.partenaire_nom}</p>
+                    <p><strong>Date Début:</strong> ${contract.date_deb}</p>
+                    <p><strong>Date Fin:</strong> ${contract.date_fin}</p>
+                    <p><strong>Statut:</strong> <span class="badge badge-${getStatusBadgeClass(contract.status)}">${contract.status}</span></p>
+                </div>
+            `;
+            
+            // Faire défiler jusqu'aux résultats
+            voiceSearchResults.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function getStatusBadgeClass(status) {
+            return {
+                'actif': 'success',
+                'en attente': 'warning',
+                'expiré': 'danger'
+            }[status] || 'secondary';
+        }
+
+    } else {
+        voiceSearchBtn.style.display = 'none';
+        voiceStatus.textContent = "La reconnaissance vocale n'est pas supportée par votre navigateur";
+        voiceStatus.style.color = "red";
+    }
 });
 </script>
 </body>

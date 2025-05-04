@@ -25,6 +25,16 @@ if ($searchContratId) {
 } else {
     $contrats = $contratController->getAllContracts();
 }
+
+// Map status values to their corresponding labels
+function getStatusLabel($status) {
+    $statusLabels = [
+        'en attente' => 'En attente',
+        'actif' => 'Actif',
+        'expiré' => 'Expiré'
+    ];
+    return $statusLabels[$status] ?? 'Inconnu';
+}
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -102,7 +112,7 @@ if ($searchContratId) {
                         <td><?= htmlspecialchars($contrat['date_deb']) ?></td>
                         <td><?= htmlspecialchars($contrat['date_fin']) ?></td>
                         <td><?= htmlspecialchars($contrat['terms']) ?></td>
-                        <td><?= htmlspecialchars($contrat['status']) ?></td>
+                        <td><?= htmlspecialchars(getStatusLabel($contrat['status'])) ?></td>
                     </tr>
                 <?php endforeach; ?>
                 <?php if (empty($contrats)): ?>
