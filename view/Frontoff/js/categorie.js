@@ -1,5 +1,3 @@
-// validation.js - Contrôle de saisie avancé
-
 document.addEventListener('DOMContentLoaded', function () {
     const form = document.querySelector('form');
     if (!form) return;
@@ -13,15 +11,15 @@ document.addEventListener('DOMContentLoaded', function () {
     // Error message containers
     const idCategorieError = document.createElement('small');
     idCategorieError.className = 'error-message';
-    idInput.insertAdjacentElement('afterend', idCategorieError);
+    idInput.parentElement.appendChild(idCategorieError);
 
     const nomCategorieError = document.createElement('small');
     nomCategorieError.className = 'error-message';
-    nomCategorieInput.insertAdjacentElement('afterend', nomCategorieError);
+    nomCategorieInput.parentElement.appendChild(nomCategorieError);
 
     const descriptionError = document.createElement('small');
     descriptionError.className = 'error-message';
-    descriptionInput.insertAdjacentElement('afterend', descriptionError);
+    descriptionInput.parentElement.appendChild(descriptionError);
 
     // Validation functions
     const validateIdCategorie = () => {

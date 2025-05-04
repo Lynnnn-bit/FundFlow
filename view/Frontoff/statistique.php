@@ -13,6 +13,19 @@ $totalFunding = array_sum(array_column($projects, 'montant_cible'));
 $averageFunding = $totalProjects > 0 ? $totalFunding / $totalProjects : 0;
 $maxFunding = $totalProjects > 0 ? max(array_column($projects, 'montant_cible')) : 0;
 $minFunding = $totalProjects > 0 ? min(array_column($projects, 'montant_cible')) : 0;
+
+// Calculate project distribution by category
+$categoryDistribution = [];
+foreach ($projects as $project) {
+    $category = $project['categorie'] ?? 'Non catégorisé';
+    if (!isset($categoryDistribution[$category])) {
+        $categoryDistribution[$category] = 0;
+    }
+    $categoryDistribution[$category]++;
+}
+
+// Convert data for JavaScript
+$chartData = json_encode($categoryDistribution);
 ?>
 
 <!DOCTYPE html>
@@ -22,6 +35,18 @@ $minFunding = $totalProjects > 0 ? min(array_column($projects, 'montant_cible'))
     <title>Statistiques des Projets</title>
     <link rel="stylesheet" href="css/stylecatego.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .chart-container {
+            width: 80%;
+            margin: 2rem auto;
+            text-align: center;
+        }
+        canvas {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+    </style>
 </head>
 <body>
 <header class="navbar">
@@ -65,6 +90,51 @@ $minFunding = $totalProjects > 0 ? min(array_column($projects, 'montant_cible'))
             <div class="stat-label">Montant min</div>
         </div>
     </div>
+
+    <!-- Chart Section -->
+    <div class="chart-container">
+        <h1>Répartition des Projets par Catégorie</h1>
+        <canvas id="categoryChart"></canvas>
+    </div>
 </main>
+
+<script>
+    const chartData = <?= $chartData ?>;
+    const ctx = document.getElementById('categoryChart').getContext('2d');
+    const labels = Object.keys(chartData);
+    const data = Object.values(chartData);
+
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Projets par Catégorie',
+                data: data,
+                backgroundColor: [
+                    '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'
+                ],
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            const total = data.reduce((sum, value) => sum + value, 0);
+                            const percentage = ((tooltipItem.raw / total) * 100).toFixed(2);
+                            return `${tooltipItem.label}: ${tooltipItem.raw} (${percentage}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
 </body>
 </html>

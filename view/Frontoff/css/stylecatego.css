@@ -76,86 +76,42 @@ body {
     color: #00d09c;
 }
 
-/* Hero Section */
-.hero-section {
-    text-align: center; /* Center align text */
-    margin: 2rem 0; /* Add spacing above and below */
-}
-
-.hero-section h1 {
-    font-size: 2rem;
-    color: #00d09c; /* Highlighted title color */
-    margin-bottom: 1rem;
-}
-
-.hero-section p {
-    font-size: 1.2rem;
-    color: #cbd5e1; /* Subtle text color */
-}
-
 /* Stats Container */
 .stats-container {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1.5rem;
-    margin-top: 2rem;
+    margin-bottom: 2rem;
 }
 
 .stat-card {
-    background: rgba(30, 60, 82, 0.8);
-    border-radius: 16px;
+    background: rgba(30, 60, 82, 0.6);
+    border-radius: 12px;
     padding: 1.5rem;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     text-align: center;
-    color: white;
-    transition: transform 0.3s, box-shadow 0.3s;
+    transition: transform 0.3s;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .stat-card:hover {
-    transform: translateY(-10px);
+    transform: translateY(-5px);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
 }
 
-.stat-card h3 {
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-    color: #00d09c;
-}
-
-.stat-card .stat-value {
+.stat-value {
     font-size: 2rem;
     font-weight: bold;
-    margin-bottom: 0.5rem;
     background: linear-gradient(to right, #00d09c, #1abc9c);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    margin-bottom: 0.5rem;
 }
 
-.stat-card .stat-label {
-    font-size: 1rem;
+.stat-label {
     color: #cbd5e1;
-}
-
-/* Circular Statistics */
-.circle {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    background: conic-gradient(#00d09c calc(var(--percentage, 0%) * 1%), #2c5364 0%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 1rem;
-    position: relative;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-
-.circle span {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: white;
-    position: absolute;
-    text-align: center;
+    font-size: 0.9rem;
 }
 
 /* Form Container */
@@ -299,34 +255,6 @@ body {
     margin-top: 1.5rem;
 }
 
-/* Style for the statistics button */
-.stats-btn {
-    background: linear-gradient(to right, #3498db, #2980b9); /* Blue gradient background */
-    color: white;
-    padding: 0.8rem 1.5rem;
-    border: none;
-    border-radius: 12px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none; /* Remove underline for links */
-    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3); /* Add shadow */
-}
-
-.stats-btn i {
-    margin-right: 8px;
-}
-
-.stats-btn:hover {
-    background: linear-gradient(to right, #2980b9, #1abc9c); /* Change gradient on hover */
-    transform: translateY(-2px); /* Lift button on hover */
-    box-shadow: 0 6px 15px rgba(52, 152, 219, 0.4); /* Enhance shadow on hover */
-}
-
 /* Table Container */
 .table-container {
     background: rgba(30, 60, 82, 0.6);
@@ -378,184 +306,26 @@ tr:hover {
     background-color: rgba(46, 79, 102, 0.4);
 }
 
-/* Grid layout for project cards */
-.projects-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive grid */
-    gap: 1.5rem; /* Add spacing between cards */
-    margin-top: 2rem; /* Add spacing above the grid */
-}
-
-/* Style for project cards */
-.project-card {
-    background: rgba(30, 60, 82, 0.8); /* Semi-transparent background */
-    border-radius: 16px; /* Rounded corners */
-    padding: 1.5rem;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Add shadow for depth */
-    transition: transform 0.3s, box-shadow 0.3s;
-    text-align: center;
-    color: white;
-}
-
-.project-card:hover {
-    transform: translateY(-10px); /* Lift the card on hover */
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3); /* Enhance shadow on hover */
-}
-
-.project-card h3 {
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-    color: #00d09c; /* Highlighted title color */
-}
-
-.project-card p {
-    font-size: 0.95rem;
-    color: #cbd5e1; /* Subtle text color */
-    margin-bottom: 1rem;
-}
-
-.project-meta {
-    display: flex;
-    justify-content: space-around;
-    margin-bottom: 1rem;
-    font-size: 0.9rem;
-    color: #ecf0f1;
-}
-
-.project-meta div {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.project-meta i {
-    color: #00d09c; /* Icon color */
-}
-
-.project-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 1rem;
-}
-
-.project-footer .category-badge {
-    background-color: #28a745; /* Green background for category */
-    color: white;
-    padding: 5px 10px;
-    border-radius: 12px;
-    font-size: 0.875rem;
-    font-weight: bold;
-}
-
-.project-footer .view-btn {
+.badge-count {
     background: linear-gradient(to right, #00d09c, #1abc9c);
     color: white;
-    padding: 0.6rem 1rem;
-    border-radius: 8px;
-    text-decoration: none;
-    font-size: 0.9rem;
-    transition: background 0.3s, transform 0.3s;
+    border-radius: 20px;
+    padding: 2px 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
 }
 
-.project-footer .view-btn:hover {
-    background: linear-gradient(to right, #1abc9c, #3498db);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 208, 156, 0.3);
+/* Error Messages and Invalid Input */
+.error-message {
+    color: red;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    display: block;
 }
 
-/* Responsive adjustments for project cards */
-@media (max-width: 768px) {
-    .project-card {
-        padding: 1rem;
-    }
-
-    .project-card h3 {
-        font-size: 1.3rem;
-    }
-
-    .project-meta {
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-
-    .project-footer {
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-}
-
-/* Style for the search bar container */
-.search-box {
-    display: flex;
-    align-items: center;
-    margin: 1.5rem 0;
-    width: 100%;
-    max-width: 500px; /* Adjust width as needed */
-    position: relative;
-    margin-left: auto;
-    margin-right: auto; /* Center the search bar */
-}
-
-/* Style for the search input */
-.search-box input[type="text"] {
-    width: 100%;
-    padding: 0.8rem 1rem;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    font-size: 1rem;
-    background-color: #ffffff; /* White background */
-    color: #333; /* Dark text color */
-    transition: all 0.3s;
-    outline: none;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-}
-
-.search-box input[type="text"]:focus {
-    border-color: #00d09c; /* Highlight border on focus */
-    box-shadow: 0 0 8px rgba(0, 208, 156, 0.5); /* Add subtle shadow */
-}
-
-/* Style for the search button */
-.search-box button {
-    position: absolute;
-    right: 5px;
-    top: 50%;
-    transform: translateY(-50%);
-    background-color: #00d09c; /* Green background */
-    color: white;
-    border: none;
-    padding: 0.6rem 1rem;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: all 0.3s;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-}
-
-.search-box button:hover {
-    background-color: #1abc9c; /* Darker green on hover */
-    box-shadow: 0 4px 12px rgba(0, 208, 156, 0.3); /* Add hover shadow */
-}
-
-.search-box button i {
-    margin-right: 5px;
-}
-
-/* Responsive adjustments for the search bar */
-@media (max-width: 768px) {
-    .search-box {
-        max-width: 100%; /* Full width on smaller screens */
-    }
-
-    .search-box input[type="text"] {
-        font-size: 0.9rem;
-    }
-
-    .search-box button {
-        font-size: 0.9rem;
-        padding: 0.5rem 0.8rem;
-    }
+input.invalid, textarea.invalid {
+    border-color: red;
+    background-color: #ffe6e6;
 }
 
 /* Responsive Adjustments */
@@ -564,30 +334,30 @@ tr:hover {
         flex-direction: column;
         padding: 1rem;
     }
-
+   
     .navbar nav {
         margin-top: 1rem;
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
     }
-
+   
     .navbar a {
         margin: 0.5rem;
     }
-
+   
     .stats-container {
         grid-template-columns: 1fr 1fr;
     }
-
+   
     .main-container {
         padding: 1rem;
     }
-
+   
     .form-container, .table-container {
         padding: 1.5rem;
     }
-
+   
     th, td {
         padding: 0.8rem;
     }
@@ -597,11 +367,11 @@ tr:hover {
     .stats-container {
         grid-template-columns: 1fr;
     }
-
+   
     .action-buttons {
         flex-direction: column;
     }
-
+   
     .btn-sm {
         width: 100%;
         margin-bottom: 0.3rem;

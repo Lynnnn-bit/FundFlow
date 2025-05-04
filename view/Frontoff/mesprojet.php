@@ -18,6 +18,18 @@ $projects = $controller->getAllProjects();
 $totalProjects = count($projects);
 $totalFunding = array_sum(array_column($projects, 'montant_cible'));
 
+// Fix: Ensure all projects have a valid 'montant_cible' value
+$totalFunding = array_sum(array_map(function ($project) {
+    return isset($project['montant_cible']) ? (float)$project['montant_cible'] : 0;
+}, $projects));
+
+// Fix: Calculate the number of projects by status
+$projectsByStatus = array_reduce($projects, function ($carry, $project) {
+    $status = $project['status'] ?? 'unknown';
+    $carry[$status] = ($carry[$status] ?? 0) + 1;
+    return $carry;
+}, []);
+
 // Handle PDF export for all projects
 if (isset($_GET['export_pdf'])) {
     require_once __DIR__ . '/../../libs/fpdf/fpdf.php'; // Ensure FPDF is included
@@ -62,27 +74,73 @@ if (isset($_GET['export_pdf'])) {
     exit;
 }
 
+// Handle PDF comparison for two selected projects
+if (isset($_GET['compare_pdf']) && isset($_GET['project1']) && isset($_GET['project2'])) {
+    require_once __DIR__ . '/../../libs/fpdf/fpdf.php'; // Ensure FPDF is included
+
+    $project1 = $controller->getProjectById($_GET['project1']);
+    $project2 = $controller->getProjectById($_GET['project2']);
+
+    // Start output buffering to prevent premature output
+    ob_start();
+
+    $pdf = new FPDF();
+    $pdf->AddPage();
+    $pdf->SetFont('Arial', 'B', 16);
+
+    // Title
+    $pdf->Cell(0, 10, 'Comparaison des Projets', 0, 1, 'C');
+    $pdf->Ln(10);
+
+    // Table Header
+    $pdf->SetFont('Arial', 'B', 12);
+    $pdf->Cell(60, 10, 'Attribut', 1, 0, 'C');
+    $pdf->Cell(65, 10, 'Projet 1', 1, 0, 'C');
+    $pdf->Cell(65, 10, 'Projet 2', 1, 1, 'C');
+
+    // Table Rows
+    $pdf->SetFont('Arial', '', 12);
+    $pdf->Cell(60, 10, 'Titre', 1);
+    $pdf->Cell(65, 10, $project1['titre'], 1);
+    $pdf->Cell(65, 10, $project2['titre'], 1);
+    $pdf->Ln();
+
+    $pdf->Cell(60, 10, 'Description', 1);
+    $pdf->Cell(65, 10, substr($project1['description'], 0, 30) . '...', 1);
+    $pdf->Cell(65, 10, substr($project2['description'], 0, 30) . '...', 1);
+    $pdf->Ln();
+
+    $pdf->Cell(60, 10, 'Montant Cible (€)', 1);
+    $pdf->Cell(65, 10, number_format($project1['montant_cible'], 2), 1);
+    $pdf->Cell(65, 10, number_format($project2['montant_cible'], 2), 1);
+    $pdf->Ln();
+
+    $pdf->Cell(60, 10, 'Durée (mois)', 1);
+    $pdf->Cell(65, 10, $project1['duree'], 1);
+    $pdf->Cell(65, 10, $project2['duree'], 1);
+    $pdf->Ln();
+
+    // Output the PDF
+    ob_end_clean(); // Clear the output buffer
+    $pdf->Output('D', 'Comparaison_Projets.pdf');
+    exit;
+}
+
 // Capture the search term from the request
 $searchTerm = $_GET['search'] ?? null;
 
 // Filter projects based on the search term
 if ($searchTerm) {
     $projects = array_filter($projects, function ($project) use ($searchTerm) {
-        return stripos($project['titre'], $searchTerm) !== false ||
-               stripos($project['description'], $searchTerm) !== false;
+        return stripos($project['titre'], $searchTerm) !== false || stripos($project['description'], $searchTerm) !== false;
     });
 }
 
-// Capture the sorting order for ID and montant
-$idSortOrder = $_GET['id_sort'] ?? null;
+// Capture the sorting order for montant
 $montantSortOrder = $_GET['montant_sort'] ?? null;
 
 // Sort projects based on the sorting order
-if ($idSortOrder === 'asc') {
-    usort($projects, fn($a, $b) => $a['id_projet'] <=> $b['id_projet']);
-} elseif ($idSortOrder === 'desc') {
-    usort($projects, fn($a, $b) => $b['id_projet'] <=> $a['id_projet']);
-} elseif ($montantSortOrder === 'asc') {
+if ($montantSortOrder === 'asc') {
     usort($projects, fn($a, $b) => $a['montant_cible'] <=> $b['montant_cible']);
 } elseif ($montantSortOrder === 'desc') {
     usort($projects, fn($a, $b) => $b['montant_cible'] <=> $a['montant_cible']);
@@ -101,7 +159,7 @@ if ($idSortOrder === 'asc') {
             text-align: center;
             margin-bottom: 2rem;
         }
-        .button-container a, .button-container button {
+        .button-container a, .button-container button, .button-container select {
             display: inline-block;
             margin: 0 0.5rem;
             padding: 0.75rem 1.5rem;
@@ -115,7 +173,7 @@ if ($idSortOrder === 'asc') {
             border: none;
             cursor: pointer;
         }
-        .button-container a:hover, .button-container button:hover {
+        .button-container a:hover, .button-container button:hover, .button-container select:hover {
             background: linear-gradient(45deg, #00ffc8, #00c9a7);
             transform: translateY(-3px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -218,6 +276,32 @@ if ($idSortOrder === 'asc') {
             background: rgba(0, 0, 0, 0.5);
             z-index: 999;
         }
+        .stats-container {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin: 2rem auto;
+            max-width: 1200px;
+        }
+        .stat-card {
+            background: #1e293b;
+            border-radius: 8px;
+            padding: 1.5rem;
+            color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            flex: 1;
+        }
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #00ffc8;
+            margin-bottom: 0.5rem;
+        }
+        .stat-label {
+            font-size: 1rem;
+            color: #cbd5e1;
+        }
     </style>
 </head>
 <body>
@@ -238,9 +322,32 @@ if ($idSortOrder === 'asc') {
         <p>Soutenez des idées qui changent le monde</p>
     </section>
 
-    <!-- Buttons for Statistics, PDF Export, and Localisation -->
+    <!-- Statistics Section -->
+    <div class="stats-container">
+        <div class="stat-card">
+            <div class="stat-value"><?= $totalProjects ?></div>
+            <div class="stat-label">Projets total</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">€<?= number_format($totalFunding, 2) ?></div>
+            <div class="stat-label">Total demandé</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value"><?= $projectsByStatus['en_attente'] ?? 0 ?></div>
+            <div class="stat-label">En attente</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value"><?= $projectsByStatus['actif'] ?? 0 ?></div>
+            <div class="stat-label">Actifs</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value"><?= $projectsByStatus['termine'] ?? 0 ?></div>
+            <div class="stat-label">Terminés</div>
+        </div>
+    </div>
+
+    <!-- Buttons for PDF Export and Localisation -->
     <div class="button-container">
-        <a href="statistique.php"><i class="fas fa-chart-bar"></i> Voir les Statistiques</a>
         <a href="?export_pdf=true"><i class="fas fa-file-pdf"></i> Exporter en PDF</a>
         <button id="show-map-btn"><i class="fas fa-map-marker-alt"></i> Localisation</button>
     </div>
@@ -255,26 +362,36 @@ if ($idSortOrder === 'asc') {
         </iframe>
     </div>
 
-    <!-- Search Bar and Sorting Buttons -->
+    <!-- Enhanced Search -->
     <div class="search-container" style="text-align: center; margin-bottom: 1.5rem;">
         <form method="GET" class="search-box" style="display: inline-block;">
-            <input type="text" name="search" placeholder="Rechercher un projet..." value="<?= htmlspecialchars($searchTerm) ?>">
-            <button type="submit"><i class="fas fa-search"></i> Rechercher</button>
+            <input type="text" name="search" placeholder="Rechercher un projet..." value="<?= htmlspecialchars($searchTerm) ?>" class="btn">
+            <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Rechercher</button>
         </form>
-        <div class="sort-buttons" style="display: inline-block;">
-            <a href="?id_sort=asc" class="btn btn-primary <?= $idSortOrder === 'asc' ? 'active' : '' ?>">
-                <i class="fas fa-sort-numeric-up"></i> Trier par ID croissant
-            </a>
-            <a href="?id_sort=desc" class="btn btn-primary <?= $idSortOrder === 'desc' ? 'active' : '' ?>">
-                <i class="fas fa-sort-numeric-down"></i> Trier par ID décroissant
-            </a>
-            <a href="?montant_sort=asc" class="btn btn-primary <?= $montantSortOrder === 'asc' ? 'active' : '' ?>">
-                <i class="fas fa-sort-amount-up"></i> Trier par montant croissant
-            </a>
-            <a href="?montant_sort=desc" class="btn btn-primary <?= $montantSortOrder === 'desc' ? 'active' : '' ?>">
-                <i class="fas fa-sort-amount-down"></i> Trier par montant décroissant
-            </a>
-        </div>
+        <form method="GET" style="display: inline-block;">
+            <select name="montant_sort" onchange="this.form.submit()" class="btn">
+                <option value="">Trier par Montant</option>
+                <option value="asc" <?= $montantSortOrder === 'asc' ? 'selected' : '' ?>>Montant Croissant</option>
+                <option value="desc" <?= $montantSortOrder === 'desc' ? 'selected' : '' ?>>Montant Décroissant</option>
+            </select>
+        </form>
+        <form method="GET" action="" style="display: inline-block;">
+            <select name="project1" class="btn">
+                <option value="">Sélectionnez Projet 1</option>
+                <?php foreach ($projects as $project): ?>
+                    <option value="<?= $project['id_projet'] ?>"><?= htmlspecialchars($project['titre']) ?></option>
+                <?php endforeach; ?>
+            </select>
+            <select name="project2" class="btn">
+                <option value="">Sélectionnez Projet 2</option>
+                <?php foreach ($projects as $project): ?>
+                    <option value="<?= $project['id_projet'] ?>"><?= htmlspecialchars($project['titre']) ?></option>
+                <?php endforeach; ?>
+            </select>
+            <button type="submit" name="compare_pdf" class="btn btn-primary">
+                <i class="fas fa-file-pdf"></i> Comparer en PDF
+            </button>
+        </form>
     </div>
 
     <div class="projects-grid">
@@ -287,7 +404,9 @@ if ($idSortOrder === 'asc') {
                     <span><i class="fas fa-clock"></i> <?= $project['duree'] ?> mois</span>
                 </div>
                 <div class="project-actions">
-                    <a href="projet-details.php?id=<?= $project['id_projet'] ?>">Voir le projet</a>
+                    <a href="projet-details.php?id=<?= $project['id_projet'] ?>" class="btn btn-primary">
+                        <i class="fas fa-eye"></i> Voir le projet
+                    </a>
                 </div>
             </div>
         <?php endforeach; ?>

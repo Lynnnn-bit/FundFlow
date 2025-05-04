@@ -49,7 +49,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
         $duree = $_POST['duree'];
         $id_categorie = $_POST['id_categorie'] ?: null;
         $status = $_POST['status'] ?? 'en_attente';
-        $user_id = 1; // Set the user ID to 1
         
         // Validate title
         if (empty($titre)) {
@@ -68,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
         }
         
         $project = new Project(
-            $user_id, // Pass the user ID here
+            $user_id, 
             $titre, 
             $description, 
             $montant_cible, 
@@ -245,7 +244,7 @@ if (isset($_SESSION['success'])) {
                                 <td><?= htmlspecialchars(substr($project['description'], 0, 50)) ?>...</td>
                                 <td><?= number_format($project['montant_cible'], 2) ?> €</td>
                                 <td><?= $project['duree'] ?> mois</td>
-                                <td><?= htmlspecialchars($project['nom_categorie'] ?? 'Non spécifiée') ?></td>
+                                <td><?= htmlspecialchars($project['nom_categorie'] ?? 'N/A') ?></td>
                                 <td>
                                     <span class="badge <?= 
                                         $project['status'] == 'actif' ? 'bg-success' : 
