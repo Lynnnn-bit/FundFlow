@@ -11,9 +11,9 @@ class Utilisateur
     private $adresse;
     private $date_creation;
     private $tel;
-    private $image; // Added image property
-
-    public function __construct($nom, $prenom, $email, $mdp, $role, $status, $adresse, $tel, $image = 'assets/default-avatar.png', $id_utilisateur = null, $date_creation = null)
+    //private $image; // Added image property
+//, $image = 'assets/default-avatar.png'
+    public function __construct($nom, $prenom, $email, $mdp, $role, $status, $adresse, $tel, $id_utilisateur = null, $date_creation = null)
     {
         $this->nom = $nom;
         $this->prenom = $prenom;
@@ -25,7 +25,7 @@ class Utilisateur
         $this->tel = $tel;
         $this->id_utilisateur = $id_utilisateur;
         $this->date_creation = $date_creation ?: date('Y-m-d');
-        $this->image = $image; // Initialize image
+        //$this->image = $image; // Initialize image
     }
 
     // Getters
@@ -39,7 +39,7 @@ class Utilisateur
     public function getAdresse() { return $this->adresse; }
     public function getDateCreation() { return $this->date_creation; }
     public function getTel() { return $this->tel; }
-    public function getImage() { return $this->image; } // Added getter for image
+    //public function getImage() { return $this->image; } // Added getter for image
 
     // Setters
     public function setNom($nom) { $this->nom = $nom; }
@@ -50,5 +50,5 @@ class Utilisateur
     public function setStatus($status) { $this->status = $status; }
     public function setAdresse($adresse) { $this->adresse = $adresse; }
     public function setTel($tel) { $this->tel = $tel; }
-    public function setImage($image) { $this->image = $image; } // Added setter for image
+    //public function setImage($image) { $this->image = $image; } // Added setter for image
 }

@@ -32,7 +32,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Check account status
                 if ($user['status'] === 'inactif') {
                     $errors[] = "Votre compte est inactif. Veuillez contacter l'administrateur.";
-                } else {
+                } 
+                elseif ($user['status'] === 'suspendu') { // Vérifiez si le compte est suspendu
+                    $errors[] = "Désolé, votre compte est bloqué.";
+                } 
+                
+                else {
                     // Set session variables
                     $_SESSION['user_id'] = $user['id_utilisateur']; // Store user ID in session
                     $_SESSION['user'] = [
@@ -54,7 +59,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors[] = "Erreur de connexion: " . $e->getMessage();
         }
     }
+    
 }
+
 ?>
 <?php if (isset($_SESSION['success_message'])): ?>
     <div class="alert alert-success">

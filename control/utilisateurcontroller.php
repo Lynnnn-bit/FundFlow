@@ -15,9 +15,9 @@ class UtilisateurController
     {
         $stmt = $this->db->prepare("
             INSERT INTO utilisateur
-            (id_utilisateur, nom, prenom, email, mdp, role, status, adresse, date_creation, tel, image)
+            (id_utilisateur, nom, prenom, email, mdp, role, status, adresse, date_creation, tel)
             VALUES
-            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
         
         // Hash password
@@ -34,30 +34,31 @@ class UtilisateurController
             $user->getAdresse(),
             $user->getDateCreation(),
             $user->getTel(),
-            $user->getImage() // Added image field
+           // $user->getImage() // Added image field
         ]);
     }
 
     public function updateUser(Utilisateur $user)
-    {
-        $stmt = $this->db->prepare("
-            UPDATE utilisateur
-            SET nom = ?, prenom = ?, email = ?, role = ?, status = ?, adresse = ?, tel = ?, image = ?
-            WHERE id_utilisateur = ?
-        ");
-        
-        return $stmt->execute([
-            $user->getNom(),
-            $user->getPrenom(),
-            $user->getEmail(),
-            $user->getRole(),
-            $user->getStatus(),
-            $user->getAdresse(),
-            $user->getTel(),
-            $user->getImage(), // Added image field
-            $user->getId()
-        ]);
-    }
+{
+    $stmt = $this->db->prepare("
+        UPDATE utilisateur
+        SET nom = ?, prenom = ?, email = ?, mdp = ?, role = ?, status = ?, adresse = ?, tel = ?
+        WHERE id_utilisateur = ?
+    ");
+
+    return $stmt->execute([
+        $user->getNom(),
+        $user->getPrenom(),
+        $user->getEmail(),
+        $user->getMdp(),
+        $user->getRole(),
+        $user->getStatus(),
+        $user->getAdresse(),
+        $user->getTel(),
+        //$user->getImage(),
+        $user->getId()
+    ]);
+}
 
     public function getUserById($id)
     {

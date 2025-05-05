@@ -1,0 +1,240 @@
+:root {
+    --primary-color: #4a6bff;
+    --secondary-color: #3a5bef;
+    --error-color: #e74c3c;
+    --success-color: #2ecc71;
+    --text-color: #fff;
+    --light-gray: #f5f7fa;
+    --medium-gray: #ddd;
+    --dark-gray: #666;
+    --gradient-bg: linear-gradient(to right, #0f2027, #2c5364);
+    --accent-color: #4df2a6;
+    --card-bg: rgba(255, 255, 255, 0.05);
+    --input-bg: #1e3c52;
+    --table-bg: rgba(30, 60, 82, 0.7);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+body {
+    background: var(--gradient-bg);
+    color: var(--text-color);
+    min-height: 100vh;
+}
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Header comme dans l'exemple */
+/* Navbar Styles */
+.navbar {
+    position: fixed; /* Fixed header at the top */
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    background-color: rgba(15, 32, 39, 0.9); /* Consistent background color */
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.3); /* Subtle shadow for depth */
+}
+
+.navbar img {
+    height: 60px;
+}
+
+.navbar nav {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.navbar a {
+    color: #cbd5e1; /* Consistent text color */
+    text-decoration: none;
+    margin-left: 20px;
+    font-size: 0.95rem;
+    transition: color 0.3s;
+}
+
+.navbar a:hover {
+    color: #00d09c; /* Accent color on hover */
+}
+
+.navbar a i {
+    font-size: 14px;
+}
+
+.navbar i {
+    margin-right: 8px; /* Icon spacing */
+}
+
+.profile-menu {
+    padding: 8px 30px 8px 15px;
+    border: none;
+    border-radius: 5px;
+    background-color: #2A5C82; /* Couleur principale des boutons */
+    color: white !important;
+    font-size: 1rem;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    margin-left: 15px;
+    font-family: inherit;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 12px;
+    transition: background-color 0.3s ease;
+}
+
+/* Effet hover identique aux liens */
+.profile-menu:hover {
+    background-color: #1E4565;
+}
+
+/* Style des options */
+.profile-menu option {
+    padding: 10px 15px;
+    background-color: white;
+    color: #2A5C82;
+}
+
+/* Focus state */
+.profile-menu:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.3);
+}
+
+
+/* Contenu du profil */
+.profile-container {
+    background-color: var(--card-bg);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
+    margin-bottom: 40px;
+    margin-top: 120px; /* Adjusted margin to account for the fixed header height */
+}
+
+.profile-container h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 28px;
+    color: var(--accent-color);
+}
+
+.profile-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: var(--table-bg);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.profile-table th, 
+.profile-table td {
+    padding: 15px 20px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.profile-table th {
+    background-color: rgba(74, 107, 255, 0.2);
+    color: var(--accent-color);
+    font-weight: 600;
+    width: 30%;
+}
+
+.profile-table tr:last-child td {
+    border-bottom: none;
+}
+
+.profile-table tr:hover td {
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column;
+        gap: 15px;
+        padding: 15px 0;
+    }
+    
+    .navbar nav {
+        flex-direction: column;
+        gap: 15px;
+        width: 100%;
+    }
+    
+    .profile-menu {
+        width: 100%;
+        text-align: center;
+    }
+    
+    .profile-table {
+        display: block;
+        overflow-x: auto;
+    }
+    
+    .profile-container {
+        padding: 20px;
+    }
+}
+
+
+/* Style général pour les boutons */
+.button-group .btn {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: background-color 0.3s, transform 0.2s;
+    cursor: pointer;
+    margin: 10px 5px; /* Espacement entre les boutons */
+}
+
+/* Bouton Modifier le Profil */
+.button-group .btn {
+    background-color: #007bff; /* Couleur bleue */
+    color: white;
+    border: 2px solid #007bff;
+}
+
+.button-group .btn:hover {
+    background-color: #0056b3; /* Couleur bleue foncée au survol */
+    border-color: #0056b3;
+    transform: scale(1.05); /* Légère mise en avant au survol */
+}
+
+/* Bouton Supprimer le Compte */
+.button-group .btn-danger {
+    background-color: #dc3545; /* Couleur rouge */
+    color: white;
+    border: 2px solid #dc3545;
+}
+
+.button-group .btn-danger:hover {
+    background-color: #a71d2a; /* Couleur rouge foncée au survol */
+    border-color: #a71d2a;
+    transform: scale(1.05); /* Légère mise en avant au survol */
+}
