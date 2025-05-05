@@ -214,3 +214,20 @@
     font-size: 0.8rem;
     margin-top: 5px;
 }
+
+.error-border {
+  border: 1px solid red !important;
+}
+
+.error-message {
+  color: red;
+  font-size: 0.8rem;
+  margin-top: 5px;
+}
+
+#image-preview {
+  max-width: 200px;
+  max-height: 200px;
+  margin-top: 10px;
+  display: none;
+}

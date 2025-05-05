@@ -33,29 +33,32 @@ class UtilisateurController
             $user->getStatus(),
             $user->getAdresse(),
             $user->getDateCreation(),
-            $user->getTel()
+            $user->getTel(),
+           // $user->getImage() // Added image field
         ]);
     }
 
     public function updateUser(Utilisateur $user)
-    {
-        $stmt = $this->db->prepare("
-            UPDATE utilisateur
-            SET nom = ?, prenom = ?, email = ?, role = ?, status = ?, adresse = ?, tel = ?
-            WHERE id_utilisateur = ?
-        ");
-        
-        return $stmt->execute([
-            $user->getNom(),
-            $user->getPrenom(),
-            $user->getEmail(),
-            $user->getRole(),
-            $user->getStatus(),
-            $user->getAdresse(),
-            $user->getTel(),
-            $user->getId()
-        ]);
-    }
+{
+    $stmt = $this->db->prepare("
+        UPDATE utilisateur
+        SET nom = ?, prenom = ?, email = ?, mdp = ?, role = ?, status = ?, adresse = ?, tel = ?
+        WHERE id_utilisateur = ?
+    ");
+
+    return $stmt->execute([
+        $user->getNom(),
+        $user->getPrenom(),
+        $user->getEmail(),
+        $user->getMdp(),
+        $user->getRole(),
+        $user->getStatus(),
+        $user->getAdresse(),
+        $user->getTel(),
+        //$user->getImage(),
+        $user->getId()
+    ]);
+}
 
     public function getUserById($id)
     {

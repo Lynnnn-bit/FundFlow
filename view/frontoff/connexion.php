@@ -16,19 +16,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($errors)) {
         try {
             $db = Config::getConnexion();
+            if (!$db) {
+                die("Erreur: Impossible de se connecter à la base de données.");
+            }
+
             $stmt = $db->prepare("SELECT * FROM utilisateur WHERE email = ?");
+            if (!$stmt) {
+                die("Erreur: La requête SQL n'a pas pu être préparée.");
+            }
+
             $stmt->execute([$email]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
-            
+
             if ($user && ($mdp === $user['mdp'] || password_verify($mdp, $user['mdp']))) {
-            /*if ($user && password_verify($mdp, $user['mdp'])) {*/
                 // Check account status
                 if ($user['status'] === 'inactif') {
                     $errors[] = "Votre compte est inactif. Veuillez contacter l'administrateur.";
-                } else {
+                } 
+                elseif ($user['status'] === 'suspendu') { // Vérifiez si le compte est suspendu
+                    $errors[] = "Désolé, votre compte est bloqué.";
+                } 
+                
+                else {
                     // Set session variables
+                    $_SESSION['user_id'] = $user['id_utilisateur']; // Store user ID in session
                     $_SESSION['user'] = [
-                        'id' => $user['id_utilisateur'],
                         'nom' => $user['nom'],
                         'prenom' => $user['prenom'],
                         'email' => $user['email'],
@@ -36,20 +48,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'status' => $user['status']
                     ];
                     
-                    // Redirect based on role
-                    switch ($user['role']) {
-                        case 'administrateur':  // New case for administrateurs
-                            header("Location: utilisateurmet.php");
-                            break;
-                        case 'investisseur':
-                            header("Location: investisseur/dashboard.php");
-                            break;
-                        case 'consultant':
-                            header("Location: consultant/dashboard.php");
-                            break;
-                        default:
-                            header("Location: profil.php");
-                    }
+                    // Redirect to acceuil2.php
+                    header("Location: acceuil2.php");
                     exit();
                 }
             } else {
@@ -59,8 +59,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors[] = "Erreur de connexion: " . $e->getMessage();
         }
     }
+    
 }
+
 ?>
+<?php if (isset($_SESSION['success_message'])): ?>
+    <div class="alert alert-success">
+        <p><?= htmlspecialchars($_SESSION['success_message']) ?></p>
+    </div>
+    <?php unset($_SESSION['success_message']); ?>
+<?php endif; ?>
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -104,7 +112,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <input type="password" id="mdp" name="mdp">
                 <i class="fas fa-eye" id="togglePassword"></i>
             </div>
-            
+            <div class="forgot-password">
+                <a href="mdp.php">Mot de passe oublié ?</a>
+            </div>
+
             <button type="submit" class="btn">Se connecter</button>
             
             <div class="register-link">
