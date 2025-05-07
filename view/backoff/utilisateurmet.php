@@ -178,10 +178,10 @@ $paginatedUsers = array_slice($filteredUsers, $startIndex, $usersPerPage);
         <h2>Menu</h2>
         <a href="utilisateurmet.php">Gestion des Utilisateurs</a>
         <a href="adduser.php">Ajouter un Utilisateur</a>
-        <a href="allconsult.php">Liste des Consultants</a>
-        <a href="contact.html">Contact</a>
-        <a href="apropos.html">À propos</a>
-        <a href="accueil.html">Accueil</a>
+        <a href="../frontoff/allconsult.php">Liste des Consultants</a>
+        <a href="../frontoff/contact.html">Contact</a>
+        <a href="../frontoff/apropos.html">À propos</a>
+        <a href="../frontoff/accueil.html">Accueil</a>
     </div>
 
     <header class="navbar">
@@ -189,9 +189,9 @@ $paginatedUsers = array_slice($filteredUsers, $startIndex, $usersPerPage);
             <img src="assets/logo.png" alt="FundFlow" height="60">
         </div>
         <nav>
-            <a href="apropos.html"><i class="fas fa-info-circle"></i> À propos</a>
-            <a href="contact.html"><i class="fas fa-envelope"></i> Contact</a>
-            <a href="accueil.html" class="logout"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
+            <a href="../frontoff/apropos.html"><i class="fas fa-info-circle"></i> À propos</a>
+            <a href="../frontoff/contact.html"><i class="fas fa-envelope"></i> Contact</a>
+            <a href="../frontoff/accueil.html" class="logout"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
         </nav>
     </header>
     <div class="main-container1">
