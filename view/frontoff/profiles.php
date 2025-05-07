@@ -57,8 +57,8 @@ try {
           <option value="">Mon compte ▼</option>
           <option value="profiles.php">Profil</option>
           <option value="projets.php">Mes projets</option>
-          <option value="">StartUP</option>
-          <option value="">Evenements</option>
+          <option value="startup.php">StartUP</option>
+          <option value="events.php">Evenements</option>
           <option value="">Partennaire</option>
           <option value="accueil.html">Déconnexion</option>
         </select>

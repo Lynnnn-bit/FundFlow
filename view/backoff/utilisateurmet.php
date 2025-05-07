@@ -181,6 +181,7 @@ $paginatedUsers = array_slice($filteredUsers, $startIndex, $usersPerPage);
         <a href="../frontoff/allconsult.php">Liste des Consultants</a>
         <a href="../frontoff/contact.html">Contact</a>
         <a href="../frontoff/apropos.html">À propos</a>
+        <a href="../backoff/addstartup.php">StartUP</a>
         <a href="../frontoff/accueil.html">Accueil</a>
     </div>
 
