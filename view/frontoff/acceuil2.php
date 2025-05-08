@@ -31,7 +31,7 @@ if (!isset($_SESSION['user_id'])) {
     function handleMenu(select) {
       const value = select.value;
       if (value === 'logout') {
-        window.location.href = '?action=logout';
+        window.location.href = 'accueil.html'; // Redirection vers la page de déconnexion
       } else if (value) {
         window.location.href = value + '.php';
       }
@@ -46,12 +46,22 @@ if (!isset($_SESSION['user_id'])) {
       <nav>
       <a href="apropos.html"><i class="fas fa-info-circle"></i> À propos</a>
       <a href="contact.html"><i class="fas fa-envelope"></i> Contact</a>
+      <a href="partenaire.php"><i class="fas fa-envelope"></i>Demande de partenariat</a>
+      <a href="events.php"><i class="fas fa-envelope"></i>events</a>
+      <a href="startup.php"><i class="fas fa-envelope"></i>startup</a>
+
+
         
         <!-- Menu déroulant -->
         <select onchange="handleMenu(this)" class="profile-menu">
           <option value="">Mon compte ▼</option>
           <option value="profiles">Profil</option>
           <option value="mesprojets">Mes projets</option>
+          <option value="startup">startup</option>
+          <option value="events">events</option>
+
+
+          <option value="partenaire">Demande de partenariat</option>
           <option value="logout"> Déconnexion</option>
         </select>
       </nav>

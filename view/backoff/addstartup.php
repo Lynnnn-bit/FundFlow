@@ -118,10 +118,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
 
 <div class="navbar">
-    <img src="asset/logo.png" alt="Logo">
+    <img src="assets/logo.png" alt="Logo">
     <div class="nav-links">
         <a href="addStartup.php" class="nav-link">Startups</a>
-        <a href="events.php" class="nav-link">Events</a>
     </div>
 </div>
 

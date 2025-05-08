@@ -62,7 +62,7 @@ $startups = $startupC->getAllStartups();
 </head>
 <body>
     <div class="navbar">
-        <img src="asset/img/logo.png" alt="Logo">
+        <img src="assets/logo.png" alt="Logo">
         <div class="nav-links">
             <a href="frontoffice.php" class="nav-link">Accueil</a>
             <a href="#" class="nav-link">Contact</a>
@@ -146,7 +146,7 @@ $startups = $startupC->getAllStartups();
         </div>
 
         <div class="back-to-frontoffice">
-            <a href="frontoffice.php" class="btn-back">Ajouter</a>
+            <a href="frontoffice.php" class="btn-back">Ajouter evennement</a>
         </div>
     </div>
 </body>

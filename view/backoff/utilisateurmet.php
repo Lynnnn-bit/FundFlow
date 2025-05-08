@@ -182,7 +182,9 @@ $paginatedUsers = array_slice($filteredUsers, $startIndex, $usersPerPage);
         <a href="../frontoff/contact.html">Contact</a>
         <a href="../frontoff/apropos.html">À propos</a>
         <a href="../backoff/addstartup.php">StartUP</a>
+        <a href="../backoff/contrats.php">Contrat</a>
         <a href="../frontoff/accueil.html">Accueil</a>
+        
     </div>
 
     <header class="navbar">

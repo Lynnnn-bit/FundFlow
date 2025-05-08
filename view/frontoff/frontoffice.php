@@ -14,13 +14,11 @@ $startups = $startupC->getAllStartups();
     <title>Front Office - Startups</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="css/stylesfront.css">
-   
-
 </head>
 <body>
 
 <div class="navbar">
-    <img src="asset/img/logo.png" alt="Logo">
+    <img src="assets/logo.png" alt="Logo">
     <div class="nav-links">
         <a href="#" class="nav-link">Accueil</a>
         <a href="events.php" class="nav-link">Events</a>
@@ -32,8 +30,15 @@ $startups = $startupC->getAllStartups();
 <div class="container">
     <h1 class="title">Liste des Startups</h1>
 
-
     <?php foreach ($startups as $s): ?>
+        <?php
+            // Récupération des chemins relatifs pour les fichiers logo et vidéo
+            $logoFile = basename($s['logo']);
+            $videoFile = basename($s['video_presentation']);
+            $logoPath = '../backoff/uploads/' . $logoFile;
+            $videoPath = '../backoff/uploads/' . $videoFile;
+        ?>
+
         <div class="startup-card">
             <p><strong>ID:</strong> <?= $s['id_startup'] ?></p>
             <p><strong>Nom:</strong> <?= $s['nom_startup'] ?></p>
@@ -41,18 +46,24 @@ $startups = $startupC->getAllStartups();
             <p><strong>Adresse site:</strong> <a href="<?= $s['adresse_site'] ?>" target="_blank"><?= $s['adresse_site'] ?></a></p>
             <p><strong>Description:</strong> <?= $s['description'] ?></p>
             <p><strong>Email:</strong> <?= $s['email'] ?></p>
+
+            <!-- Affichage du logo -->
             <p><strong>Logo:</strong><br>
-                <img src="../admin/<?= $s['logo'] ?>" alt="Logo">
+                <img src="<?= $logoPath ?>" alt="Logo startup" style="max-width: 150px;">
             </p>
+            
+            <!-- Affichage de la vidéo -->
             <p><strong>Vidéo de Présentation:</strong><br>
-                <video controls>
-                    <source src="../admin/<?= $s['video_presentation'] ?>" type="video/mp4">
+                <video controls style="max-width: 300px;">
+                    <source src="<?= $videoPath ?>" type="video/mp4">
                     Votre navigateur ne supporte pas la lecture de vidéos.
                 </video>
             </p>
 
+            <!-- Bouton pour afficher le formulaire d'ajout d'événement -->
             <button class="btn-ajouter" onclick="toggleForm('<?= $s['id_startup'] ?>')">Ajouter Évènement</button>
 
+            <!-- Formulaire d'ajout d'événement -->
             <div class="evenement-form" id="form_<?= $s['id_startup'] ?>" style="display: none;">
                 <h3>Ajouter un Évènement</h3>
                 <form method="POST" enctype="multipart/form-data" action="addevennement.php" class="event-form">
@@ -94,50 +105,6 @@ $startups = $startupC->getAllStartups();
 </div>
 
 <script>
-// Validation pour ajouter Startup
-document.getElementById('addStartupForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-    let valid = true;
-
-    function showError(id, condition) {
-        const errorDiv = document.getElementById("error_" + id);
-        if (condition) {
-            errorDiv.style.display = "block";
-            valid = false;
-        } else {
-            errorDiv.style.display = "none";
-        }
-    }
-
-    showError("nom_startup", document.getElementById("nom_startup").value.trim() === "");
-    showError("secteur", document.getElementById("secteur").value.trim() === "");
-    showError("adresse_site", document.getElementById("adresse_site").value.trim() === "");
-    showError("logo", document.getElementById("logo").files.length === 0);
-    showError("description", document.getElementById("description").value.trim() === "");
-    showError("email", document.getElementById("email").value.trim() === "");
-    showError("video_presentation", document.getElementById("video_presentation").files.length === 0);
-
-    if (!valid) return;
-
-    const formData = new FormData(this);
-    const messageDiv = document.getElementById('addStartupMessage');
-
-    fetch('../backoff/addstartup.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.text())
-    .then(data => {
-        messageDiv.innerHTML = '<p style="color: green;">Startup ajoutée avec succès !</p>';
-        this.reset();
-        setTimeout(() => location.reload(), 1000);
-    })
-    .catch(error => {
-        messageDiv.innerHTML = '<p style="color: red;">Erreur lors de l\'ajout de la startup.</p>';
-        console.error('Error:', error);
-    });
-});
-
 // Afficher / cacher formulaire événement
 function toggleForm(startupId) {
     const form = document.getElementById('form_' + startupId);
@@ -160,7 +127,6 @@ document.querySelectorAll('.event-form').forEach(function(form) {
         };
         const errorMessages = form.querySelectorAll('.error-message');
 
-        // Reset all errors
         errorMessages.forEach(msg => msg.style.display = 'none');
 
         function showError(field, index) {
@@ -170,7 +136,6 @@ document.querySelectorAll('.event-form').forEach(function(form) {
             }
         }
 
-        // Check for empty and invalid values
         showError(fields.date_evenement, 0);
         showError(fields.type, 1);
         showError(fields.horaire, 2);
@@ -178,15 +143,12 @@ document.querySelectorAll('.event-form').forEach(function(form) {
         showError(fields.affiche, 4);
         showError(fields.nom, 5);
 
-        // Additional control: date must be today or future
-        if (fields.date_evenement.value) {
-            const selectedDate = new Date(fields.date_evenement.value);
-            const today = new Date();
-            today.setHours(0,0,0,0);
-            if (selectedDate < today) {
-                errorMessages[0].style.display = 'block';
-                valid = false;
-            }
+        const selectedDate = new Date(fields.date_evenement.value);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (fields.date_evenement.value && selectedDate < today) {
+            errorMessages[0].style.display = 'block';
+            valid = false;
         }
 
         if (!valid) {

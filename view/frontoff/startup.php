@@ -1,5 +1,4 @@
 <?php
-// Inclure les fichiers nécessaires
 include_once '../../control/startupC.php';
 
 $startupC = new startupC();
@@ -12,13 +11,12 @@ $startups = $startupC->getAllStartups();
     <meta charset="UTF-8">
     <title>Liste des Startups</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-   <link rel="stylesheet" href="css/styless.css">
-   
+    <link rel="stylesheet" href="css/styless.css">
 </head>
 <body>
 
 <div class="navbar">
-    <img src="asset/img/logo.png" alt="Logo">
+    <img src="assets/logo.png" alt="Logo">
     <div class="nav-links">
         <a href="frontoffice.php" class="nav-link">Accueil</a>
         <a href="events.php" class="nav-link">Events</a>
@@ -32,20 +30,28 @@ $startups = $startupC->getAllStartups();
 
     <?php if (!empty($startups)): ?>
         <?php foreach ($startups as $s): ?>
+            <?php
+                $logoFile = basename($s['logo']);
+                $videoFile = basename($s['video_presentation']);
+                $logoPath = '../backoff/uploads/' . $logoFile;
+                $videoPath = '../backoff/uploads/' . $videoFile;
+            ?>
             <div class="startup-card">
                 <p><strong>ID:</strong> <?= htmlspecialchars($s['id_startup']) ?></p>
                 <p><strong>Nom:</strong> <?= htmlspecialchars($s['nom_startup']) ?></p>
                 <p><strong>Secteur:</strong> <?= htmlspecialchars($s['secteur']) ?></p>
-                <p><strong>Adresse site:</strong> <a href="<?= htmlspecialchars($s['adresse_site']) ?>" target="_blank" class="site-link"><?= htmlspecialchars($s['adresse_site']) ?></a></p>
+                <p><strong>Adresse site:</strong> <a href="<?= htmlspecialchars($s['adresse_site']) ?>" target="_blank"><?= htmlspecialchars($s['adresse_site']) ?></a></p>
                 <p><strong>Description:</strong> <?= htmlspecialchars($s['description']) ?></p>
                 <p><strong>Email:</strong> <?= htmlspecialchars($s['email']) ?></p>
+
                 <p><strong>Logo:</strong><br>
-                    <img src="../back/<?= htmlspecialchars($s['logo']) ?>" alt="Logo">
+                    <img src="<?= $logoPath ?>" alt="Logo startup" style="max-width: 150px;">
                 </p>
+
                 <p><strong>Vidéo de Présentation:</strong><br>
-                    <video controls>
-                        <source src="../admin/<?= htmlspecialchars($s['video_presentation']) ?>" type="video/mp4">
-                        Votre navigateur ne supporte pas la lecture de vidéos.
+                    <video controls style="max-width: 300px;">
+                        <source src="<?= $videoPath ?>" type="video/mp4">
+                        Votre navigateur ne supporte pas la lecture vidéo.
                     </video>
                 </p>
 
@@ -67,7 +73,7 @@ $startups = $startupC->getAllStartups();
     <?php endif; ?>
 
     <div style="margin-top: 20px;">
-        <a href="frontoffice.php" class="btn-ajouter" style="text-decoration: none; padding: 10px 20px; background-color: #3498db; color: white; border-radius: 5px;">Ajouter</a>
+        <a href="frontoffice.php" class="btn-ajouter" style="text-decoration: none; padding: 10px 20px; background-color: #3498db; color: white; border-radius: 5px;">Ajouter évènement</a>
     </div>
 </div>
 

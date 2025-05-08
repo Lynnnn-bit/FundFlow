@@ -1,6 +1,6 @@
 <?php
 include_once '../../config.php';
-include_once $_SERVER['DOCUMENT_ROOT'] . '/startup/model/Evennement.php';
+include_once $_SERVER['DOCUMENT_ROOT'] . '/user/FundFlow/models/Evennement.php';
 
 class EvennementC {
     public function ajouterEvenement($evenement) {
