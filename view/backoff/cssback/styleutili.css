@@ -1,0 +1,767 @@
+    /* Base Styles */
+    body {
+        margin: 0;
+        font-family: 'Inter', sans-serif;
+        background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+        color: white;
+        min-height: 100vh;
+    }
+
+    /* Navbar Styles */
+    .navbar {
+        position: fixed; /* Fixed header at the top */
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1000;
+        background-color: rgba(15, 32, 39, 0.9);
+        padding: 1rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .logo-container {
+        display: flex;
+        align-items: center;
+    }
+
+    .brand-name {
+        color: white;
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-left: 10px;
+        background: linear-gradient(to right, #00d09c, #1abc9c);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .navbar a {
+        color: #cbd5e1;
+        text-decoration: none;
+        margin-left: 20px;
+        font-size: 0.95rem;
+        transition: color 0.3s;
+    }
+
+    .navbar a:hover {
+        color: #00d09c;
+    }
+
+    .navbar a.logout:hover {
+        color: #e74c3c;
+    }
+
+    .navbar i {
+        margin-right: 8px;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+        position: fixed; /* Changed to fixed to make it stay in place */
+        top: 80px; /* Adjusted to account for the header height */
+        left: 0; /* Fixed to the left edge */
+        height: calc(100% - 80px); /* Adjusted height to fit below the header */
+        width: 220px; /* Sidebar width */
+        background-color: rgba(15, 32, 39, 0.9); /* Same color as the header */
+        padding: 20px;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+        color: white;
+        border-radius: 0; /* Removed rounded corners for a fixed design */
+        z-index: 999; /* Ensure it stays above other elements */
+    }
+
+    .sidebar h2 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        color: #00d09c;
+    }
+
+    .sidebar a {
+        display: block;
+        color: white;
+        text-decoration: none;
+        margin: 10px 0;
+        padding: 10px;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+    }
+
+    .sidebar a:hover {
+        background-color: #1abc9c;
+    }
+
+    /* Main Container */
+    .main-container {
+        margin-left: 240px; /* Adjusted margin to account for the fixed sidebar width */
+        margin-top: 100px; /* Added margin to account for the header height */
+        padding: 20px;
+        max-width: 900px; /* Reduced width for compactness */
+        background: rgba(30, 60, 82, 0.6); /* Added background for better visibility */
+        border-radius: 8px; /* Added rounded corners */
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Added shadow for better design */
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* Center content horizontally */
+        justify-content: center; /* Center content vertically */
+        min-height: calc(100vh - 120px); /* Ensure the main container fills the remaining space */
+        margin-left: auto; /* Center the main container horizontally */
+        margin-right: auto;
+    }
+
+    /* Header Section */
+    .header-section {
+        margin-bottom: 2rem;
+        background: rgba(30, 60, 82, 0.8); /* Same background as the table container */
+        border-radius: 8px; /* Added rounded corners for consistency */
+        padding: 1.5rem; /* Added padding for better spacing */
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Added shadow for consistency */
+        max-width: 900px; /* Adjusted width to match the table container */
+        margin-left: auto; /* Center the header horizontally */
+        margin-right: auto;
+    }
+
+    .header-section h1 {
+        margin-bottom: 1.5rem;
+        font-size: 1.8rem;
+        display: flex;
+        align-items: center;
+        color: white;
+    }
+
+    .header-section h1 i {
+        margin-right: 15px;
+        color: #00d09c;
+    }
+
+    /* Stats Container */
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); /* Adjusted min-width for better responsiveness */
+        gap: 1rem; /* Ensure compact layout */
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: rgba(30, 60, 82, 0.6);
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        text-align: center;
+        transition: transform 0.3s;
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: bold;
+        background: linear-gradient(to right, #00d09c, #1abc9c);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        color: #cbd5e1;
+        font-size: 0.9rem;
+    }
+
+    /* Form Styles */
+    .finance-form-container {
+        background: rgba(30, 60, 82, 0.6);
+        border-radius: 16px;
+        
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+        margin-bottom: 1.5rem; /* Reduced margin for better spacing */
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        width: 100%; /* Prend toute la largeur disponible */
+        max-width: 950px; /* Augmenté de 900px à 950px */
+        padding: 2.5rem;
+    }
+
+    .finance-form-container h2 {
+        margin-bottom: 1.5rem;
+        font-size: 1.5rem;
+        text-align: center;
+        color: white;
+    }
+
+    .form-group {
+        margin-bottom: 1.2rem;
+    }
+
+    .form-row {
+        display: flex;
+        gap: 1.2rem;
+    }
+
+    .form-row .form-group {
+        flex: 1;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.6rem;
+        font-weight: 500;
+        color: #cbd5e1;
+        font-size: 0.9rem;
+    }
+
+    .form-label i {
+        margin-right: 8px;
+        color: #00d09c;
+    }
+
+    .form-control, .form-select {
+        width: 100%;
+        padding: 0.8rem 1rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        transition: all 0.3s;
+        background-color: rgba(46, 79, 102, 0.8);
+        color: white;
+    }
+
+    .form-control:focus, .form-select:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(0, 208, 156, 0.3);
+        background-color: rgba(46, 79, 102, 1);
+    }
+
+    .form-select {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23cbd5e1' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 16px;
+    }
+
+    /* Alert Messages */
+    .alert {
+        padding: 0.8rem 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        font-size: 0.9rem;
+    }
+
+    .alert-success {
+        background-color: rgba(46, 204, 113, 0.2);
+        color: #d4edda;
+        border: 1px solid rgba(46, 204, 113, 0.3);
+    }
+
+    .alert-danger {
+        background-color: rgba(231, 76, 60, 0.2);
+        color: #f8d7da;
+        border: 1px solid rgba(231, 76, 60, 0.3);
+    }
+
+    /* Button Styles */
+    .btn {
+        padding: 0.5rem 1rem; /* Reduced padding for smaller buttons */
+        border: none;
+        border-radius: 12px;
+        font-size: 0.85rem; /* Adjusted font size for compactness */
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+    }
+
+    .btn i {
+        margin-right: 8px;
+    }
+
+    .btn-primary {
+        background: linear-gradient(to right, #00d09c, #1abc9c);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(to right, #1abc9c, #3498db);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 208, 156, 0.3);
+    }
+
+    .btn-secondary {
+        background: rgba(149, 165, 166, 0.2);
+        color: #ecf0f1;
+        border: 1px solid rgba(149, 165, 166, 0.3);
+    }
+
+    .btn-secondary:hover {
+        background: rgba(149, 165, 166, 0.4);
+    }
+
+    .btn-warning {
+        background: linear-gradient(to right, #f39c12, #e67e22);
+        color: white;
+    }
+
+    .btn-warning:hover {
+        background: linear-gradient(to right, #e67e22, #d35400);
+    }
+
+    .btn-danger {
+        background: linear-gradient(to right, #e74c3c, #c0392b);
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background: linear-gradient(to right, #c0392b, #a5281b);
+    }
+
+    .btn-sm {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+        border-radius: 8px;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 0.8rem;
+        margin-top: 1.5rem;
+    }
+
+    /* Buttons Section */
+    .action-buttons-container {
+        display: flex;
+        gap: 10px; /* Reduced gap for compactness */
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        justify-content: center; /* Center buttons horizontally */
+    }
+
+    .action-buttons-container .btn {
+        padding: 0.5rem 1rem; /* Adjusted padding for compactness */
+        font-size: 0.85rem; /* Adjusted font size for compactness */
+        border-radius: 8px;
+    }
+
+    /* Table Title */
+    .table-container h3 {
+        text-align: center; /* Center the title */
+        margin-bottom: 1rem; /* Add spacing below the title */
+        font-size: 1.5rem; /* Adjust font size for better visibility */
+        color: white; /* Ensure the title color matches the theme */
+        font-weight: bold;
+    }
+
+    /* Table Styles */
+    .table-container {
+        width: 100%; /* Ensure the table fits within the main container */
+        max-width: 900px; /* Adjusted width to match the header section */
+        background: rgba(30, 60, 82, 0.8); /* Same background as the header section */
+        border-radius: 8px; /* Added rounded corners */
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Added shadow for consistency */
+        padding: 1.5rem; /* Adjusted padding for better spacing */
+        margin-top: 20px; /* Added margin for spacing */
+        margin-left: auto; /* Center the table horizontally */
+        margin-right: auto;
+        display: flex;
+        flex-direction: column; /* Ensure the title and table stack vertically */
+        align-items: center; /* Center content horizontally */
+    }
+
+    .table-container table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .table-container th, .table-container td {
+        padding: 0.6rem; /* Reduced padding for compactness */
+        text-align: left;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .table-container th {
+        background-color: rgba(15, 32, 39, 0.8);
+        color: white;
+        font-weight: 600;
+        position: sticky;
+        top: 0;
+    }
+
+    .table-container tr:hover {
+        background-color: rgba(46, 79, 102, 0.4);
+    }
+
+    /* Badge Styles */
+    .badge {
+        display: inline-block;
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: capitalize;
+    }
+
+    .bg-success {
+        background: linear-gradient(to right, #00d09c, #2ecc71);
+        color: white;
+    }
+
+    .bg-danger {
+        background: linear-gradient(to right, #e74c3c, #c0392b);
+        color: white;
+    }
+
+    .bg-warning {
+        background: linear-gradient(to right, #f39c12, #e67e22);
+        color: white;
+    }
+
+    .bg-info {
+        background: linear-gradient(to right, #3498db, #2980b9);
+        color: white;
+    }
+
+    .bg-secondary {
+        background: rgba(149, 165, 166, 0.4);
+        color: white;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    /* Search Form */
+    .search-form {
+        display: flex;
+        align-items: center;
+        justify-content: center; /* Center the search form */
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .search-form input[type="number"] {
+        padding: 0.5rem;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background-color: rgba(46, 79, 102, 0.8);
+        color: white;
+        font-size: 0.9rem;
+        width: 200px; /* Adjusted width for the input field */
+    }
+
+    .search-form button {
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        background: linear-gradient(to right, #00d09c, #1abc9c);
+        color: white;
+        border: none;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .search-form button:hover {
+        background: linear-gradient(to right, #1abc9c, #3498db);
+    }
+
+    /* Sort Buttons */
+    .sort-buttons {
+        display: flex;
+        justify-content: center; /* Center the sort buttons */
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .sort-buttons .btn {
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        background: rgba(149, 165, 166, 0.2);
+        color: white;
+        border: 1px solid rgba(149, 165, 166, 0.3);
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .sort-buttons .btn:hover {
+        background: rgba(149, 165, 166, 0.4);
+    }
+
+    /* Export PDF Button */
+    .export-pdf {
+        display: flex;
+        justify-content: center; /* Center the Export PDF button */
+        margin-bottom: 20px;
+    }
+
+    .export-pdf .btn {
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        background: linear-gradient(to right, #e74c3c, #c0392b);
+        color: white;
+        border: none;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .export-pdf .btn:hover {
+        background: linear-gradient(to right, #c0392b, #a5281b);
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .navbar {
+            flex-direction: column;
+            padding: 1rem;
+        }
+        
+        .navbar nav {
+            margin-top: 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .navbar a {
+            margin: 0.5rem;
+        }
+        
+        .form-row {
+            flex-direction: column;
+            gap: 0;
+        }
+        
+        .stats-container {
+            grid-template-columns: 1fr; /* Single column layout for smaller screens */
+        }
+        
+        .main-container {
+            margin-left: 200px; /* Adjusted margin for smaller screens */
+            padding: 15px; /* Reduced padding for smaller screens */
+        }
+        
+        .finance-form-container, .table-container {
+            padding: 1rem; /* Reduced padding for smaller screens */
+        }
+        
+        th, td {
+            padding: 0.5rem; /* Further reduced padding for smaller screens */
+        }
+        
+        .btn {
+            padding: 0.4rem 0.8rem; /* Smaller buttons for smaller screens */
+            font-size: 0.8rem; /* Adjusted font size for smaller screens */
+        }
+        
+        .sidebar {
+            width: 180px; /* Reduced width for smaller screens */
+        }
+
+        .action-buttons-container {
+            flex-direction: column; /* Stack buttons vertically */
+            align-items: center; /* Center buttons */
+        }
+
+        .search-form {
+            flex-direction: column; /* Stack the search form vertically */
+            gap: 10px;
+        }
+
+        .sort-buttons {
+            flex-direction: column; /* Stack the sort buttons vertically */
+            gap: 10px;
+        }
+
+        .export-pdf {
+            margin-bottom: 15px;
+        }
+
+        .table-container {
+            max-width: 100%; /* Ensure the table fits within smaller screens */
+        }
+    }
+
+    @media (max-width: 480px) {
+        .stats-container {
+            grid-template-columns: 1fr; /* Single column layout for very small screens */
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+        
+        .btn-sm {
+            width: 100%;
+            margin-bottom: 0.3rem;
+        }
+        
+        .action-buttons-container {
+            gap: 8px; /* Reduced gap for very small screens */
+        }
+        
+        .btn {
+            width: 100%; /* Full-width buttons for very small screens */
+        }
+        
+        .sidebar {
+            width: 160px; /* Further reduced width for very small screens */
+        }
+
+        .main-container {
+            margin-left: 180px; /* Adjusted margin for very small screens */
+            padding: 10px; /* Further reduced padding for very small screens */
+        }
+
+        .table-container {
+            padding: 0.8rem; /* Reduced padding for very small screens */
+        }
+
+        .search-form input[type="number"] {
+            width: 100%; /* Full-width input field for very small screens */
+        }
+    }
+
+    .btn btn-success{
+    
+        color: white;
+        
+        padding: 10px 20px;
+        text-decoration: none;
+        transition: background-color 0.3s ease;
+
+    }
+
+    .required-indicator {
+        color: #e74c3c;
+        margin-left: 2px;
+    }
+
+
+
+
+
+    .pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    .pagination a {
+        color: white;
+        background-color: #007bff;
+        padding: 8px 12px;
+        margin: 0 5px;
+        text-decoration: none;
+        border-radius: 4px;
+        transition: background-color 0.3s;
+    }
+
+    .pagination a:hover {
+        background-color: #0056b3;
+    }
+
+    .pagination a.active {
+        background-color: #0056b3;
+        pointer-events: none;
+    }
+
+    .pagination a.disabled {
+        background-color: #cccccc;
+        pointer-events: none;
+    }
+
+
+
+
+    .finance-form-container {
+        background: rgba(30, 60, 82, 0.6);
+        border-radius: 16px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+        margin-bottom: 1.5rem;
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        width: 100%;
+        max-width: 900px; /* Même largeur que le header-section */
+        padding: 2.5rem;
+        margin-left: auto; /* Centrage horizontal */
+        margin-right: auto;
+    }
+    .main-container {
+        margin-left: 240px;
+        margin-top: 100px;
+        padding: 20px;
+        max-width: 900px; /* Largeur fixe pour tout le contenu */
+        background: rgba(30, 60, 82, 0.6);
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: calc(100vh - 120px);
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr); /* 4 colonnes égales */
+        gap: 1rem;
+        margin-bottom: 2rem;
+        width: 100%;
+    }
+    @media (max-width: 768px) {
+        .stats-container {
+            grid-template-columns: repeat(2, 1fr); /* 2 colonnes sur petits écrans */
+        }
+    }
+
+    @media (max-width: 480px) {
+        .stats-container {
+            grid-template-columns: 1fr; /* 1 colonne sur très petits écrans */
+        }
+    }
+
+    /* Modifier le conteneur principal */
+    .main-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2rem; /* Espace entre les sections */
+        width: 100%;
+        max-width: 900px;
+        margin: 100px auto 0;
+        padding: 20px;
+    }
+
+    /* Style pour la section de gestion */
+    .management-section {
+        background: rgba(30, 60, 82, 0.8);
+        border-radius: 8px;
+        padding: 1.5rem;
+        width: 100%;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Style pour le formulaire de modification */
+    .edit-form-container {
+        background: rgba(40, 70, 90, 0.7); /* Couleur légèrement différente */
+        border-radius: 16px;
+        padding: 2rem;
+        width: 100%;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(5px);
+        
+        margin-top: 1rem;
+    }
+

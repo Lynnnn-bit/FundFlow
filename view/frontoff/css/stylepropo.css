@@ -1,0 +1,143 @@
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(to right, #0f2c39, #113942);
+    color: white;
+  }
+  
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+    background-color: #0f2c39;
+  }
+  
+  .logo {
+    font-size: 24px;
+    color: #00f59f;
+    font-weight: bold;
+  }
+  
+  nav a {
+    margin-left: 20px;
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  
+  nav .login {
+    font-weight: bold;
+  }
+  
+  /* HERO SECTION */
+  .about-hero {
+    text-align: center;
+    padding: 60px 30px;
+  }
+  
+  .about-hero h1 {
+    font-size: 40px;
+    color: #38f8ae;
+    margin-bottom: 10px;
+  }
+  
+  .about-hero p {
+    font-size: 18px;
+    color: #e0f0f0;
+  }
+  
+  /* HISTOIRE SECTION */
+  .about-content {
+    padding: 40px 60px;
+  }
+  
+  .about-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 40px;
+  }
+  
+  .about-text {
+    flex: 1;
+    min-width: 280px;
+  }
+  
+  .about-image {
+    flex: 1;
+    min-width: 280px;
+  }
+  
+  .about-image img {
+    width: 100%;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0,255,200,0.1);
+  }
+  
+  /* VALEURS */
+  .values-section {
+    padding: 60px 40px;
+    background-color: #102b36;
+    text-align: center;
+  }
+  
+  .values-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 30px;
+  }
+  
+  .value-box {
+    background-color: #113942;
+    padding: 20px;
+    border-radius: 12px;
+    width: 280px;
+    box-shadow: 0 0 10px rgba(0,255,200,0.1);
+  }
+  
+  .value-box h3 {
+    color: #2cfec6;
+    margin-bottom: 10px;
+  }
+  
+  /* ÉQUIPE */
+  .team-section {
+    padding: 60px 40px;
+    text-align: center;
+  }
+  
+  .team-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    justify-content: center;
+    margin-top: 30px;
+  }
+  
+  .team-card {
+    background-color: #113942;
+    border-radius: 12px;
+    padding: 20px;
+    width: 250px;
+    text-align: center;
+    box-shadow: 0 0 10px rgba(0,255,200,0.1);
+  }
+  
+  .team-card img {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    margin-bottom: 15px;
+  }
+  
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 20px;
+    background-color: #0d1f25;
+    font-size: 14px;
+    color: #aaa;
+  }

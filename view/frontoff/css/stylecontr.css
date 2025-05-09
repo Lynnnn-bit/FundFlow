@@ -1,0 +1,117 @@
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(to right, #0f2c39, #113942);
+    color: white;
+  }
+  
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+    background-color: #0f2c39;
+  }
+  
+  .logo {
+    font-size: 24px;
+    color: #00f59f;
+    font-weight: bold;
+  }
+  
+  nav a {
+    margin-left: 20px;
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  
+  nav .login {
+    font-weight: bold;
+  }
+  
+  .contact-section {
+    padding: 60px 40px;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  
+  .contact-text h1 {
+    font-size: 40px;
+    color: #38f8ae;
+    margin-bottom: 10px;
+  }
+  
+  .contact-text p {
+    font-size: 18px;
+    color: #e0f0f0;
+    max-width: 600px;
+    margin-bottom: 50px;
+  }
+  
+  .contact-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 30px;
+    margin-bottom: 40px;
+  }
+  
+  .info-block {
+    background-color: #113942;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0,255,200,0.1);
+  }
+  
+  .info-block h3 {
+    margin-top: 0;
+    color: #2cfec6;
+  }
+  
+  .social-links {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  
+  .social-links a {
+    background-color: #1b4f54;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: white;
+    transition: background-color 0.3s;
+  }
+  
+  .social-links a:hover {
+    background-color: #38f8ae;
+    color: #0f2c39;
+  }
+  
+  footer {
+    text-align: center;
+    padding: 20px;
+    background-color: #0d1f25;
+    font-size: 14px;
+    color: #aaa;
+  }
+
+
+  .mail {
+    font-size: 18px;
+    color: #e0f0f0;
+    max-width: 600px;
+    margin-bottom: 50px;
+  }
+
+  .mail a {
+    color: white; /* Link color set to white */
+    text-decoration: none;
+    font-weight: bolder; /* Strong bold effect */
+    transition: color 0.3s ease;
+  }
+
+  .mail a:hover {
+    color: #e0e0e0; /* Slightly lighter white on hover */
+    text-decoration: underline;
+  }

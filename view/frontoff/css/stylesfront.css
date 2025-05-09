@@ -1,0 +1,96 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background:linear-gradient(to right, #0f2027, #2c5364);
+    color: white;
+}
+
+.navbar {
+    background: linear-gradient(to right, #141e30, #243b55);
+    padding: 10px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navbar img {
+    height: 50px;
+}
+
+.nav-link {
+    color: white;
+    text-decoration: none;
+    margin-left: 15px;
+}
+
+.container {
+    width: 90%;
+    margin: 30px auto;
+}
+
+.title {
+    text-align: center;
+}
+
+.startup-card {
+    background-color: rgba(255, 255, 255, 0.07);
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
+
+.startup-card img {
+    max-width: 150px;
+    height: auto;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.startup-card video {
+    max-width: 100%;
+    margin-top: 10px;
+    border-radius: 4px;
+}
+
+.btn-ajouter {
+    margin-top: 10px;
+    padding: 10px 20px;
+    background-color: #1abc9c;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.evenement-form {
+    display: none;
+    margin-top: 15px;
+    background-color: rgba(255,255,255,0.1);
+    padding: 15px;
+    border-radius: 8px;
+}
+
+input, textarea, select {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 8px;
+    border-radius: 5px;
+    border: none;
+}
+
+label {
+    font-weight: bold;
+}
+
+.site-link {
+    color: #1abc9c;
+    text-decoration: underline;
+}
+
+.error-message {
+    color: red;
+    font-size: 0.9em;
+    margin-top: 2px;
+    display: none;
+}
