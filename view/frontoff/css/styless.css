@@ -1,0 +1,163 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background:linear-gradient(to right, #0f2027, #2c5364);
+    color: white;
+}
+
+.navbar {
+    background: linear-gradient(to right, #141e30, #243b55);
+    padding: 10px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navbar img {
+    height: 50px;
+}
+
+.nav-link {
+    color: white;
+    text-decoration: none;
+    margin-left: 15px;
+}
+
+.container {
+    width: 90%;
+    margin: 30px auto;
+}
+
+.title {
+    text-align: center;
+}
+
+.startup-card {
+    background-color: rgba(255, 255, 255, 0.07);
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
+
+.startup-card img {
+    max-width: 150px;
+    height: auto;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.startup-card video {
+    max-width: 100%;
+    margin-top: 10px;
+    border-radius: 4px;
+}
+
+.btn-ajouter {
+    margin-top: 10px;
+    padding: 10px 20px;
+    background-color: #1abc9c;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.evenement-form {
+    display: none;
+    margin-top: 15px;
+    background-color: rgba(255,255,255,0.1);
+    padding: 15px;
+    border-radius: 8px;
+}
+
+input, textarea, select {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 8px;
+    border-radius: 5px;
+    border: none;
+}
+
+label {
+    font-weight: bold;
+}
+
+.site-link {
+    color: #1abc9c;
+    text-decoration: underline;
+}
+.btn-modifier, .btn-supprimer, .btn-qr {
+    display: inline-block;
+    padding: 8px 15px;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    margin-top: 10px;
+    margin-right: 10px;
+}
+
+.btn-modifier { background-color: #3498db; }
+.btn-modifier:hover { background-color: #2980b9; }
+
+.btn-supprimer { background-color: #e74c3c; }
+.btn-supprimer:hover { background-color: #c0392b; }
+
+.btn-qr { background-color: #9b59b6; }
+.btn-qr:hover { background-color: #8e44ad; }
+
+.button-group {
+    margin-top: 15px;
+}
+
+.startup-card {
+    border: 1px solid #ddd;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
+}
+
+.startup-card img {
+    max-width: 200px;
+    height: auto;
+}
+
+.navbar {
+    background-color: #f4f4f4;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.navbar img {
+    height: 50px;
+}
+
+.nav-links .nav-link {
+    margin-left: 20px;
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+}
+
+.container {
+    padding: 20px;
+    max-width: 1000px;
+    margin: auto;
+}
+
+.title {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.site-link {
+    color: #3498db;
+}
+
+video {
+    width: 320px;
+    height: auto;
+}
