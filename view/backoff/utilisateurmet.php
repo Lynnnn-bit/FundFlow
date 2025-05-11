@@ -179,6 +179,7 @@ $paginatedUsers = array_slice($filteredUsers, $startIndex, $usersPerPage);
         <a href="utilisateurmet.php">Gestion des Utilisateurs</a>
         <a href="adduser.php">Ajouter un Utilisateur</a>
         <a href="../frontoff/allconsult.php">Liste des Consultants</a>
+        <a href="../backoff/categories.php">Ajouter une categorie</a>
         <a href="../frontoff/contact.html">Contact</a>
         <a href="../frontoff/apropos.html">À propos</a>
         <a href="../backoff/addstartup.php">StartUP</a>

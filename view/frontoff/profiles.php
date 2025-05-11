@@ -43,8 +43,33 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FundFlow - Profil</title>
-    <link rel="stylesheet" href="css/styleprofiles.css">>
+    <link rel="stylesheet" href="css/styleprofiles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        .profile-menu {
+            background-color: rgba(46, 79, 102, 0.8);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.8rem 1rem;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23cbd5e1' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+        }
+
+        .profile-menu:hover {
+            background-color: rgba(30, 60, 82, 0.9);
+        }
+
+        .profile-menu:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(0, 208, 156, 0.3);
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -54,14 +79,13 @@ try {
                 <a href="apropos.html"><i class="fas fa-info-circle"></i> A propos</a>
                 <a href="contact.html">Contact </a>
                 <select onchange="if(this.value) window.location.href=this.value; this.selectedIndex = 0;" class="profile-menu">
-          <option value="">Mon compte ▼</option>
-          <option value="profiles.php">Profil</option>
-          <option value="projets.php">Mes projets</option>
-          <option value="startup.php">StartUP</option>
-          <option value="events.php">Evenements</option>
-          <option value="partenaire.php">Partennaire</option>
-          <option value="accueil.html">Déconnexion</option>
-        </select>
+                    <option value="">Mon compte ▼</option>
+                    <option value="profiles.php">Profil</option>
+                    <option value="mesprojet.php">Mes projets</option>
+                    <option value="startup.php">StartUP</option>
+                    <option value="events.php">Evenements</option>
+                    <option value="partenaire.php">Partennaire</option>
+                    <option value="accueil.html">Déconnexion</option>
                 </select>
             </nav>
         </header>

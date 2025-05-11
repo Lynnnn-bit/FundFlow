@@ -56,7 +56,7 @@ if (!isset($_SESSION['user_id'])) {
         <select onchange="handleMenu(this)" class="profile-menu">
           <option value="">Mon compte ▼</option>
           <option value="profiles">Profil</option>
-          <option value="mesprojets">Mes projets</option>
+          <option value="mesprojet">Mes projets</option>
           <option value="startup">startup</option>
           <option value="events">events</option>
 
