@@ -20,7 +20,7 @@ if (!$partner) {
     exit();
 }
 
-// Handle form submission
+// Handle form submission (same as original)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['update'])) {
         $data = [
@@ -136,124 +136,208 @@ function getStatusLabel($status) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Espace Partenaire - FundFlow</title>
-    <!-- Dans le <head> -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-<!-- Avant la fermeture du </body> -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
     <style>
-        body {
-            margin: 0;
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
-            color: white;
-            min-height: 100vh;
-        }
-
-        .navbar {
-            background-color: rgba(15, 32, 39, 0.9);
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.3);
-        }
-
-        .logo-container {
+        /* Partner Dashboard Specific Styles */
+        .partner-hero {
             display: flex;
             align-items: center;
+            gap: 4rem;
+            margin: 3rem 0;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 24px;
+            padding: 4rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: fadeIn 1s ease-out;
         }
 
-        .brand-name {
-            color: white;
-            font-size: 1.5rem;
+        .partner-header {
+            text-align: center;
+            flex: 1;
+            max-width: 300px;
+        }
+
+        .partner-avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5rem;
+            color: var(--primary-light);
+            border: 3px solid rgba(255,255,255,0.2);
+            margin-bottom: 1.5rem;
+        }
+
+        .partner-status {
+            margin: 1rem 0;
+        }
+
+        .status-badge.partner {
+            background: rgba(236, 72, 153, 0.2);
+            color: #ec4899;
+            border: 1px solid rgba(236, 72, 153, 0.3);
+        }
+
+        .partner-details {
+            flex: 2;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+        }
+
+        .contracts-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 24px;
+            padding: 3rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 3rem;
+        }
+
+        .contract-form {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .contract-form .full-width {
+            grid-column: span 2;
+        }
+
+        .contract-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 2rem;
+        }
+
+        .contract-table th,
+        .contract-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .contract-table th {
+            background: rgba(255,255,255,0.05);
             font-weight: 600;
-            margin-left: 10px;
-            background: linear-gradient(to right, #00d09c, #1abc9c);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+            font-size: 0.85rem;
         }
 
-        .main-container {
-            padding: 2rem;
-            max-width: 800px;
-            margin: 0 auto;
+        .contract-table tr:hover {
+            background: rgba(255,255,255,0.05);
         }
 
-        .header-section {
-            margin-bottom: 2rem;
+        .badge {
+            display: inline-block;
+            padding: 0.4rem 1rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
         }
 
-        .header-section h1 {
+        .badge-pending {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .badge-active {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .badge-expired {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .badge-approved {
+            background: rgba(99, 102, 241, 0.2);
+            color: #6366f1;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+
+        .form-group {
             margin-bottom: 1.5rem;
-            font-size: 1.8rem;
-            display: flex;
-            align-items: center;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: rgba(255,255,255,0.8);
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
             color: white;
+            transition: all 0.3s ease;
         }
 
-        .header-section h1 i {
-            margin-right: 15px;
-            color: #00d09c;
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(76, 201, 240, 0.3);
         }
 
-        .card {
-            background: rgba(30, 60, 82, 0.6);
-            border-radius: 16px;
-            padding: 2rem;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-            margin-bottom: 2rem;
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        textarea.form-control {
+            min-height: 120px;
         }
 
-        .alert {
-            padding: 0.8rem 1rem;
-            border-radius: 8px;
-            margin-bottom: 1.5rem;
-            font-size: 0.9rem;
-        }
-
-        .alert-success {
-            background-color: rgba(46, 204, 113, 0.2);
-            color: #d4edda;
-            border: 1px solid rgba(46, 204, 113, 0.3);
-        }
-
-        .alert-danger {
-            background-color: rgba(231, 76, 60, 0.2);
-            color: #f8d7da;
-            border: 1px solid rgba(231, 76, 60, 0.3);
+        .partner-actions {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 3rem;
+            justify-content: center;
         }
 
         .btn {
-            padding: 0.8rem 1.5rem;
-            border: none;
-            border-radius: 12px;
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: all 0.3s;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
         }
 
         .btn i {
-            margin-right: 8px;
+            margin-right: 0.5rem;
         }
 
         .btn-primary {
-            background: linear-gradient(to right, #00d09c, #1abc9c);
+            background: linear-gradient(to right, var(--primary), var(--primary-dark));
             color: white;
         }
 
         .btn-primary:hover {
-            background: linear-gradient(to right, #1abc9c, #3498db);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 208, 156, 0.3);
+            background: linear-gradient(to right, var(--primary-dark), var(--primary));
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(67, 97, 238, 0.6);
         }
 
         .btn-danger {
@@ -263,659 +347,726 @@ function getStatusLabel($status) {
 
         .btn-danger:hover {
             background: linear-gradient(to right, #c0392b, #a5281b);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(231, 76, 60, 0.4);
         }
 
-        .form-label {
-            margin-bottom: 0.6rem;
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
             font-weight: 500;
-            color: #cbd5e1;
-            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: rgba(255,255,255,0.1);
+            box-shadow: var(--shadow-md);
+            border-left: 4px solid transparent;
         }
 
-        .form-control {
-            width: 100%;
-            padding: 0.8rem 1rem;
+        .alert i {
+            font-size: 1.2rem;
+        }
+
+        .alert-success {
+            border-left-color: var(--secondary);
+            color: var(--secondary);
+        }
+
+        .alert-error {
+            border-left-color: #dc2626;
+            color: #dc2626;
+        }
+
+        /* Modal Styles */
+        .contract-modal-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .contract-modal-container {
+            width: 90%;
+            max-width: 600px;
+            animation: modalFadeIn 0.3s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .contract-modal-content {
+            background: rgba(30, 41, 59, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .contract-modal-header {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(15, 23, 42, 0.8);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .contract-modal-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #e2e8f0;
+        }
+
+        .contract-modal-title h3 {
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .close-modal-btn {
+            background: none;
             border: none;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            transition: all 0.3s;
-            background-color: rgba(46, 79, 102, 0.8);
+            color: #94a3b8;
+            font-size: 24px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .close-modal-btn:hover {
+            color: #e2e8f0;
+        }
+
+        .contract-modal-body {
+            padding: 20px;
+        }
+
+        .form-field-group {
+            margin-bottom: 20px;
+        }
+
+        .form-field-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #94a3b8;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .date-fields {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .date-field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .date-field label {
+            margin-bottom: 6px;
+            color: #cbd5e1;
+            font-size: 13px;
+        }
+
+        .date-input {
+            padding: 10px 12px;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            color: #f8fafc;
+            font-size: 14px;
+        }
+
+        .date-input:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 2px rgba(76, 201, 240, 0.2);
+        }
+
+        .contract-terms {
+            width: 100%;
+            min-height: 150px;
+            padding: 12px;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            color: #f8fafc;
+            font-size: 14px;
+            line-height: 1.5;
+            resize: vertical;
+        }
+
+        .contract-terms:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 2px rgba(76, 201, 240, 0.2);
+        }
+
+        .contract-modal-footer {
+            padding: 15px 20px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            background: rgba(15, 23, 42, 0.8);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .cancel-btn, .submit-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .cancel-btn {
+            background: rgba(255, 255, 255, 0.05);
+            color: #94a3b8;
+        }
+
+        .cancel-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #e2e8f0;
+        }
+
+        .submit-btn {
+            background: var(--primary);
             color: white;
         }
 
-        .form-control:focus {
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(0, 208, 156, 0.3);
-            background-color: rgba(46, 79, 102, 1);
+        .submit-btn:hover {
+            background: var(--primary-dark);
         }
 
-        textarea.form-control {
-            min-height: 120px;
-        }
-
-        .text-muted {
-            color: #adb5bd !important;
-        }
-
-        @media (max-width: 768px) {
-            .main-container {
-                padding: 1rem;
+        @media (max-width: 992px) {
+            .partner-hero {
+                flex-direction: column;
+                text-align: center;
             }
 
-            .card {
-                padding: 1.5rem;
+            .partner-header {
+                max-width: 100%;
+            }
+
+            .partner-details {
+                grid-template-columns: 1fr;
+                width: 100%;
+            }
+
+            .contract-form {
+                grid-template-columns: 1fr;
+            }
+
+            .contract-form .full-width {
+                grid-column: span 1;
             }
         }
-        /* Ajoutez ceci dans votre balise <style> */
-.modal-content {
-    background-color: rgba(30, 41, 59, 0.95);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
 
-.modal-backdrop {
-    background-color: rgba(0, 0, 0, 0.7);
-}
+        @media (max-width: 576px) {
+            .partner-hero {
+                padding: 2rem;
+            }
 
-.btn-close-white {
-    filter: invert(1) brightness(100%);
-}
-
-.form-control.bg-secondary:focus {
-    background-color: #3a4a6b !important;
-    border-color: #00d09c;
-    box-shadow: 0 0 0 0.25rem rgba(0, 208, 156, 0.25);
-}
-/* Styles pour la nouvelle modale */
-.contract-modal-wrapper {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.7);
-  z-index: 1000;
-  display: none;
-  align-items: center;
-  justify-content: center;
-}
-
-.contract-modal-container {
-  width: 90%;
-  max-width: 600px;
-  animation: modalFadeIn 0.3s ease-out;
-}
-
-@keyframes modalFadeIn {
-  from { opacity: 0; transform: translateY(-20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.contract-modal-content {
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-  border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.contract-modal-header {
-  padding: 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: rgba(15, 23, 42, 0.8);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.contract-modal-title {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: #e2e8f0;
-}
-
-.contract-modal-title h3 {
-  margin: 0;
-  font-weight: 600;
-}
-
-.close-modal-btn {
-  background: none;
-  border: none;
-  color: #94a3b8;
-  font-size: 24px;
-  cursor: pointer;
-  transition: color 0.2s;
-}
-
-.close-modal-btn:hover {
-  color: #e2e8f0;
-}
-
-.contract-modal-body {
-  padding: 20px;
-}
-
-.form-field-group {
-  margin-bottom: 20px;
-}
-
-.form-field-label {
-  display: block;
-  margin-bottom: 8px;
-  color: #94a3b8;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.date-fields {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
-}
-
-.date-field {
-  display: flex;
-  flex-direction: column;
-}
-
-.date-field label {
-  margin-bottom: 6px;
-  color: #cbd5e1;
-  font-size: 13px;
-}
-
-.date-input {
-  padding: 10px 12px;
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 6px;
-  color: #f8fafc;
-  font-size: 14px;
-}
-
-.date-input:focus {
-  outline: none;
-  border-color: #38bdf8;
-  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
-}
-
-.contract-terms {
-  width: 100%;
-  min-height: 150px;
-  padding: 12px;
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 6px;
-  color: #f8fafc;
-  font-size: 14px;
-  line-height: 1.5;
-  resize: vertical;
-}
-
-.contract-terms:focus {
-  outline: none;
-  border-color: #38bdf8;
-  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
-}
-
-.contract-modal-footer {
-  padding: 15px 20px;
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  background: rgba(15, 23, 42, 0.8);
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.cancel-btn, .submit-btn {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.2s;
-}
-
-.cancel-btn {
-  background: rgba(255, 255, 255, 0.05);
-  color: #94a3b8;
-}
-
-.cancel-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #e2e8f0;
-}
-
-.submit-btn {
-  background: #38bdf8;
-  color: #082f49;
-}
-
-.submit-btn:hover {
-  background: #0ea5e9;
-}
-
-/* Icônes (utilisez Font Awesome ou un système similaire) */
-.icon-edit:before { content: "\f044"; font-family: "Font Awesome"; }
-.icon-cancel:before { content: "\f00d"; font-family: "Font Awesome"; }
-.icon-save:before { content: "\f0c7"; font-family: "Font Awesome"; }
-
-/* Table Styles for "Vos Contrats" Section */
-.table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 1rem;
-    background-color: rgba(30, 60, 82, 0.8);
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-}
-
-.table th, .table td {
-    padding: 1rem;
-    text-align: left;
-    color: #e2e8f0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.table td:first-child, /* ID column */
-.table td:nth-child(2), /* Date Début column */
-.table td:nth-child(3), /* Date Fin column */
-.table td:nth-child(4) { /* Termes column */
-    color: #1abc9c; /* Brighter color for better readability */
-    font-weight: 600; /* Slightly bolder text */
-    background-color: rgba(26, 188, 156, 0.1); /* Subtle background highlight */
-    border-radius: 4px; /* Rounded corners for the highlight */
-    padding: 0.8rem; /* Add padding for better spacing */
-}
-
-.table th {
-    background-color: rgba(15, 32, 39, 0.9);
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.85rem;
-}
-
-.table tbody tr:hover {
-    background-color: rgba(46, 79, 102, 0.6);
-    transition: background-color 0.3s ease;
-}
-
-.table tbody tr:last-child td {
-    border-bottom: none;
-}
-
-/* Badge Styles */
-.badge {
-    display: inline-block;
-    padding: 0.4rem 0.8rem;
-    border-radius: 12px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: capitalize;
-}
-
-.badge-success {
-    background: linear-gradient(to right, #00d09c, #2ecc71);
-    color: white;
-}
-
-.badge-warning {
-    background: linear-gradient(to right, #f39c12, #e67e22);
-    color: white;
-}
-
-.badge-danger {
-    background: linear-gradient(to right, #e74c3c, #c0392b);
-    color: white;
-}
-
-.badge-secondary {
-    background: linear-gradient(to right, #95a5a6, #7f8c8d);
-    color: white;
-}
-
-/* Button Styles */
-.btn-sm {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.8rem;
-    border-radius: 8px;
-}
-
-.btn-primary {
-    background: linear-gradient(to right, #3498db, #2980b9);
-    color: white;
-}
-
-.btn-primary:hover {
-    background: linear-gradient(to right, #2980b9, #1abc9c);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
-}
-
-.btn-danger {
-    background: linear-gradient(to right, #e74c3c, #c0392b);
-    color: white;
-}
-
-.btn-danger:hover {
-    background: linear-gradient(to right, #c0392b, #a5281b);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
-}
+            .partner-actions {
+                flex-direction: column;
+            }
+        }
     </style>
 </head>
 <body>
-    <nav class="navbar">
+<div class="background-effect"></div>
+<div class="particles-container" id="particles-js"></div>
+
+<div class="dashboard-container">
+<header class="navbar">
         <div class="logo-container">
-            <i class="fas fa-handshake fa-lg" style="color: #00d09c;"></i>
-            <span class="brand-name">FundFlow</span>
+            <a href="acceuil2.php">
+                <img src="assets/Logo_FundFlow.png" alt="FundFlow Logo" class="brand-logo">
+            </a>
         </div>
-        <nav>
+        
+        <div class="nav-links">
+            <a href="acceuil2.php" class="nav-link"><i class="fas fa-home"></i> Accueil</a>
+            <a href="apropos.html" class="nav-link"><i class="fas fa-info-circle"></i> À propos</a>
+            <a href="contact.html" class="nav-link"><i class="fas fa-envelope"></i> Contact</a>
+            <a href="events.php" class="nav-link"><i class="fas fa-calendar-alt"></i> Événements</a>
+            <a href="partenaire.php" class="nav-link"><i class="fas fa-handshake"></i> Partenariats</a>
             
-            
-            
-            
-        </nav>
-    </nav>
-
-    <div class="main-container">
-        <div class="header-section">
-            <h1><i class="fas fa-user-circle me-2"></i>Votre Demande de Partenariat</h1>
-            <p class="text-muted">Connecté en tant que: <?= htmlspecialchars($partner['email']) ?></p>
+            <div class="profile-menu-container">
+                <button class="profile-menu-btn">Mon compte ▼</button>
+                <ul class="profile-menu">
+                    <li><a href="profiles.php">Profil</a></li>
+                    <?php if ($_SESSION['user']['role'] === 'investisseur'): ?>
+                        <li><a href="demands_list.php">Liste des demandes</a></li>
+                    <?php endif; ?>
+                    <?php if ($_SESSION['user']['role'] === 'entrepreneur'): ?>
+                        <li><a href="mesprojet.php">Mes projets</a></li>
+                        <li><a href="historique.php">mes demandes</a></li>
+                    <?php endif; ?>
+                    <li><a href="allconsult.php">Consultation</a></li>
+                    <li><a href="connexion.php?logout=1" class="logout">Déconnexion</a></li>
+                </ul>
+            </div>
         </div>
+    </header>
 
-        <?php if ($success_message): ?>
-            <div class="alert alert-success">
-                <i class="fas fa-check-circle me-2"></i><?= htmlspecialchars($success_message) ?>
+    <div class="page-header animate__animated animate__fadeInDown">
+        <h1><i class="fas fa-handshake header-icon"></i> Espace Partenaire</h1>
+        <p>Gérez vos informations de partenaire et vos contrats</p>
+    </div>
+
+    <?php if ($success_message): ?>
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle"></i><?= htmlspecialchars($success_message) ?>
+        </div>
+    <?php endif; ?>
+
+    <?php if ($error_message): ?>
+        <div class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i><?= htmlspecialchars($error_message) ?>
+        </div>
+    <?php endif; ?>
+
+    <div class="partner-hero">
+        <div class="partner-header">
+            <div class="partner-avatar">
+                <i class="fas fa-handshake"></i>
             </div>
-        <?php endif; ?>
-
-        <?php if ($error_message): ?>
-            <div class="alert alert-danger">
-                <i class="fas fa-exclamation-circle me-2"></i><?= htmlspecialchars($error_message) ?>
-            </div>
-        <?php endif; ?>
-
-        <div class="card shadow-lg">
-            <div class="card-body">
-                <form method="POST">
-                    <input type="hidden" name="id_partenaire" value="<?= $partner['id_partenaire'] ?>">
-                    
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Nom de l'entreprise</label>
-                            <input type="text" class="form-control" name="nom" value="<?= htmlspecialchars($partner['nom']) ?>" >
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Email</label>
-                            <input type="email" class="form-control" name="email" value="<?= htmlspecialchars($partner['email']) ?>" >
-                        </div>
-                    </div>
-                    
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Téléphone</label>
-                            <input type="text" class="form-control" name="telephone" value="<?= htmlspecialchars($partner['telephone']) ?>" >
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Montant investi (€)</label>
-                            <input type="text" class="form-control" name="montant" value="<?= htmlspecialchars($partner['montant']) ?>" >
-                        </div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label">Description</label>
-                        <textarea class="form-control" name="description" rows="4" ><?= htmlspecialchars($partner['description']) ?></textarea>
-                    </div>
-                    
-                    <div class="d-flex justify-content-between">
-                        <button type="submit" name="update" class="btn btn-primary">
-                            <i class="fas fa-save me-2"></i>Mettre à jour
-                        </button>
-
-                        <button type="submit" name="cancel" class="btn btn-danger"
-                            onclick="return confirm('Êtes-vous sûr de vouloir annuler votre demande?')">
-                            <i class="fas fa-trash-alt me-2"></i>Annuler la demande
-                        </button>
-                    </div>
-                </form>
+            <h2><?= htmlspecialchars($partner['nom']) ?></h2>
+            <div class="partner-status">
+                <span class="status-badge partner">
+                    Partenaire
+                </span>
             </div>
         </div>
 
-        <div class="card mt-4">
-            <div class="card-body">
-                <h3><i class="fas fa-file-signature me-2"></i>Gérer vos Contrats</h3>
-
-                <!-- Add Contract Form -->
-                <form method="POST" class="mb-4">
-                    <input type="hidden" name="id_partenaire" value="<?= $partner['id_partenaire'] ?>">
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="date_deb" class="form-label">Date Début</label>
-                            <input type="date" class="form-control" id="date_deb" name="date_deb" >
-                        </div>
-                        <div class="col-md-6">
-                            <label for="date_fin" class="form-label">Date Fin</label>
-                            <input type="date" class="form-control" id="date_fin" name="date_fin" >
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label for="terms" class="form-label">Termes</label>
-                        <textarea class="form-control" id="terms" name="terms"></textarea>
-                    </div>
-                    <button type="submit" name="add_contract" class="btn btn-primary">
-                        <i class="fas fa-plus-circle me-2"></i>Ajouter un Contrat
-                    </button>
-                </form>
-
-                <!-- List of Contracts -->
-                <h4>Vos Contrats</h4>
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Date Début</th>
-                            <th>Date Fin</th>
-                            <th>Termes</th>
-                            <th>Statut</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($contracts as $contract): ?>
-                            <tr>
-                                <td><?= htmlspecialchars($contract['id_contrat']) ?></td>
-                                <td><?= htmlspecialchars($contract['date_deb']) ?></td>
-                                <td><?= htmlspecialchars($contract['date_fin']) ?></td>
-                                <td><?= htmlspecialchars($contract['terms']) ?></td>
-                                <td>
-                                    <span class="badge bg-<?= $contract['status'] === 'actif' ? 'success' : ($contract['status'] === 'en attente' ? 'warning text-dark' : ($contract['status'] === 'expiré' ? 'danger' : 'secondary')) ?>">
-                                        <?= htmlspecialchars(getStatusLabel($contract['status'])) ?>
-                                    </span>
-                                </td>
-                                <td>
-                                    <form method="POST" class="d-inline">
-                                        <input type="hidden" name="id_contrat" value="<?= $contract['id_contrat'] ?>">
-                                        <button type="button" class="btn btn-primary btn-sm" 
-                                                data-bs-toggle="modal" 
-                                                data-modal-target="editContractModal<?= $contract['id_contrat'] ?>">
-                                            <i class="fas fa-edit"></i> Modifier
-                                        </button>
-                                    </form>
-                                    <?php if (in_array($contract['status'], ['en attente', 'actif'])): ?>
-                                        <form method="POST" class="d-inline">
-                                            <input type="hidden" name="id_contrat" value="<?= $contract['id_contrat'] ?>">
-                                            <button type="submit" name="delete_contract" class="btn btn-danger btn-sm"
-                                                onclick="return confirm('Voulez-vous vraiment supprimer ce contrat?')">
-                                                <i class="fas fa-trash"></i> Supprimer
-                                            </button>
-                                        </form>
-                                    <?php endif; ?>
-                                </td>
-                            </tr>
-
-                            <!-- Update Contract Modal -->
-                            <div class="contract-modal-wrapper" id="editContractModal<?= $contract['id_contrat'] ?>" aria-hidden="true">
-                                <div class="contract-modal-container">
-                                    <div class="contract-modal-content">
-                                        <form method="POST" class="contract-form">
-                                            <div class="contract-modal-header">
-                                                <div class="contract-modal-title">
-                                                    <i class="icon-edit"></i>
-                                                    <h3>Édition du contrat #<?= $contract['id_contrat'] ?></h3>
-                                                </div>
-                                                <button type="button" class="close-modal-btn" aria-label="Fermer">
-                                                    &times;
-                                                </button>
-                                            </div>
-                                            
-                                            <div class="contract-modal-body">
-                                                <input type="hidden" name="id_contrat" value="<?= $contract['id_contrat'] ?>">
-                                                
-                                                <div class="form-field-group">
-                                                    <label class="form-field-label">Dates du contrat</label>
-                                                    <div class="date-fields">
-                                                        <div class="date-field">
-                                                            <label>Début</label>
-                                                            <input type="date" name="date_deb" 
-                                                                   value="<?= date('Y-m-d', strtotime($contract['date_deb'])) ?>" 
-                                                                   class="date-input" >
-                                                        </div>
-                                                        <div class="date-field">
-                                                            <label>Fin</label>
-                                                            <input type="date" name="date_fin" 
-                                                                   value="<?= date('Y-m-d', strtotime($contract['date_fin'])) ?>" 
-                                                                   class="date-input" >
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                
-                                                <div class="form-field-group">
-                                                    <label class="form-field-label">Termes du contrat</label>
-                                                    <textarea name="terms" class="contract-terms"><?= htmlspecialchars($contract['terms']) ?></textarea>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="contract-modal-footer">
-                                                <button type="button" class="cancel-btn">
-                                                    <i class="icon-cancel"></i> Annuler
-                                                </button>
-                                                <button type="submit" name="update_contract" class="submit-btn">
-                                                    <i class="icon-save"></i> Enregistrer
-                                                </button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        <?php endforeach; ?>
-                        <?php if (empty($contracts)): ?>
-                            <tr>
-                                <td colspan="6" class="text-center">Aucun contrat trouvé</td>
-                            </tr>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
+        <div class="partner-details">
+            <div class="detail-card">
+                <div class="detail-label"><i class="fas fa-envelope"></i> Email</div>
+                <div class="detail-value"><?= htmlspecialchars($partner['email']) ?></div>
+            </div>
+            <div class="detail-card">
+                <div class="detail-label"><i class="fas fa-phone"></i> Téléphone</div>
+                <div class="detail-value"><?= htmlspecialchars($partner['telephone']) ?></div>
+            </div>
+            <div class="detail-card">
+                <div class="detail-label"><i class="fas fa-euro-sign"></i> Montant investi</div>
+                <div class="detail-value"><?= htmlspecialchars($partner['montant']) ?> €</div>
+            </div>
+            <div class="detail-card">
+                <div class="detail-label"><i class="fas fa-info-circle"></i> Description</div>
+                <div class="detail-value"><?= htmlspecialchars($partner['description']) ?></div>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Telephone formatting
-        document.querySelector('input[name="telephone"]')?.addEventListener('input', function() {
-            this.value = this.value.replace(/\D/g, '').slice(0, 8);
-        });
+    <form method="POST" class="contracts-section">
+        <h2><i class="fas fa-file-contract"></i> Mettre à jour vos informations</h2>
+        <p>Modifiez les détails de votre demande de partenariat</p>
+       
+        <input type="hidden" name="id_partenaire" value="<?= $partner['id_partenaire'] ?>">
+       
+        <div class="form-group">
+            <label class="form-label">Nom de l'entreprise</label>
+            <input type="text" class="form-control" name="nom" value="<?= htmlspecialchars($partner['nom']) ?>" required>
+        </div>
+       
+        <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" name="email" value="<?= htmlspecialchars($partner['email']) ?>" required>
+        </div>
+       
+        <div class="form-group">
+            <label class="form-label">Téléphone</label>
+            <input type="text" class="form-control" name="telephone" value="<?= htmlspecialchars($partner['telephone']) ?>" required>
+        </div>
+       
+        <div class="form-group">
+            <label class="form-label">Montant investi (€)</label>
+            <input type="number" class="form-control" name="montant" value="<?= htmlspecialchars($partner['montant']) ?>" required>
+        </div>
+       
+        <div class="form-group">
+            <label class="form-label">Description</label>
+            <textarea class="form-control" name="description" rows="4" required><?= htmlspecialchars($partner['description']) ?></textarea>
+        </div>
+       
+        <div class="partner-actions">
+            <button type="submit" name="update" class="btn btn-primary">
+                <i class="fas fa-save"></i> Mettre à jour
+            </button>
 
-        // Amount formatting
-        document.querySelector('input[name="montant"]')?.addEventListener('input', function () {
-            let value = this.value.replace(/\D/g, ''); // Allow only digits
-            value = parseInt(value, 10) || 0; // Parse as integer or default to 0
-            if (value < 1000) {
-                this.classList.add('is-invalid'); // Add invalid class if less than 1000
-            } else {
-                this.classList.remove('is-invalid'); // Remove invalid class if valid
-            }
-            this.value = value; // Set the cleaned value back to the input
-        });
-    </script>
-    <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Vérifie que Bootstrap est bien chargé
-    if (typeof bootstrap === 'undefined') {
-        console.error("Bootstrap 5 n'est pas chargé correctement");
-        alert("Erreur technique - Veuillez recharger la page");
-    } else {
-        console.log("Bootstrap est correctement chargé");
-        
-        // Active le débogage des modales
-        document.querySelectorAll('[data-bs-toggle="modal"]').forEach(btn => {
-            btn.addEventListener('click', function() {
-                console.log("Ouverture de la modale:", this.dataset.bsTarget);
-            });
-        });
-    }
-    
-    // Formatage du téléphone
-    document.querySelector('input[name="telephone"]')?.addEventListener('input', function() {
-        this.value = this.value.replace(/\D/g, '').slice(0, 10);
-    });
-});
-</script>
+            <button type="submit" name="cancel" class="btn btn-danger"
+                onclick="return confirm('Êtes-vous sûr de vouloir annuler votre demande?')">
+                <i class="fas fa-trash-alt"></i> Annuler la demande
+            </button>
+        </div>
+    </form>
+
+    <div class="contracts-section">
+        <h2><i class="fas fa-file-signature"></i> Gérer vos contrats</h2>
+        <p>Ajoutez ou modifiez vos contrats de partenariat</p>
+
+        <form method="POST" class="contract-form">
+            <input type="hidden" name="id_partenaire" value="<?= $partner['id_partenaire'] ?>">
+           
+            <div class="form-group">
+                <label class="form-label">Date Début</label>
+                <input type="date" class="form-control" name="date_deb" required>
+            </div>
+           
+            <div class="form-group">
+                <label class="form-label">Date Fin</label>
+                <input type="date" class="form-control" name="date_fin" required>
+            </div>
+           
+            <div class="form-group full-width">
+                <label class="form-label">Termes</label>
+                <textarea class="form-control" name="terms" required></textarea>
+            </div>
+           
+            <button type="submit" name="add_contract" class="btn btn-primary full-width">
+                <i class="fas fa-plus-circle"></i> Ajouter un Contrat
+            </button>
+        </form>
+
+        <h3><i class="fas fa-list"></i> Vos Contrats</h3>
+        <table class="contract-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Date Début</th>
+                    <th>Date Fin</th>
+                    <th>Termes</th>
+                    <th>Statut</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($contracts as $contract): ?>
+                    <tr>
+                        <td><?= htmlspecialchars($contract['id_contrat']) ?></td>
+                        <td><?= htmlspecialchars($contract['date_deb']) ?></td>
+                        <td><?= htmlspecialchars($contract['date_fin']) ?></td>
+                        <td><?= htmlspecialchars($contract['terms']) ?></td>
+                        <td>
+                            <span class="badge badge-<?=
+                                $contract['status'] === 'en attente' ? 'pending' :
+                                ($contract['status'] === 'actif' ? 'active' :
+                                ($contract['status'] === 'expiré' ? 'expired' : 'approved')) ?>">
+                                <?= htmlspecialchars(getStatusLabel($contract['status'])) ?>
+                            </span>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-primary btn-sm"
+                                    onclick="openContractModal('editContractModal<?= $contract['id_contrat'] ?>')">
+                                <i class="fas fa-edit"></i> Modifier
+                            </button>
+                           
+                            <?php if (in_array($contract['status'], ['en attente', 'actif'])): ?>
+                                <form method="POST" style="display: inline;">
+                                    <input type="hidden" name="id_contrat" value="<?= $contract['id_contrat'] ?>">
+                                    <button type="submit" name="delete_contract" class="btn btn-danger btn-sm"
+                                        onclick="return confirm('Voulez-vous vraiment supprimer ce contrat?')">
+                                        <i class="fas fa-trash"></i> Supprimer
+                                    </button>
+                                </form>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+
+                    <!-- Update Contract Modal -->
+                    <div class="contract-modal-wrapper" id="editContractModal<?= $contract['id_contrat'] ?>" aria-hidden="true">
+                        <div class="contract-modal-container">
+                            <div class="contract-modal-content">
+                                <form method="POST" class="contract-form">
+                                    <div class="contract-modal-header">
+                                        <div class="contract-modal-title">
+                                            <i class="fas fa-edit"></i>
+                                            <h3>Édition du contrat #<?= $contract['id_contrat'] ?></h3>
+                                        </div>
+                                        <button type="button" class="close-modal-btn" aria-label="Fermer"
+                                                onclick="closeContractModal('editContractModal<?= $contract['id_contrat'] ?>')">
+                                            &times;
+                                        </button>
+                                    </div>
+                                   
+                                    <div class="contract-modal-body">
+                                        <input type="hidden" name="id_contrat" value="<?= $contract['id_contrat'] ?>">
+                                       
+                                        <div class="form-field-group">
+                                            <label class="form-field-label">Dates du contrat</label>
+                                            <div class="date-fields">
+                                                <div class="form-group">
+                                                    <label>Début</label>
+                                                    <input type="date" name="date_deb"
+                                                           value="<?= date('Y-m-d', strtotime($contract['date_deb'])) ?>"
+                                                           class="form-control" required>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Fin</label>
+                                                    <input type="date" name="date_fin"
+                                                           value="<?= date('Y-m-d', strtotime($contract['date_fin'])) ?>"
+                                                           class="form-control" required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                       
+                                        <div class="form-group">
+                                            <label class="form-label">Termes du contrat</label>
+                                            <textarea name="terms" class="form-control" required><?= htmlspecialchars($contract['terms']) ?></textarea>
+                                        </div>
+                                    </div>
+                                   
+                                    <div class="contract-modal-footer">
+                                        <button type="button" class="btn btn-secondary"
+                                                onclick="closeContractModal('editContractModal<?= $contract['id_contrat'] ?>')">
+                                            <i class="fas fa-times"></i> Annuler
+                                        </button>
+                                        <button type="submit" name="update_contract" class="btn btn-primary">
+                                            <i class="fas fa-save"></i> Enregistrer
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+                <?php if (empty($contracts)): ?>
+                    <tr>
+                        <td colspan="6" class="text-center">Aucun contrat trouvé</td>
+                    </tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<footer class="footer">
+  <div class="footer-container">
+    <div class="footer-col logo-col">
+      <img src="assets/Logo_FundFlow.png" alt="Company Logo" class="footer-logo">
+      <p class="footer-description">Plateforme de financement collaboratif</p>
+    </div>
+    <div class="footer-col links-col">
+      <h4>Liens Rapides</h4>
+      <ul>
+        <li><a href="financemet.php">Accueil</a></li>
+        <li><a href="#">À propos</a></li>
+        <li><a href="#">Services</a></li>
+        <li><a href="#">Blog</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+    <div class="footer-col contact-col">
+      <h4>Contactez-nous</h4>
+      <p>123 Rue de Finance, Paris 75001</p>
+      <p>Email: <a href="mailto:contact@fundflow.com">contact@fundflow.com</a></p>
+      <p>Tél: +33 1 23 45 67 89</p>
+    </div>
+    <div class="footer-col social-col">
+      <h4>Suivez-nous</h4>
+      <div class="social-icons">
+        <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+        <a href="#" aria-label="Instagram"><i class="fas fa-instagram"></i></a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-legal">
+    <a href="#">Politique de confidentialité</a> |
+    <a href="#">Conditions d'utilisation</a> |
+    <span>&copy; 2025 FundFlow. Tous droits réservés.</span>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
 <script>
+// Initialize particles.js
+particlesJS("particles-js", {
+    "particles": {
+        "number": {
+            "value": 60,
+            "density": {
+                "enable": true,
+                "value_area": 800
+            }
+        },
+        "color": {
+            "value": "#4cc9f0"
+        },
+        "shape": {
+            "type": "circle",
+            "stroke": {
+                "width": 0,
+                "color": "#000000"
+            }
+        },
+        "opacity": {
+            "value": 0.5,
+            "random": true,
+            "anim": {
+                "enable": true,
+                "speed": 1,
+                "opacity_min": 0.1,
+                "sync": false
+            }
+        },
+        "size": {
+            "value": 3,
+            "random": true,
+            "anim": {
+                "enable": true,
+                "speed": 2,
+                "size_min": 0.1,
+                "sync": false
+            }
+        },
+        "line_linked": {
+            "enable": true,
+            "distance": 150,
+            "color": "#4cc9f0",
+            "opacity": 0.4,
+            "width": 1
+        },
+        "move": {
+            "enable": true,
+            "speed": 1,
+            "direction": "none",
+            "random": true,
+            "straight": false,
+            "out_mode": "out",
+            "bounce": false,
+            "attract": {
+                "enable": true,
+                "rotateX": 600,
+                "rotateY": 1200
+            }
+        }
+    },
+    "interactivity": {
+        "detect_on": "canvas",
+        "events": {
+            "onhover": {
+                "enable": true,
+                "mode": "grab"
+            },
+            "onclick": {
+                "enable": true,
+                "mode": "push"
+            },
+            "resize": true
+        },
+        "modes": {
+            "grab": {
+                "distance": 140,
+                "line_linked": {
+                    "opacity": 1
+                }
+            },
+            "push": {
+                "particles_nb": 4
+            }
+        }
+    },
+    "retina_detect": true
+});
+
+function handleMenu(select) {
+    const value = select.value;
+    if (value === 'logout') {
+        window.location.href = 'connexion.php?logout=1';
+    } else if (value) {
+        window.location.href = value + '.php';
+    }
+    select.value = ''; // Réinitialiser la sélection
+}
+
 // Fonctions pour gérer la modale
 function openContractModal(modalId) {
-  const modal = document.getElementById(modalId);
-  if (modal) {
-    modal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-  }
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
 }
 
 function closeContractModal(modalId) {
-  const modal = document.getElementById(modalId);
-  if (modal) {
-    modal.style.display = 'none';
-    document.body.style.overflow = '';
-  }
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
 }
 
 // Gestion des clics
 document.addEventListener('DOMContentLoaded', function() {
-  // Boutons d'ouverture
-  document.querySelectorAll('[data-modal-target]').forEach(btn => {
-    btn.addEventListener('click', function() {
-      const modalId = this.getAttribute('data-modal-target');
-      openContractModal(modalId);
+    // Boutons d'ouverture
+    document.querySelectorAll('[onclick^="openContractModal"]').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const modalId = this.getAttribute('onclick').match(/'([^']+)'/)[1];
+            openContractModal(modalId);
+        });
     });
-  });
-  
-  // Boutons de fermeture
-  document.querySelectorAll('.close-modal-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-      const modal = this.closest('.contract-modal-wrapper');
-      closeContractModal(modal.id);
+   
+    // Boutons de fermeture
+    document.querySelectorAll('.close-modal-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const modal = this.closest('.contract-modal-wrapper');
+            closeContractModal(modal.id);
+        });
     });
-  });
-  
-  // Fermer en cliquant à l'extérieur
-  document.querySelectorAll('.contract-modal-wrapper').forEach(modal => {
-    modal.addEventListener('click', function(e) {
-      if (e.target === this) {
-        closeContractModal(this.id);
-      }
+   
+    // Fermer en cliquant à l'extérieur
+    document.querySelectorAll('.contract-modal-wrapper').forEach(modal => {
+        modal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeContractModal(this.id);
+            }
+        });
     });
-  });
+
+    // Telephone formatting
+    document.querySelector('input[name="telephone"]')?.addEventListener('input', function() {
+        this.value = this.value.replace(/\D/g, '').slice(0, 8);
+    });
+
+    // Amount formatting
+    document.querySelector('input[name="montant"]')?.addEventListener('input', function () {
+        let value = this.value.replace(/\D/g, ''); // Allow only digits
+        value = parseInt(value, 10) || 0; // Parse as integer or default to 0
+        if (value < 1000) {
+            this.classList.add('is-invalid'); // Add invalid class if less than 1000
+        } else {
+            this.classList.remove('is-invalid'); // Remove invalid class if valid
+        }
+        this.value = value; // Set the cleaned value back to the input
+    });
 });
-</script>
-<script>
+
+// Form validation
 document.addEventListener('DOMContentLoaded', function () {
     const updateForm = document.querySelector('form');
     const nomInput = document.querySelector('input[name="nom"]');
@@ -926,7 +1077,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Helper function to show error
     function showError(input, message) {
-        const formGroup = input.closest('.mb-3');
+        const formGroup = input.closest('.form-group');
         const errorElement = formGroup.querySelector('.error-message');
         if (!errorElement) {
             const errorDiv = document.createElement('div');
@@ -941,7 +1092,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Helper function to clear error
     function clearError(input) {
-        const formGroup = input.closest('.mb-3');
+        const formGroup = input.closest('.form-group');
         const errorElement = formGroup.querySelector('.error-message');
         if (errorElement) {
             errorElement.remove();
@@ -1021,57 +1172,6 @@ document.addEventListener('DOMContentLoaded', function () {
             e.preventDefault(); // Prevent form submission if validation fails
             alert('Veuillez corriger les erreurs avant de soumettre le formulaire.');
         }
-    });
-});
-
-document.addEventListener('DOMContentLoaded', function () {
-    const termsInput = document.querySelector('textarea[name="terms"]');
-    const addContractForm = document.querySelector('form[method="POST"]');
-
-    // Helper function to show error
-    function showError(input, message) {
-        const formGroup = input.closest('.mb-3');
-        const errorElement = formGroup.querySelector('.error-message');
-        if (!errorElement) {
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'error-message text-danger mt-1';
-            errorDiv.textContent = message;
-            formGroup.appendChild(errorDiv);
-        } else {
-            errorElement.textContent = message;
-        }
-        input.classList.add('is-invalid');
-    }
-
-    // Helper function to clear error
-    function clearError(input) {
-        const formGroup = input.closest('.mb-3');
-        const errorElement = formGroup.querySelector('.error-message');
-        if (errorElement) {
-            errorElement.remove();
-        }
-        input.classList.remove('is-invalid');
-    }
-
-    // Validation function for "Termes"
-    function validateTerms() {
-        const terms = termsInput.value.trim();
-        if (terms === '') {
-            showError(termsInput, 'Les termes doivent être remplis.');
-            return false;
-        }
-        clearError(termsInput);
-        return true;
-    }
-
-    // Attach blur event listener for real-time validation
-    termsInput.addEventListener('blur', validateTerms);
-
-    // Form submission validation
-    addContractForm.addEventListener('submit', function (e) {
-        const isTermsValid = validateTerms();
-
-       
     });
 });
 </script>

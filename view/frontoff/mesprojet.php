@@ -9,43 +9,37 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Redirect if not logged in
+if (!isset($_SESSION['user_id'])) {
+    header("Location: connexion.php");
+    exit();
+}
+
+$userId = $_SESSION['user_id']; // Get the logged-in user's ID
+
 $controller = new ProjectController();
 
-// Fetch all projects
-$projects = $controller->getAllProjects();
+// Fetch only the projects related to the logged-in user
+$projects = $controller->getProjectsByUserId($userId); // Ensure this method exists in your controller
 
-// Calculate statistics
+// Recalculate statistics for the filtered projects
 $totalProjects = count($projects);
-$totalFunding = array_sum(array_column($projects, 'montant_cible'));
-
-// Fix: Ensure all projects have a valid 'montant_cible' value
-$totalFunding = array_sum(array_map(function ($project) {
-    return isset($project['montant_cible']) ? (float)$project['montant_cible'] : 0;
-}, $projects));
-
-// Fix: Calculate the number of projects by status
+$totalFunding = array_sum(array_map(fn($p) => $p['montant_cible'] ?? 0, $projects));
 $projectsByStatus = array_reduce($projects, function ($carry, $project) {
     $status = $project['status'] ?? 'unknown';
     $carry[$status] = ($carry[$status] ?? 0) + 1;
     return $carry;
 }, []);
 
-// Handle PDF export for all projects
+// Handle PDF export
 if (isset($_GET['export_pdf'])) {
-    require_once __DIR__ . '/../../libs/fpdf/fpdf.php'; // Ensure FPDF is included
-
-    // Start output buffering to prevent premature output
+    require_once __DIR__ . '/../../libs/fpdf/fpdf.php';
     ob_start();
-
     $pdf = new FPDF();
     $pdf->AddPage();
     $pdf->SetFont('Arial', 'B', 16);
-
-    // Title
     $pdf->Cell(0, 10, 'Liste des Projets', 0, 1, 'C');
     $pdf->Ln(10);
-
-    // Table Header
     $pdf->SetFont('Arial', 'B', 12);
     $pdf->Cell(20, 10, 'ID', 1);
     $pdf->Cell(40, 10, 'Titre', 1);
@@ -54,11 +48,9 @@ if (isset($_GET['export_pdf'])) {
     $pdf->Cell(30, 10, 'Statut', 1);
     $pdf->Cell(30, 10, 'Durée', 1);
     $pdf->Ln();
-
-    // Table Data
     $pdf->SetFont('Arial', '', 12);
     foreach ($projects as $project) {
-        $statut = $project['statut'] ?? 'N/A'; // Handle missing "statut" key
+        $statut = $project['status'] ?? 'N/A';
         $pdf->Cell(20, 10, $project['id_projet'], 1);
         $pdf->Cell(40, 10, substr($project['titre'], 0, 20), 1);
         $pdf->Cell(60, 10, substr($project['description'] ?? 'N/A', 0, 40), 1);
@@ -67,395 +59,549 @@ if (isset($_GET['export_pdf'])) {
         $pdf->Cell(30, 10, $project['duree'] . ' mois', 1);
         $pdf->Ln();
     }
-
-    // Output the PDF
-    ob_end_clean(); // Clear the output buffer
+    ob_end_clean();
     $pdf->Output('D', 'Liste_Projets.pdf');
     exit;
 }
 
-// Handle PDF comparison for two selected projects
-if (isset($_GET['compare_pdf']) && isset($_GET['project1']) && isset($_GET['project2'])) {
-    require_once __DIR__ . '/../../libs/fpdf/fpdf.php'; // Ensure FPDF is included
+// Handle PDF comparison
+if (isset($_GET['compare_pdf'])) {
+    $project1Id = $_GET['project1'] ?? null;
+    $project2Id = $_GET['project2'] ?? null;
 
-    $project1 = $controller->getProjectById($_GET['project1']);
-    $project2 = $controller->getProjectById($_GET['project2']);
+    if ($project1Id && $project2Id) {
+        $project1 = array_filter($projects, fn($p) => $p['id_projet'] == $project1Id);
+        $project2 = array_filter($projects, fn($p) => $p['id_projet'] == $project2Id);
 
-    // Start output buffering to prevent premature output
-    ob_start();
+        if (!empty($project1) && !empty($project2)) {
+            $project1 = array_values($project1)[0];
+            $project2 = array_values($project2)[0];
 
-    $pdf = new FPDF();
-    $pdf->AddPage();
-    $pdf->SetFont('Arial', 'B', 16);
+            require_once __DIR__ . '/../../libs/fpdf/fpdf.php';
+            $pdf = new FPDF();
+            $pdf->AddPage();
+            $pdf->SetFont('Arial', 'B', 16);
+            $pdf->Cell(0, 10, 'Comparaison des Projets', 0, 1, 'C');
+            $pdf->Ln(10);
 
-    // Title
-    $pdf->Cell(0, 10, 'Comparaison des Projets', 0, 1, 'C');
-    $pdf->Ln(10);
+            $pdf->SetFont('Arial', 'B', 12);
+            $pdf->Cell(95, 10, 'Projet 1', 1, 0, 'C');
+            $pdf->Cell(95, 10, 'Projet 2', 1, 1, 'C');
 
-    // Table Header
-    $pdf->SetFont('Arial', 'B', 12);
-    $pdf->Cell(60, 10, 'Attribut', 1, 0, 'C');
-    $pdf->Cell(65, 10, 'Projet 1', 1, 0, 'C');
-    $pdf->Cell(65, 10, 'Projet 2', 1, 1, 'C');
+            $fields = ['Titre', 'Description', 'Montant Cible', 'Durée', 'Statut'];
+            foreach ($fields as $field) {
+                $pdf->SetFont('Arial', 'B', 10);
+                $pdf->Cell(40, 10, $field, 1);
+                $pdf->SetFont('Arial', '', 10);
+                $pdf->Cell(55, 10, $project1[strtolower(str_replace(' ', '_', $field))] ?? 'N/A', 1);
+                $pdf->Cell(55, 10, $project2[strtolower(str_replace(' ', '_', $field))] ?? 'N/A', 1);
+                $pdf->Ln();
+            }
 
-    // Table Rows
-    $pdf->SetFont('Arial', '', 12);
-    $pdf->Cell(60, 10, 'Titre', 1);
-    $pdf->Cell(65, 10, $project1['titre'], 1);
-    $pdf->Cell(65, 10, $project2['titre'], 1);
-    $pdf->Ln();
-
-    $pdf->Cell(60, 10, 'Description', 1);
-    $pdf->Cell(65, 10, substr($project1['description'], 0, 30) . '...', 1);
-    $pdf->Cell(65, 10, substr($project2['description'], 0, 30) . '...', 1);
-    $pdf->Ln();
-
-    $pdf->Cell(60, 10, 'Montant Cible (€)', 1);
-    $pdf->Cell(65, 10, number_format($project1['montant_cible'], 2), 1);
-    $pdf->Cell(65, 10, number_format($project2['montant_cible'], 2), 1);
-    $pdf->Ln();
-
-    $pdf->Cell(60, 10, 'Durée (mois)', 1);
-    $pdf->Cell(65, 10, $project1['duree'], 1);
-    $pdf->Cell(65, 10, $project2['duree'], 1);
-    $pdf->Ln();
-
-    // Output the PDF
-    ob_end_clean(); // Clear the output buffer
-    $pdf->Output('D', 'Comparaison_Projets.pdf');
-    exit;
+            $pdf->Output('D', 'Comparaison_Projets.pdf');
+            exit;
+        }
+    }
 }
 
-// Capture the search term from the request
-$searchTerm = $_GET['search'] ?? null;
+// Handle search and sorting
+$searchTerm = $_GET['search'] ?? '';
+$montantSortOrder = $_GET['montant_sort'] ?? '';
 
-// Filter projects based on the search term
-if ($searchTerm) {
-    $projects = array_filter($projects, function ($project) use ($searchTerm) {
-        return stripos($project['titre'], $searchTerm) !== false || stripos($project['description'], $searchTerm) !== false;
-    });
+if (!empty($searchTerm)) {
+    $projects = array_filter($projects, fn($p) => stripos($p['titre'], $searchTerm) !== false || stripos($p['description'], $searchTerm) !== false);
 }
-
-// Capture the sorting order for montant
-$montantSortOrder = $_GET['montant_sort'] ?? null;
-
-// Sort projects based on the sorting order
 if ($montantSortOrder === 'asc') {
-    usort($projects, fn($a, $b) => $a['montant_cible'] <=> $b['montant_cible']);
+    usort($projects, fn($a, $b) => ($a['montant_cible'] ?? 0) <=> ($b['montant_cible'] ?? 0));
 } elseif ($montantSortOrder === 'desc') {
-    usort($projects, fn($a, $b) => $b['montant_cible'] <=> $a['montant_cible']);
+    usort($projects, fn($a, $b) => ($b['montant_cible'] ?? 0) <=> ($a['montant_cible'] ?? 0));
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Mes Projets</title>
-    <link rel="stylesheet" href="css/stylecatego.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FundFlow - Mes Projets</title>
+    <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
     <style>
-        .profile-menu {
-            background-color: rgba(46, 79, 102, 0.8);
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #3a56d4 0%, #10b981 100%);
+            background-size: 200% 200%;
+            animation: gradientBG 12s ease infinite;
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 3rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .brand-logo {
+            height: 50px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.75rem 1.25rem;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .profile-menu-container {
+            position: relative;
+        }
+
+        .profile-menu-btn {
+            background: linear-gradient(135deg, #3a56d4, #10b981);
             color: white;
             border: none;
-            border-radius: 8px;
-            padding: 0.8rem 1rem;
+            border-radius: 50px;
+            padding: 0.75rem 1.5rem;
             font-size: 0.95rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease-in-out;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23cbd5e1' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 1rem center;
+            transition: all 0.3s ease;
         }
 
-        .profile-menu:hover {
-            background-color: rgba(30, 60, 82, 0.9);
-            color: #00d09c;
+        .profile-menu-btn:hover {
+            background: linear-gradient(135deg, #10b981, #3a56d4);
+            transform: translateY(-2px);
         }
 
-        .profile-menu:focus {
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(0, 208, 156, 0.5);
+        .page-header {
+            text-align: center;
+            margin: 2rem 0;
         }
 
-        .profile-menu option {
-            background-color: rgba(46, 79, 102, 0.9);
-            color: white;
+        .page-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
         }
 
-        .button-container {
+        .page-header p {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .projects-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card p {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .projects-list ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .projects-list li {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .projects-list h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .projects-list p {
+            margin: 0.5rem 0;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .action-buttons {
             text-align: center;
             margin-bottom: 2rem;
         }
-        .button-container a, .button-container button, .button-container select {
-            display: inline-block;
-            margin: 0 0.5rem;
+
+        .btn {
             padding: 0.75rem 1.5rem;
-            background: linear-gradient(45deg, #00c9a7, #00ffc8);
-            color: #fff;
-            border-radius: 4px;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
-        }
-        .button-container a:hover, .button-container button:hover, .button-container select:hover {
-            background: linear-gradient(45deg, #00ffc8, #00c9a7);
-            transform: translateY(-3px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-        .projects-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin: 2rem auto;
-            max-width: 1200px;
-        }
-        .project-card {
-            background: #1e293b;
+            background: linear-gradient(135deg, #3a56d4, #10b981);
+            color: white;
             border-radius: 8px;
-            padding: 1.5rem;
-            color: #fff;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s ease;
-        }
-        .project-card:hover {
-            transform: translateY(-5px);
-        }
-        .project-title {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #00ffc8;
-            margin-bottom: 0.5rem;
-        }
-        .project-description {
-            font-size: 1rem;
-            margin-bottom: 1rem;
-            color: #cbd5e1;
-        }
-        .project-info {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 1rem;
-        }
-        .project-info span {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .project-actions {
-            text-align: center;
-        }
-        .project-actions a {
-            display: inline-block;
+            text-decoration: none;
+            font-weight: 600;
             margin: 0.5rem;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            text-decoration: none;
-            color: #fff;
-            background: #00ffc8;
-            transition: background 0.3s ease;
+            display: inline-block;
+            transition: all 0.3s ease;
         }
-        .project-actions a:hover {
-            background: #00c9a7;
+
+        .btn:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, #10b981, #3a56d4);
         }
-        .map-container {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 80%;
-            height: 80%;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            z-index: 1000;
-        }
-        .map-container iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            border-radius: 8px;
-        }
-        .map-container .close-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: #ff5e57;
-            color: #fff;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .map-container .close-btn:hover {
-            background: #e04b4b;
-        }
+
         .overlay {
-            display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            display: none;
         }
-        .stats-container {
-            display: flex;
-            justify-content: center;
-            gap: 1.5rem;
-            margin: 2rem auto;
-            max-width: 1200px;
+
+        .map-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 800px;
+            height: 70vh;
+            background: white;
+            border-radius: 16px;
+            z-index: 1001;
+            display: none;
+            overflow: hidden;
         }
-        .stat-card {
-            background: #1e293b;
+
+        .map-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.5rem 1rem;
+            background: #dc2626;
+            color: white;
+            border: none;
             border-radius: 8px;
-            padding: 1.5rem;
-            color: #fff;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            text-align: center;
-            flex: 1;
+            cursor: pointer;
+            z-index: 1002;
         }
-        .stat-value {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #00ffc8;
-            margin-bottom: 0.5rem;
+
+        .close-btn:hover {
+            background: #b91c1c;
         }
-        .stat-label {
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .projects-container {
+                padding: 1rem;
+            }
+        }
+
+        /* Style for search input */
+        .search-group input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.9);
             font-size: 1rem;
-            color: #cbd5e1;
+            color: #333;
+            transition: all 0.3s ease;
+        }
+
+        .search-group input:focus {
+            outline: none;
+            border-color: #3a56d4;
+            box-shadow: 0 0 0 3px rgba(58, 86, 212, 0.3);
+        }
+
+        .search-btn {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #3a56d4, #10b981);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .search-btn:hover {
+            background: linear-gradient(135deg, #10b981, #3a56d4);
+            transform: translateY(-2px);
+        }
+
+        /* Style for dropdowns */
+        .select-wrapper select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
+            color: #333;
+            appearance: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .select-wrapper select:focus {
+            outline: none;
+            border-color: #3a56d4;
+            box-shadow: 0 0 0 3px rgba(58, 86, 212, 0.3);
+        }
+
+        .select-wrapper {
+            position: relative;
+        }
+
+        .select-wrapper .select-arrow {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #333;
+            pointer-events: none;
+        }
+
+        /* Style for compare form dropdowns */
+        .compare-form select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
+            color: #333;
+            appearance: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .compare-form select:focus {
+            outline: none;
+            border-color: #3a56d4;
+            box-shadow: 0 0 0 3px rgba(58, 86, 212, 0.3);
+        }
+
+        .compare-form button {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #3a56d4, #10b981);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .compare-form button:hover {
+            background: linear-gradient(135deg, #10b981, #3a56d4);
+            transform: translateY(-2px);
         }
     </style>
 </head>
 <body>
+<div class="dashboard-container">
 <header class="navbar">
-    <div class="logo-container">
-        <span class="brand-name">FundFlow</span>
-    </div>
-    <nav>
-       <a href="apropos.html"><i class="fas fa-info-circle"></i> À propos</a>
-      <a href="contact.html"><i class="fas fa-envelope"></i> Contact</a>
-      
-
-      <!-- Enhanced Dropdown Menu -->
-      <select onchange="if(this.value) window.location.href=this.value; this.selectedIndex = 0;" class="profile-menu">
-        <option value="">Mon compte ▼</option>
-        <option value="profiles.php">Profil</option>
-        <option value="mesprojet.php">Mes projets</option>
-        <option value="startup.php">StartUP</option>
-        <option value="events.php">Événements</option>
-        <option value="partenaire.php">Partenariat</option>
-        <option value="accueil.html">Déconnexion</option>
-      </select>
-    </nav>
-</header>
-
-<main>
-    <section class="hero-section">
-        <h1><i class="fas fa-rocket"></i> Découvrez des projets innovants</h1>
-        <p>Soutenez des idées qui changent le monde</p>
-    </section>
-
-    <!-- Statistics Section -->
-    <div class="stats-container">
-        <div class="stat-card">
-            <div class="stat-value"><?= $totalProjects ?></div>
-            <div class="stat-label">Projets total</div>
+        <div class="logo-container">
+            <a href="acceuil2.php">
+                <img src="assets/Logo_FundFlow.png" alt="FundFlow Logo" class="brand-logo">
+            </a>
         </div>
-        <div class="stat-card">
-            <div class="stat-value">€<?= number_format($totalFunding, 2) ?></div>
-            <div class="stat-label">Total demandé</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-value"><?= $projectsByStatus['en_attente'] ?? 0 ?></div>
-            <div class="stat-label">En attente</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-value"><?= $projectsByStatus['actif'] ?? 0 ?></div>
-            <div class="stat-label">Actifs</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-value"><?= $projectsByStatus['termine'] ?? 0 ?></div>
-            <div class="stat-label">Terminés</div>
-        </div>
-    </div>
-
-    <!-- Buttons for PDF Export and Localisation -->
-    <div class="button-container">
-        <a href="?export_pdf=true"><i class="fas fa-file-pdf"></i> Exporter en PDF</a>
-        <button id="show-map-btn"><i class="fas fa-map-marker-alt"></i> Localisation</button>
-        <a href="projets.php" class="btn btn-primary"><i class="fas fa-arrow-right"></i> Aller à la page Projets</a>
-    </div>
-
-    <!-- Map Modal -->
-    <div class="overlay" id="overlay"></div>
-    <div class="map-container" id="map-container">
-        <button class="close-btn" id="close-map-btn">Fermer</button>
-        <iframe 
-            src="https://www.google.com/maps?q=36.846917,10.195694&hl=fr&z=16&output=embed" 
-            allowfullscreen>
-        </iframe>
-    </div>
-
-    <!-- Enhanced Search -->
-    <div class="search-container" style="text-align: center; margin-bottom: 1.5rem;">
-        <form method="GET" class="search-box" style="display: inline-block;">
-            <input type="text" name="search" placeholder="Rechercher un projet..." value="<?= htmlspecialchars($searchTerm) ?>" class="btn">
-            <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Rechercher</button>
-        </form>
-        <form method="GET" style="display: inline-block;">
-            <select name="montant_sort" onchange="this.form.submit()" class="btn">
-                <option value="">Trier par Montant</option>
-                <option value="asc" <?= $montantSortOrder === 'asc' ? 'selected' : '' ?>>Montant Croissant</option>
-                <option value="desc" <?= $montantSortOrder === 'desc' ? 'selected' : '' ?>>Montant Décroissant</option>
-            </select>
-        </form>
-        <form method="GET" action="" style="display: inline-block;">
-            <select name="project1" class="btn">
-                <option value="">Sélectionnez Projet 1</option>
-                <?php foreach ($projects as $project): ?>
-                    <option value="<?= $project['id_projet'] ?>"><?= htmlspecialchars($project['titre']) ?></option>
-                <?php endforeach; ?>
-            </select>
-            <select name="project2" class="btn">
-                <option value="">Sélectionnez Projet 2</option>
-                <?php foreach ($projects as $project): ?>
-                    <option value="<?= $project['id_projet'] ?>"><?= htmlspecialchars($project['titre']) ?></option>
-                <?php endforeach; ?>
-            </select>
-            <button type="submit" name="compare_pdf" class="btn btn-primary">
-                <i class="fas fa-file-pdf"></i> Comparer en PDF
-            </button>
-        </form>
-    </div>
-
-    <div class="projects-grid">
-        <?php foreach ($projects as $project): ?>
-            <div class="project-card">
-                <div class="project-title"><?= htmlspecialchars($project['titre']) ?></div>
-                <div class="project-description"><?= htmlspecialchars($project['description'] ?? 'N/A') ?></div>
-                <div class="project-info">
-                    <span><i class="fas fa-euro-sign"></i> <?= number_format($project['montant_cible'], 2) ?> €</span>
-                    <span><i class="fas fa-clock"></i> <?= $project['duree'] ?> mois</span>
-                </div>
-                <div class="project-actions">
-                    <a href="projet-details.php?id=<?= $project['id_projet'] ?>" class="btn btn-primary">
-                        <i class="fas fa-eye"></i> Voir le projet
-                    </a>
-                </div>
+        
+        <div class="nav-links">
+            <a href="acceuil2.php" class="nav-link"><i class="fas fa-home"></i> Accueil</a>
+            <a href="apropos.html" class="nav-link"><i class="fas fa-info-circle"></i> À propos</a>
+            <a href="contact.html" class="nav-link"><i class="fas fa-envelope"></i> Contact</a>
+            <a href="events.php" class="nav-link"><i class="fas fa-calendar-alt"></i> Événements</a>
+            <a href="partenaire.php" class="nav-link"><i class="fas fa-handshake"></i> Partenariats</a>
+            
+            <div class="profile-menu-container">
+                <button class="profile-menu-btn">Mon compte ▼</button>
+                <ul class="profile-menu">
+                    <li><a href="profiles.php">Profil</a></li>
+                    <?php if ($_SESSION['user']['role'] === 'investisseur'): ?>
+                        <li><a href="demands_list.php">Liste des demandes</a></li>
+                    <?php endif; ?>
+                    <?php if ($_SESSION['user']['role'] === 'entrepreneur'): ?>
+                        <li><a href="mesprojet.php">Mes projets</a></li>
+                        <li><a href="historique.php">mes demandes</a></li>
+                    <?php endif; ?>
+                    <li><a href="allconsult.php">Consultation</a></li>
+                    <li><a href="connexion.php?logout=1" class="logout">Déconnexion</a></li>
+                </ul>
             </div>
-        <?php endforeach; ?>
-    </div>
-</main>
+        </div>
+    </header>
 
+    <div class="page-header">
+        <h1><i class="fas fa-project-diagram"></i> Mes Projets</h1>
+        <p>Gérez et suivez vos projets de financement</p>
+    </div>
+
+    <div class="projects-container">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Projets Total</h3>
+                <p><?= $totalProjects ?></p>
+            </div>
+            <div class="stat-card">
+                <h3>Total Demandé</h3>
+                <p>€<?= number_format($totalFunding, 2) ?></p>
+            </div>
+            <div class="stat-card">
+                <h3>En Attente</h3>
+                <p><?= $projectsByStatus['en_attente'] ?? 0 ?></p>
+            </div>
+            <div class="stat-card">
+                <h3>Actifs</h3>
+                <p><?= $projectsByStatus['actif'] ?? 0 ?></p>
+            </div>
+            <div class="stat-card">
+                <h3>Terminés</h3>
+                <p><?= $projectsByStatus['termine'] ?? 0 ?></p>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <a href="projets.php" class="btn"><i class="fas fa-plus"></i> Créer un nouveau projet</a>
+            <a href="?export_pdf=true" class="btn"><i class="fas fa-file-pdf"></i> Exporter en PDF</a>
+            <button id="show-map-btn" class="btn"><i class="fas fa-map-marker-alt"></i> Localisation</button>
+        </div>
+
+        <!-- Map Modal -->
+        <div class="overlay" id="overlay"></div>
+        <div class="map-container" id="map-container">
+            <button class="close-btn" id="close-map-btn">Fermer</button>
+            <iframe 
+                src="https://www.google.com/maps?q=36.846917,10.195694&hl=fr&z=16&output=embed" 
+                allowfullscreen>
+            </iframe>
+        </div>
+
+        <div class="filter-panel">
+            <form method="GET" class="filter-form">
+                <div class="search-group">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" name="search" placeholder="Rechercher un projet..." value="<?= htmlspecialchars($searchTerm) ?>">
+                    <button type="submit" class="search-btn">Rechercher</button>
+                </div>
+                <div class="filter-group">
+                    <div class="select-wrapper">
+                        <select name="montant_sort" onchange="this.form.submit()">
+                            <option value="">Trier par Montant</option>
+                            <option value="asc" <?= $montantSortOrder === 'asc' ? 'selected' : '' ?>>Montant Croissant</option>
+                            <option value="desc" <?= $montantSortOrder === 'desc' ? 'selected' : '' ?>>Montant Décroissant</option>
+                        </select>
+                        <i class="fas fa-chevron-down select-arrow"></i>
+                    </div>
+                </div>
+            </form>
+            
+            <form method="GET" action="" class="compare-form">
+                <div class="select-wrapper">
+                    <select name="project1">
+                        <option value="">Sélectionnez Projet 1</option>
+                        <?php foreach ($projects as $project): ?>
+                            <option value="<?= $project['id_projet'] ?>"><?= htmlspecialchars($project['titre']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <i class="fas fa-chevron-down select-arrow"></i>
+                </div>
+                <div class="select-wrapper">
+                    <select name="project2">
+                        <option value="">Sélectionnez Projet 2</option>
+                        <?php foreach ($projects as $project): ?>
+                            <option value="<?= $project['id_projet'] ?>"><?= htmlspecialchars($project['titre']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <i class="fas fa-chevron-down select-arrow"></i>
+                </div>
+                <button type="submit" name="compare_pdf" class="btn btn-primary" style="padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #3a56d4, #10b981); color: white; border-radius: 8px; text-decoration: none; font-weight: 600;">
+                    <i class="fas fa-file-pdf"></i> Comparer en PDF
+                </button>
+            </form>
+        </div>
+
+        <div class="projects-list">
+            <?php if (empty($projects)): ?>
+                <p>Aucun projet trouvé.</p>
+            <?php else: ?>
+                <ul>
+                    <?php foreach ($projects as $project): ?>
+                        <li>
+                            <h3><?= htmlspecialchars($project['titre']) ?></h3>
+                            <p><?= htmlspecialchars($project['description']) ?></p>
+                            <p>Montant Cible: €<?= number_format($project['montant_cible'], 2) ?></p>
+                            <p>Durée: <?= $project['duree'] ?> mois</p>
+                            <p>Statut: <?= ucfirst($project['status']) ?></p>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php endif; ?>
+        </div>
+    </div>
+</div>
 <script>
+    // Map modal functionality
     const showMapBtn = document.getElementById('show-map-btn');
     const closeMapBtn = document.getElementById('close-map-btn');
     const mapContainer = document.getElementById('map-container');

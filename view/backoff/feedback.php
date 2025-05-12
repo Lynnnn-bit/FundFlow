@@ -98,10 +98,9 @@ if (!empty($allFeedback)) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestion des Feedbacks</title>
-    <link rel="stylesheet" href="cssback/feedback.css">
+    <title>FundFlow - Gestion des Feedbacks</title>
+    <link rel="stylesheet" href="../Frontoff/css/stylebackof.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="cssback/navbar.css">
     <style>
         .yellow-star {
             color: gold;
@@ -120,257 +119,358 @@ if (!empty($allFeedback)) {
         }
         
         .modal-content {
-            background-color: #fefefe;
+            background-color: var(--white);
             margin: 15% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 50%;
-            border-radius: 8px;
-            text-align: center;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 60%;
+            max-width: 800px;
+            box-shadow: var(--shadow-lg);
         }
         
         .close {
-            color: #aaa;
+            color: var(--gray);
             float: right;
             font-size: 28px;
             font-weight: bold;
+            transition: var(--transition);
         }
         
         .close:hover,
         .close:focus {
-            color: black;
+            color: var(--dark);
             text-decoration: none;
             cursor: pointer;
         }
         
-        .stat-box {
-            display: inline-block;
-            margin: 10px;
-            padding: 20px;
-            background-color: #f9f9f9;
-            border: 1px solid #ddd;
-            border-radius: 8px;
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            border-left: 4px solid var(--primary);
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .stat-label {
+            font-size: 0.95rem;
+            color: var(--gray);
+        }
+        
+        .search-container {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .search-container .form-control {
+            min-width: 250px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.4em 0.8em;
+            font-size: 0.75em;
+            font-weight: 700;
+            line-height: 1;
             text-align: center;
-            width: 150px;
+            white-space: nowrap;
+            vertical-align: baseline;
+            border-radius: 50rem;
+            gap: 0.4rem;
         }
         
-        .stat-box h3 {
-            margin-bottom: 10px;
-            font-size: 16px;
-        }
-        
-        .stat-box p {
-            font-size: 20px;
-            font-weight: bold;
-            color: #007bff;
-        }
-
-        .navbar {
-            background-color: #0d3b66;
+        .badge-primary {
+            background-color: var(--primary);
             color: white;
-            padding: 10px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
         
-        .navbar-menu a {
+        .badge-success {
+            background-color: var(--secondary);
             color: white;
-            text-decoration: none;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
         }
         
-        .navbar-menu a i {
-            margin-right: 5px;
-        }
-        
-        .pagination {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-        }
-        
-        .pagination a {
-            color: #007bff;
-            padding: 8px 16px;
-            text-decoration: none;
-            border: 1px solid #ddd;
-            margin: 0 4px;
-            border-radius: 4px;
-        }
-        
-        .pagination a.active {
-            background-color: #007bff;
+        .badge-warning {
+            background-color: #f39c12;
             color: white;
-            border: 1px solid #007bff;
         }
         
-        .pagination a:hover:not(.active) {
-            background-color: #ddd;
+        .badge-info {
+            background-color: #3498db;
+            color: white;
         }
         
-        .pagination a.disabled {
-            pointer-events: none;
-            color: #aaa;
-            border-color: #ddd;
+        .badge-danger {
+            background-color: #e74c3c;
+            color: white;
         }
-        
     </style>
 </head>
 <body>
-    <header class="navbar">
-        <div class="logo-container">
-            <span class="brand-name">FundFlow</span>
-        </div>
-        <nav>
-        <a href="feedback.php" class="active"><i class="fas fa-comment-alt"></i> Feedbacks</a>
-        <a href="../frontoff/apropos.html"><i class="fas fa-info-circle"></i> À propos</a>
-        <a href="../frontoff/contact.html"><i class="fas fa-envelope"></i> Contact</a>
-        <a href="../frontoff/accueil.html" class="logout"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
-    </nav>
-    </header>
-
-    <div class="main-container">
-        <h1><i class="fas fa-comment-alt"></i> Gestion des Feedbacks</h1>
-        
-        <?php if (isset($success_message) && !empty($success_message)): ?>
-            <div class="alert alert-success"><?php echo htmlspecialchars($success_message); ?></div>
-        <?php endif; ?>
-        
-        <?php if (isset($error_message) && !empty($error_message)): ?>
-            <div class="alert alert-danger"><?php echo htmlspecialchars($error_message); ?></div>
-        <?php endif; ?>
-
-        <div class="actions" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <div>
-                <a href="addfeedback.php" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> Ajouter un Feedback
-                </a>
-                <a href="feedback.php?sort=rate_desc" class="btn btn-primary">
-                    <i class="fas fa-star"></i> Trier par Note (décroissant)
-                </a>
-                <a href="feedback.php?sort=rate_asc" class="btn btn-primary">
-                    <i class="fas fa-star"></i> Trier par Note (croissant)
-                </a>
+    <button class="sidebar-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <div class="admin-background"></div>
+    
+    <div class="admin-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="../Frontoff/assets/Logo_FundFlow.png" alt="FundFlow Logo" class="sidebar-logo">
+                <button class="sidebar-close">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
-            <div class="search-container">
-                <form method="GET" action="feedback.php" style="display: flex; align-items: center;">
-                    <input type="text" name="search_consultant_id" placeholder="Rechercher par ID de Consultation" 
-                           value="<?php echo isset($search_consultant_id) ? htmlspecialchars($search_consultant_id) : ''; ?>" 
-                           class="form-control" style="width: 250px; margin-right: 10px;">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-search"></i> Rechercher
-                    </button>
-                </form>
+            <nav class="sidebar-menu">
+                <ul>
+                    <li><a href="backoffice.php"><i class="fas fa-tachometer-alt"></i> Tableau de bord</a></li>
+                    <li><a href="utilisateurmet.php"><i class="fas fa-users"></i> Utilisateurs</a></li>
+                    <li><a href="categories.php"><i class="fas fa-project-diagram"></i> Catégories</a></li>
+                    <li>
+                        <a href="#" class="toggle-submenu"><i class="fas fa-hand-holding-usd"></i> Financements</a>
+                        <ul class="submenu">
+                            <li><a href="statistics.php"><i class="fas fa-chart-pie"></i> Statistiques</a></li>
+                            <li><a href="demands.php"><i class="fas fa-file-invoice-dollar"></i> Demandes</a></li>
+                        </ul>
+                    </li>
+                    <li class="active"><a href="feedback.php"><i class="fas fa-comments"></i> Feedbacks</a></li>
+                    <li><a href="contrats.php"><i class="fas fa-handshake"></i> Contrats</a></li>
+                    <li><a href="#"><i class="fas fa-rocket"></i> Startups</a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <p>FundFlow Admin v1.0</p>
             </div>
-        </div>
+        </aside>
 
-        <div style="text-align: right; margin-bottom: 20px;">
-            <button id="statsButton" class="btn btn-primary">
-                <i class="fas fa-chart-pie"></i> Afficher les Statistiques
-            </button>
-        </div>
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-nav">
+                <button class="menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </header>
 
-        <div id="statsModal" class="modal">
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <h2>Statistiques des Feedbacks</h2>
-                <canvas id="ratingDistributionChart"></canvas>
-                <canvas id="consultantPercentageChart" style="margin-top: 20px;"></canvas>
-            </div>
-        </div>
-
-        <div class="table-container">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Consultation ID</th>
-                        <th>Note</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($paginatedFeedback as $feedback): ?>
-                        <tr>
-                            <td><?php echo isset($feedback['id_feedback']) ? htmlspecialchars($feedback['id_feedback']) : ''; ?></td>
-                            <td><?php echo isset($feedback['id_consultation']) ? htmlspecialchars($feedback['id_consultation']) : ''; ?></td>
-                            <td>
-                                <div class="stars">
-                                    <?php 
-                                    $note = isset($feedback['note']) ? (int)$feedback['note'] : 0;
-                                    for ($i = 1; $i <= 5; $i++): ?>
-                                        <i class="fas fa-star <?php echo $i <= $note ? 'yellow-star' : ''; ?>"></i>
-                                    <?php endfor; ?>
-                                </div>
-                            </td>
-                            <td class="actions">
-                                <?php if (isset($feedback['id_feedback'])): ?>
-                                    <a href="editfeedback.php?id=<?php echo $feedback['id_feedback']; ?>" class="btn btn-warning">
-                                        <i class="fas fa-edit"></i> Modifier
-                                    </a>
-                                    <a href="deletefeedback.php?id=<?php echo $feedback['id_feedback']; ?>" 
-                                       class="btn btn-danger"
-                                       onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce feedback?')">
-                                        <i class="fas fa-trash"></i> Supprimer
+            <div class="main-container">
+                <div class="page-header">
+                    <h1><i class="fas fa-comment-alt"></i> Gestion des Feedbacks</h1>
+                    <div class="header-actions">
+                        <div class="search-container">
+                            <form method="GET" action="feedback.php" class="search-form">
+                                <input type="text" name="search_consultant_id" placeholder="Rechercher par ID Consultation" 
+                                       value="<?php echo isset($search_consultant_id) ? htmlspecialchars($search_consultant_id) : ''; ?>" 
+                                       class="form-control">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                                <?php if (isset($search_consultant_id)): ?>
+                                    <a href="feedback.php" class="btn btn-danger">
+                                        <i class="fas fa-times"></i>
                                     </a>
                                 <?php endif; ?>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
 
-        <!-- Pagination -->
-        <div class="pagination">
-            <?php if ($total_pages > 1): ?>
-                <?php if ($current_page > 1): ?>
-                    <a href="?page=1<?php echo isset($search_consultant_id) ? '&search_consultant_id=' . urlencode($search_consultant_id) : ''; ?><?php echo isset($_GET['sort']) ? '&sort=' . htmlspecialchars($_GET['sort']) : ''; ?>">&laquo; Première</a>
-                    <a href="?page=<?php echo $current_page - 1; ?><?php echo isset($search_consultant_id) ? '&search_consultant_id=' . urlencode($search_consultant_id) : ''; ?><?php echo isset($_GET['sort']) ? '&sort=' . htmlspecialchars($_GET['sort']) : ''; ?>">&lsaquo; Précédente</a>
-                <?php else: ?>
-                    <span class="disabled">&laquo; Première</span>
-                    <span class="disabled">&lsaquo; Précédente</span>
+                <?php if (isset($success_message) && !empty($success_message)): ?>
+                    <div class="alert alert-success"><?php echo htmlspecialchars($success_message); ?></div>
+                <?php endif; ?>
+                
+                <?php if (isset($error_message) && !empty($error_message)): ?>
+                    <div class="alert alert-danger"><?php echo htmlspecialchars($error_message); ?></div>
                 <?php endif; ?>
 
-                <?php 
-                // Show page numbers
-                $start_page = max(1, $current_page - 2);
-                $end_page = min($total_pages, $current_page + 2);
-                
-                if ($start_page > 1) {
-                    echo '<a href="?page=1' . (isset($search_consultant_id) ? '&search_consultant_id=' . urlencode($search_consultant_id) : '') . (isset($_GET['sort']) ? '&sort=' . htmlspecialchars($_GET['sort']) : '') . '">1</a>';
-                    if ($start_page > 2) {
-                        echo '<span>...</span>';
-                    }
-                }
-                
-                for ($i = $start_page; $i <= $end_page; $i++) {
-                    if ($i == $current_page) {
-                        echo '<a href="?page=' . $i . (isset($search_consultant_id) ? '&search_consultant_id=' . urlencode($search_consultant_id) : '') . (isset($_GET['sort']) ? '&sort=' . htmlspecialchars($_GET['sort']) : '') . '" class="active">' . $i . '</a>';
-                    } else {
-                        echo '<a href="?page=' . $i . (isset($search_consultant_id) ? '&search_consultant_id=' . urlencode($search_consultant_id) : '') . (isset($_GET['sort']) ? '&sort=' . htmlspecialchars($_GET['sort']) : '') . '">' . $i . '</a>';
-                    }
-                }
-                
-                if ($end_page < $total_pages) {
-                    if ($end_page < $total_pages - 1) {
-                        echo '<span>...</span>';
-                    }
-                    echo '<a href="?page=' . $total_pages . (isset($search_consultant_id) ? '&search_consultant_id=' . urlencode($search_consultant_id) : '') . (isset($_GET['sort']) ? '&sort=' . htmlspecialchars($_GET['sort']) : '') . '">' . $total_pages . '</a>';
-                }
-                ?>
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <div class="stat-value"><?= $total_feedback ?></div>
+                        <div class="stat-label">Feedbacks total</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value"><?= number_format($average_rating, 1) ?></div>
+                        <div class="stat-label">Note moyenne</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value"><?= $unique_consultants ?></div>
+                        <div class="stat-label">Consultants uniques</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">5</div>
+                        <div class="stat-label">Notes possibles</div>
+                    </div>
+                </div>
 
-                <?php if ($current_page < $total_pages): ?>
-                    <a href="?page=<?php echo $current_page + 1; ?><?php echo isset($search_consultant_id) ? '&search_consultant_id=' . urlencode($search_consultant_id) : ''; ?><?php echo isset($_GET['sort']) ? '&sort=' . htmlspecialchars($_GET['sort']) : ''; ?>">Suivante &rsaquo;</a>
-                    <a href="?page=<?php echo $total_pages; ?><?php echo isset($search_consultant_id) ? '&search_consultant_id=' . urlencode($search_consultant_id) : ''; ?><?php echo isset($_GET['sort']) ? '&sort=' . htmlspecialchars($_GET['sort']) : ''; ?>">Dernière &raquo;</a>
-                <?php else: ?>
-                    <span class="disabled">Suivante &rsaquo;</span>
-                    <span class="disabled">Dernière &raquo;</span>
-                <?php endif; ?>
-            <?php endif; ?>
+                <section class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-list"></i> Liste des Feedbacks</h3>
+                        <div class="card-header-actions">
+                            <a href="addfeedback.php" class="btn btn-primary btn-sm">
+                                <i class="fas fa-plus"></i> Ajouter
+                            </a>
+                            <a href="feedback.php?sort=rate_desc" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-sort-amount-down"></i> Note
+                            </a>
+                            <a href="feedback.php?sort=rate_asc" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-sort-amount-up"></i> Note
+                            </a>
+                            <button id="statsButton" class="btn btn-info btn-sm">
+                                <i class="fas fa-chart-pie"></i> Stats
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Consultation ID</th>
+                                        <th>Note</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($paginatedFeedback as $feedback): ?>
+                                        <tr>
+                                            <td><?php echo isset($feedback['id_feedback']) ? htmlspecialchars($feedback['id_feedback']) : ''; ?></td>
+                                            <td><?php echo isset($feedback['id_consultation']) ? htmlspecialchars($feedback['id_consultation']) : ''; ?></td>
+                                            <td>
+                                                <div class="stars">
+                                                    <?php 
+                                                    $note = isset($feedback['note']) ? (int)$feedback['note'] : 0;
+                                                    for ($i = 1; $i <= 5; $i++): ?>
+                                                        <i class="fas fa-star <?php echo $i <= $note ? 'yellow-star' : ''; ?>"></i>
+                                                    <?php endfor; ?>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="action-buttons">
+                                                    <?php if (isset($feedback['id_feedback'])): ?>
+                                                        <a href="editfeedback.php?id=<?php echo $feedback['id_feedback']; ?>" class="btn btn-warning btn-sm">
+                                                            <i class="fas fa-edit"></i>
+                                                        </a>
+                                                        <a href="deletefeedback.php?id=<?php echo $feedback['id_feedback']; ?>" 
+                                                           class="btn btn-danger btn-sm"
+                                                           onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce feedback?')">
+                                                            <i class="fas fa-trash"></i>
+                                                        </a>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Pagination -->
+                        <div class="pagination">
+                            <?php if ($total_pages > 1): ?>
+                                <?php if ($current_page > 1): ?>
+                                    <a href="?page=1<?php echo isset($search_consultant_id) ? '&search_consultant_id=' . urlencode($search_consultant_id) : ''; ?><?php echo isset($_GET['sort']) ? '&sort=' . htmlspecialchars($_GET['sort']) : ''; ?>">&laquo;</a>
+                                    <a href="?page=<?php echo $current_page - 1; ?><?php echo isset($search_consultant_id) ? '&search_consultant_id=' . urlencode($search_consultant_id) : ''; ?><?php echo isset($_GET['sort']) ? '&sort=' . htmlspecialchars($_GET['sort']) : ''; ?>">&lsaquo;</a>
+                                <?php else: ?>
+                                    <span class="disabled">&laquo;</span>
+                                    <span class="disabled">&lsaquo;</span>
+                                <?php endif; ?>
+
+                                <?php 
+                                // Show page numbers
+                                $start_page = max(1, $current_page - 2);
+                                $end_page = min($total_pages, $current_page + 2);
+                                
+                                if ($start_page > 1) {
+                                    echo '<a href="?page=1' . (isset($search_consultant_id) ? '&search_consultant_id=' . urlencode($search_consultant_id) : '') . (isset($_GET['sort']) ? '&sort=' . htmlspecialchars($_GET['sort']) : '') . '">1</a>';
+                                    if ($start_page > 2) {
+                                        echo '<span>...</span>';
+                                    }
+                                }
+                                
+                                for ($i = $start_page; $i <= $end_page; $i++) {
+                                    if ($i == $current_page) {
+                                        echo '<a href="?page=' . $i . (isset($search_consultant_id) ? '&search_consultant_id=' . urlencode($search_consultant_id) : '') . (isset($_GET['sort']) ? '&sort=' . htmlspecialchars($_GET['sort']) : '') . '" class="active">' . $i . '</a>';
+                                    } else {
+                                        echo '<a href="?page=' . $i . (isset($search_consultant_id) ? '&search_consultant_id=' . urlencode($search_consultant_id) : '') . (isset($_GET['sort']) ? '&sort=' . htmlspecialchars($_GET['sort']) : '') . '">' . $i . '</a>';
+                                    }
+                                }
+                                
+                                if ($end_page < $total_pages) {
+                                    if ($end_page < $total_pages - 1) {
+                                        echo '<span>...</span>';
+                                    }
+                                    echo '<a href="?page=' . $total_pages . (isset($search_consultant_id) ? '&search_consultant_id=' . urlencode($search_consultant_id) : '') . (isset($_GET['sort']) ? '&sort=' . htmlspecialchars($_GET['sort']) : '') . '">' . $total_pages . '</a>';
+                                }
+                                ?>
+
+                                <?php if ($current_page < $total_pages): ?>
+                                    <a href="?page=<?php echo $current_page + 1; ?><?php echo isset($search_consultant_id) ? '&search_consultant_id=' . urlencode($search_consultant_id) : ''; ?><?php echo isset($_GET['sort']) ? '&sort=' . htmlspecialchars($_GET['sort']) : ''; ?>">&rsaquo;</a>
+                                    <a href="?page=<?php echo $total_pages; ?><?php echo isset($search_consultant_id) ? '&search_consultant_id=' . urlencode($search_consultant_id) : ''; ?><?php echo isset($_GET['sort']) ? '&sort=' . htmlspecialchars($_GET['sort']) : ''; ?>">&raquo;</a>
+                                <?php else: ?>
+                                    <span class="disabled">&rsaquo;</span>
+                                    <span class="disabled">&raquo;</span>
+                                <?php endif; ?>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Stats Modal -->
+    <div id="statsModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2><i class="fas fa-chart-pie"></i> Statistiques des Feedbacks</h2>
+            <div style="display: flex; justify-content: space-around; margin-bottom: 2rem;">
+                <div class="stat-card">
+                    <div class="stat-value"><?= $total_feedback ?></div>
+                    <div class="stat-label">Total Feedbacks</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value"><?= number_format($average_rating, 1) ?></div>
+                    <div class="stat-label">Note Moyenne</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value"><?= $unique_consultants ?></div>
+                    <div class="stat-label">Consultants Uniques</div>
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                <div>
+                    <h3>Distribution des Notes</h3>
+                    <canvas id="ratingDistributionChart"></canvas>
+                </div>
+                <div>
+                    <h3>Consultants Uniques</h3>
+                    <canvas id="consultantPercentageChart"></canvas>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -413,14 +513,36 @@ if (!empty($allFeedback)) {
                     datasets: [{
                         label: 'Distribution des Notes',
                         data: [<?php echo implode(',', $rating_distribution); ?>],
-                        backgroundColor: ['#ff4d4d', '#ff9933', '#ffff66', '#99cc00', '#33cc33']
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.7)',
+                            'rgba(255, 159, 64, 0.7)',
+                            'rgba(255, 205, 86, 0.7)',
+                            'rgba(75, 192, 192, 0.7)',
+                            'rgba(54, 162, 235, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(255, 159, 64, 1)',
+                            'rgba(255, 205, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(54, 162, 235, 1)'
+                        ],
+                        borderWidth: 1
                     }]
                 },
                 options: {
                     responsive: true,
                     scales: {
                         y: {
-                            beginAtZero: true
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
                         }
                     }
                 }
@@ -428,45 +550,80 @@ if (!empty($allFeedback)) {
 
             // Consultant percentage chart
             new Chart(consultantCtx, {
-                type: 'pie',
+                type: 'doughnut',
                 data: {
                     labels: ['Consultants Uniques', 'Autres Feedbacks'],
                     datasets: [{
                         data: [<?php echo $unique_consultants_percentage; ?>, <?php echo 100 - $unique_consultants_percentage; ?>],
-                        backgroundColor: ['#007bff', '#6c757d']
+                        backgroundColor: [
+                            'rgba(54, 162, 235, 0.7)',
+                            'rgba(201, 203, 207, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(201, 203, 207, 1)'
+                        ],
+                        borderWidth: 1
                     }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
                 }
             });
         }
+    </script>
+    <script>
+        // Toggle sidebar with persistent state
+        const sidebar = document.querySelector('.sidebar');
+        const sidebarToggle = document.querySelector('.sidebar-toggle');
+        const sidebarClose = document.querySelector('.sidebar-close');
+        const mainContent = document.querySelector('.main-content');
 
-        // Form validation
-        document.addEventListener('DOMContentLoaded', function() {
-            var searchForm = document.querySelector('form[action="feedback.php"]');
-            var searchInput = document.querySelector('input[name="search_consultant_id"]');
+        // Check localStorage for saved state
+        const sidebarState = localStorage.getItem('sidebarState');
+
+        // Initialize sidebar state
+        if (sidebarState === 'collapsed') {
+            sidebar.classList.add('collapsed');
+            mainContent.classList.add('expanded');
+        }
+
+        // Toggle function
+        function toggleSidebar() {
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
             
-            if (searchForm && searchInput) {
-                var errorDiv = document.createElement('div');
-                errorDiv.style.color = 'red';
-                errorDiv.style.marginTop = '5px';
-                errorDiv.style.display = 'none';
-                searchInput.parentNode.appendChild(errorDiv);
-                
-                searchForm.addEventListener('submit', function(e) {
-                    if (searchInput.value.trim() === '') {
-                        e.preventDefault();
-                        searchInput.style.border = '1px solid red';
-                        errorDiv.textContent = 'Veuillez entrer un ID de consultation';
-                        errorDiv.style.display = 'block';
-                    }
-                });
-                
-                searchInput.addEventListener('input', function() {
-                    if (searchInput.value.trim() !== '') {
-                        searchInput.style.border = '';
-                        errorDiv.style.display = 'none';
-                    }
-                });
+            // Save state to localStorage
+            const isCollapsed = sidebar.classList.contains('collapsed');
+            localStorage.setItem('sidebarState', isCollapsed ? 'collapsed' : 'expanded');
+        }
+
+        // Event listeners
+        sidebarToggle.addEventListener('click', toggleSidebar);
+        sidebarClose.addEventListener('click', toggleSidebar);
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 991 && 
+                !sidebar.contains(e.target) && 
+                !sidebarToggle.contains(e.target) &&
+                !sidebar.classList.contains('collapsed')) {
+                toggleSidebar();
             }
+        });
+
+        // Toggle submenus
+        document.querySelectorAll('.toggle-submenu').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                const submenu = this.nextElementSibling;
+                submenu.classList.toggle('active');
+            });
         });
     </script>
 </body>

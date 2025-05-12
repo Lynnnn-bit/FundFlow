@@ -1,57 +1,382 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Contactez-nous | FundFlow</title>
-  <link rel="stylesheet" href="css/stylecontr.css" />
+  <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* Contact Page Specific Styles */
+    body {
+      background: linear-gradient(135deg, #3a56d4 0%, #10b981 100%);
+      background-size: 200% 200%;
+      animation: gradientBG 12s ease infinite;
+      font-family: 'Montserrat', sans-serif;
+      color: white;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .background-effect {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 20% 30%, rgba(58, 86, 212, 0.3) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 70%, rgba(16, 185, 129, 0.3) 0%, transparent 50%);
+      z-index: -2;
+    }
+
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 3rem;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .logo-container {
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .logo-container:hover {
+      transform: scale(1.05);
+    }
+
+    .brand-logo {
+      height: 50px;
+      width: auto;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .nav-link {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.25rem;
+      border-radius: 50px;
+      transition: all 0.3s ease;
+    }
+
+    .nav-link:hover {
+      background: rgba(255,255,255,0.2);
+      transform: translateY(-2px);
+    }
+
+    .login-btn {
+      background: linear-gradient(to right, var(--secondary), var(--secondary-dark));
+      border-radius: 50px;
+      padding: 0.75rem 1.5rem;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    }
+
+    .login-btn:hover {
+      background: linear-gradient(to right, var(--secondary-dark), var(--secondary));
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+    }
+
+    .contact-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 4rem 2rem;
+    }
+
+    .contact-hero {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    .contact-hero h1 {
+      font-size: 3.5rem;
+      font-family: 'Playfair Display', serif;
+      margin-bottom: 1.5rem;
+      background: linear-gradient(to right, var(--primary-light), var(--secondary));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .contact-hero p {
+      font-size: 1.25rem;
+      max-width: 800px;
+      margin: 0 auto;
+      opacity: 0.9;
+      line-height: 1.6;
+    }
+
+    .contact-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 3rem;
+    }
+
+    .contact-info {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 24px;
+      padding: 3rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .info-block {
+      margin-bottom: 2rem;
+    }
+
+    .info-block h3 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      color: white;
+    }
+
+    .info-block h3 i {
+      color: var(--primary-light);
+    }
+
+    .info-block p {
+      line-height: 1.6;
+      opacity: 0.9;
+      padding-left: 2.5rem;
+      color: rgba(255,255,255,0.9);
+    }
+
+    .mail a {
+      color: var(--primary-light);
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    .mail a:hover {
+      color: white;
+      text-decoration: underline;
+    }
+
+    .social-links {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .social-link {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      color: white;
+      text-decoration: none;
+      padding: 0.75rem 1.5rem;
+      background: rgba(255,255,255,0.1);
+      border-radius: 50px;
+      transition: all 0.3s ease;
+    }
+
+    .social-link:hover {
+      background: rgba(255,255,255,0.2);
+      transform: translateY(-2px);
+    }
+
+    .contact-form {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 24px;
+      padding: 3rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: white;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 1rem 1.5rem;
+      background: rgba(255,255,255,0.9);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 12px;
+      font-size: 1rem;
+      color: var(--dark);
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.3);
+    }
+
+    textarea.form-control {
+      min-height: 150px;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 1rem;
+      background: linear-gradient(45deg, var(--primary), var(--primary-dark));
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 1rem;
+      box-shadow: 0 4px 15px rgba(67, 97, 238, 0.4);
+    }
+
+    .submit-btn:hover {
+      background: linear-gradient(45deg, var(--primary-dark), var(--primary));
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(67, 97, 238, 0.6);
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem;
+      margin-top: 4rem;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    @media (max-width: 768px) {
+      .navbar {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1.5rem;
+      }
+      
+      .contact-hero h1 {
+        font-size: 2.5rem;
+      }
+      
+      .contact-content {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 <body>
-  <header>
-    <img src="assets/logo.png" alt="FundFlow" height="60">
-    <nav>
-      <a href="apropos.html"><i class="fas fa-info-circle"></i> À propos</a>
-      <a href="connexion.php" class="login">Connecter</a>
-    </nav>
-  </header>
+<div class="background-effect"></div>
 
-  <section class="contact-section">
-    <div class="contact-text">
-      <h1>Contactez-nous</h1>
-      <p>Vous avez des questions ? Notre équipe est là pour vous aider et vous accompagner dans votre démarche.</p>
-    </div>
+<header class="navbar">
+  <div class="logo-container">
+      <a href="acceuil2.php">
+          <img src="assets/Logo_FundFlow.png" alt="FundFlow Logo" class="brand-logo">
+      </a>
+  </div>
+  
+  <div class="nav-links">
+      <a href="acceuil2.php" class="nav-link"><i class="fas fa-home"></i> Accueil</a>
+      <a href="apropos.html" class="nav-link"><i class="fas fa-info-circle"></i> À propos</a>
+      <a href="contact.html" class="nav-link"><i class="fas fa-envelope"></i> Contact</a>
+      <a href="events.php" class="nav-link"><i class="fas fa-calendar-alt"></i> Événements</a>
+      <a href="partenaire.php" class="nav-link"><i class="fas fa-handshake"></i> Partenariats</a>
+      
+      <div class="profile-menu-container">
+          <button class="profile-menu-btn">Mon compte ▼</button>
+          <ul class="profile-menu">
+              <li><a href="profiles.php">Profil</a></li>
+              <?php if ($_SESSION['user']['role'] === 'investisseur'): ?>
+                  <li><a href="demands_list.php">Liste des demandes</a></li>
+              <?php endif; ?>
+              <?php if ($_SESSION['user']['role'] === 'entrepreneur'): ?>
+                  <li><a href="mesprojet.php">Mes projets</a></li>
+                  <li><a href="historique.php">mes demandes</a></li>
+              <?php endif; ?>
+              <li><a href="allconsult.php">Consultation</a></li>
+              <li><a href="connexion.php?logout=1" class="logout">Déconnexion</a></li>
+          </ul>
+      </div>
+  </div>
+</header>
 
+<div class="contact-container">
+  <section class="contact-hero">
+    <h1>Contactez-nous</h1>
+    <p>Vous avez des questions ? Notre équipe est là pour vous aider et vous accompagner dans votre démarche.</p>
+  </section>
+
+  <div class="contact-content">
     <div class="contact-info">
       <div class="info-block">
-        <h3>Adresse</h3>
+        <h3><i class="fas fa-map-marker-alt"></i> Adresse</h3>
         <p>centre Urbain Nord ,1082 Tunis-Mahrajébe ,Tunisie</p>
       </div>
       <div class="info-block">
-        <h3>Téléphone</h3>
+        <h3><i class="fas fa-phone"></i> Téléphone</h3>
         <p>+216 55 100 100</p>
       </div>
       <div class="info-block">
-        <h3>Email</h3>
+        <h3><i class="fas fa-envelope"></i> Email</h3>
         <p class="mail">
-          <a href="mailto:contact@fundflow.tn">Vous pouvez nous contacter par e-mail</a>
+          <a href="mailto:contact@fundflow.tn">contact@fundflow.tn</a>
         </p>
       </div>
       <div class="info-block">
-        <h3>Heures d'ouverture</h3>
+        <h3><i class="fas fa-clock"></i> Heures d'ouverture</h3>
         <p>Lundi - Vendredi : 9h00 - 18h00 <br>Samedi - Dimanche : Fermé</p>
+      </div>
+
+      <div class="social-links">
+        <a href="https://www.facebook.com/profile.php?id=61575493311213" class="social-link">
+          <i class="fab fa-facebook-f"></i> Facebook
+        </a>
+        <a href="#" class="social-link">
+          <i class="fab fa-instagram"></i> Instagram
+        </a>
+        <a href="#" class="social-link">
+          <i class="fab fa-twitter"></i> Twitter
+        </a>
       </div>
     </div>
 
-    <div class="social-links">
-      <a href="https://www.facebook.com/profile.php?id=61575493311213">🌐 Facebook</a>
-      <a href="#">📸 Instagram</a>
-      <a href="#">🐦 Twitter</a>
-    </div>
-  </section>
+    
+  </div>
+</div>
 
-  <footer>
-    <p>© 2025 FundFlow. Tous droits réservés.</p>
-  </footer>
+<footer>
+  <p>© 2025 FundFlow. Tous droits réservés.</p>
+</footer>
+
+<script>
+  // Function to redirect to acceuil2.php when clicking the logo
+  document.querySelector('.logo-container').addEventListener('click', function() {
+    window.location.href = 'acceuil2.php';
+  });
+</script>
 </body>
 </html>

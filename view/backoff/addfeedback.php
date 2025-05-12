@@ -46,183 +46,141 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ajouter un Feedback</title>
-    <link rel="stylesheet" href="cssback/feedback.css">
-    <link rel="stylesheet" href="../frontoff/css/navbar.css">
+    <link rel="stylesheet" href="../Frontoff/css/stylebackof.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
-            background-color: #2c3e50;
-            color: white;
-            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7ff 0%, #e8ecff 100%);
+            font-family: 'Montserrat', sans-serif;
+            color: #212529;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        .main-container {
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: #34495e;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        .card {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            padding: 2rem;
         }
 
-        h1 {
-            color: white;
+        .card-header {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header h1 {
+            font-size: 1.8rem;
+            color: #4361ee;
+            margin: 0;
         }
 
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #212529;
         }
 
         .form-control {
             width: 100%;
-            padding: 10px;
-            border-radius: 4px;
-            border: 1px solid #455b73;
-            background-color: #3d566e;
-            color: white;
+            padding: 0.8rem;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
         }
 
         .form-control:focus {
-            border-color: #17a2b8;
+            border-color: #4361ee;
             outline: none;
-            box-shadow: 0 0 5px rgba(23, 162, 184, 0.5);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
         }
 
         .btn {
-            padding: 10px 15px;
-            border: none;
-            border-radius: 4px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
             cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
+            transition: all 0.3s;
+            border: none;
         }
 
         .btn-primary {
-            background-color: #17a2b8;
+            background: #4361ee;
             color: white;
         }
 
         .btn-primary:hover {
-            background-color: #138496;
+            background: #3a56d4;
         }
 
         .btn-secondary {
-            background-color: #6c757d;
+            background: #adb5bd;
             color: white;
         }
 
         .btn-secondary:hover {
-            background-color: #5a6268;
+            background: #868e96;
         }
 
         .error {
             color: #e74c3c;
-            font-size: 14px;
-            margin-top: 5px;
-        }
-
-        .preselected {
-            background-color: #3d566e;
-            padding: 10px;
-            border-radius: 4px;
-            margin-bottom: 15px;
-            color: white;
-        }
-
-        .navbar {
-            background-color: #2c3e50;
-            padding: 10px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .navbar .brand-name {
-            color: white;
-            font-size: 24px;
-            font-weight: bold;
-        }
-
-        .navbar nav a {
-            color: white;
-            margin-left: 15px;
-            text-decoration: none;
-            font-size: 16px;
-        }
-
-        .navbar nav a.active {
-            font-weight: bold;
-            color: #17a2b8;
-        }
-
-        .navbar nav a:hover {
-            color: #17a2b8;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
         }
     </style>
 </head>
 <body>
-<header class="navbar">
-    <div class="logo-container">
-        <span class="brand-name">FundFlow</span>
-    </div>
-    <nav>
-        <a href="feedback.php" class="active"><i class="fas fa-comment-alt"></i> Feedbacks</a>
-        <a href="../frontoff/apropos.html"><i class="fas fa-info-circle"></i> À propos</a>
-        <a href="../frontoff/contact.html"><i class="fas fa-envelope"></i> Contact</a>
-        <a href="../frontoff/accueil.html" class="logout"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
-    </nav>
-</header>
-
-<div class="main-container">
-    <h1><i class="fas fa-plus-circle"></i> Ajouter un Feedback</h1>
-
-    <?php if (isset($error_message)): ?>
-        <div style="color: red; background-color: #2c2c2c; padding: 10px; border-radius: 5px; border: 1px solid red;">
-            <?= htmlspecialchars($error_message) ?>
+    <div class="card">
+        <div class="card-header">
+            <h1><i class="fas fa-plus-circle"></i> Ajouter un Feedback</h1>
         </div>
-    <?php endif; ?>
-
-    <?php if ($preselected_consultation): ?>
-        <div class="preselected">
-            <p>Vous ajoutez un feedback pour la consultation #<?= htmlspecialchars($preselected_consultation) ?></p>
-        </div>
-    <?php endif; ?>
-
-    <form id="feedbackForm" method="POST">
-        <?php if ($preselected_consultation): ?>
-            <input type="hidden" name="id_consultation" value="<?= htmlspecialchars($preselected_consultation) ?>">
+        <?php if (isset($error_message)): ?>
+            <div style="color: red; background-color: #f8d7da; padding: 10px; border-radius: 5px; border: 1px solid #f5c6cb;">
+                <?= htmlspecialchars($error_message) ?>
+            </div>
         <?php endif; ?>
-
-        <div class="form-group" <?= $preselected_consultation ? 'style="display:none;"' : '' ?>>
-            <label for="id_consultation">Consultation</label>
-            <select name="id_consultation" id="id_consultation" class="form-control">
-                <option value="">Sélectionnez une consultation</option>
-                <?php foreach ($consultations as $consultation): ?>
-                    <?php if (isset($consultation['id_consultation'])): ?>
-                        <option value="<?= htmlspecialchars($consultation['id_consultation']) ?>"
-                            <?= ($preselected_consultation && $consultation['id_consultation'] == $preselected_consultation) ? 'selected' : '' ?>>
-                            Consultation #<?= htmlspecialchars($consultation['id_consultation']) ?>
-                        </option>
-                    <?php endif; ?>
-                <?php endforeach; ?>
-            </select>
-            <div id="idConsultationError" class="error">Veuillez sélectionner une consultation.</div>
-        </div>
-
-        <div class="form-group">
-            <label for="note">Note (1-5)</label>
-            <input type="number" name="note" id="note" class="form-control" min="1" max="5" required>
-            <div id="noteError" class="error">La note doit être un nombre entre 1 et 5.</div>
-        </div>
-
-        <button type="submit" class="btn btn-primary">Enregistrer</button>
-        <a href="feedback.php" class="btn btn-secondary">Annuler</a>
-    </form>
-</div>
-
-<script>
+        <form id="feedbackForm" method="POST">
+            <?php if ($preselected_consultation): ?>
+                <input type="hidden" name="id_consultation" value="<?= htmlspecialchars($preselected_consultation) ?>">
+            <?php endif; ?>
+            <div class="form-group" <?= $preselected_consultation ? 'style="display:none;"' : '' ?>>
+                <label for="id_consultation" class="form-label">Consultation</label>
+                <select name="id_consultation" id="id_consultation" class="form-control">
+                    <option value="">Sélectionnez une consultation</option>
+                    <?php foreach ($consultations as $consultation): ?>
+                        <?php if (isset($consultation['id_consultation'])): ?>
+                            <option value="<?= htmlspecialchars($consultation['id_consultation']) ?>"
+                                <?= ($preselected_consultation && $consultation['id_consultation'] == $preselected_consultation) ? 'selected' : '' ?>>
+                                Consultation #<?= htmlspecialchars($consultation['id_consultation']) ?>
+                            </option>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                </select>
+                <div id="idConsultationError" class="error">Veuillez sélectionner une consultation.</div>
+            </div>
+            <div class="form-group">
+                <label for="note" class="form-label">Note (1-5)</label>
+                <input type="number" name="note" id="note" class="form-control" min="1" max="5" required>
+                <div id="noteError" class="error">La note doit être un nombre entre 1 et 5.</div>
+            </div>
+            <button type="submit" class="btn btn-primary">Enregistrer</button>
+            <a href="feedback.php" class="btn btn-secondary">Annuler</a>
+        </form>
+    </div>
+    <script>
 document.addEventListener('DOMContentLoaded', function () {
     const form = document.getElementById('feedbackForm');
     const idConsultation = document.getElementById('id_consultation');
@@ -280,6 +238,6 @@ document.addEventListener('DOMContentLoaded', function () {
         errorElement.style.display = 'none';
     }
 });
-</script>
+    </script>
 </body>
 </html>

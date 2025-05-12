@@ -22,7 +22,7 @@ class ProjectController
                 INSERT INTO projet (id_utilisateur, titre, description, montant_cible, duree, id_categorie, status) 
                 VALUES (:id_utilisateur, :titre, :description, :montant_cible, :duree, :id_categorie, :status)
             ");
-            $stmt->bindValue(':id_utilisateur', $project->getUserId(), PDO::PARAM_INT);
+            $stmt->bindValue(':id_utilisateur', $project->getUserId(), PDO::PARAM_INT); // Ensure user ID is set
             $stmt->bindValue(':titre', $project->getTitre(), PDO::PARAM_STR);
             $stmt->bindValue(':description', $project->getDescription(), PDO::PARAM_STR);
             $stmt->bindValue(':montant_cible', $project->getMontantCible(), PDO::PARAM_INT);
@@ -139,6 +139,19 @@ class ProjectController
             error_log("Erreur getPublicProjects: " . $e->getMessage());
             return [];
         }
+    }
+
+    public function getProjectsByUserId($user_id)
+    {
+        $stmt = $this->db->prepare("
+            SELECT p.*, c.nom_categorie 
+            FROM projet p
+            LEFT JOIN categorie c ON p.id_categorie = c.id_categorie
+            WHERE p.id_utilisateur = ?
+            ORDER BY p.id_projet DESC
+        ");
+        $stmt->execute([$user_id]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function searchProjectsByName($searchTerm, $orderBy = null)

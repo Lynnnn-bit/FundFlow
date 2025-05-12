@@ -122,16 +122,36 @@ if (isset($_GET['error'])) {
     </style>
 </head>
 <body>
-    <header class="navbar">
+<header class="navbar">
         <div class="logo-container">
-            <span class="brand-name">FundFlow</span>
+            <a href="acceuil2.php">
+                <img src="assets/Logo_FundFlow.png" alt="FundFlow Logo" class="brand-logo">
+            </a>
         </div>
-        <nav>
-            <a href="mesconsultations.php"><i class="fas fa-list"></i> Mes Consultations</a>
-            <a href="apropos.html"><i class="fas fa-info-circle"></i> À propos</a>
-            <a href="contact.html"><i class="fas fa-envelope"></i> Contact</a>
-            <a href="accueil.php" class="logout"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
-        </nav>
+        
+        <div class="nav-links">
+            <a href="acceuil2.php" class="nav-link"><i class="fas fa-home"></i> Accueil</a>
+            <a href="apropos.html" class="nav-link"><i class="fas fa-info-circle"></i> À propos</a>
+            <a href="contact.html" class="nav-link"><i class="fas fa-envelope"></i> Contact</a>
+            <a href="events.php" class="nav-link"><i class="fas fa-calendar-alt"></i> Événements</a>
+            <a href="partenaire.php" class="nav-link"><i class="fas fa-handshake"></i> Partenariats</a>
+            
+            <div class="profile-menu-container">
+                <button class="profile-menu-btn">Mon compte ▼</button>
+                <ul class="profile-menu">
+                    <li><a href="profiles.php">Profil</a></li>
+                    <?php if ($_SESSION['user']['role'] === 'investisseur'): ?>
+                        <li><a href="demands_list.php">Liste des demandes</a></li>
+                    <?php endif; ?>
+                    <?php if ($_SESSION['user']['role'] === 'entrepreneur'): ?>
+                        <li><a href="mesprojet.php">Mes projets</a></li>
+                        <li><a href="historique.php">mes demandes</a></li>
+                    <?php endif; ?>
+                    <li><a href="allconsult.php">Consultation</a></li>
+                    <li><a href="connexion.php?logout=1" class="logout">Déconnexion</a></li>
+                </ul>
+            </div>
+        </div>
     </header>
 
     <div class="main-container">

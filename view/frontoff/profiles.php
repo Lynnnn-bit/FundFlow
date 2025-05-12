@@ -42,107 +42,464 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FundFlow - Profil</title>
-    <link rel="stylesheet" href="css/styleprofiles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <title>FundFlow - Profil Utilisateur</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
     <style>
-        .profile-menu {
-            background-color: rgba(46, 79, 102, 0.8);
+        /* Profile Specific Styles */
+        .profile-hero {
+            display: flex;
+            align-items: center;
+            gap: 4rem;
+            margin: 3rem 0;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 24px;
+            padding: 4rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: fadeIn 1s ease-out;
+        }
+
+        .profile-avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5rem;
+            color: var(--primary-light);
+            border: 3px solid rgba(255,255,255,0.2);
+            margin-bottom: 1.5rem;
+        }
+
+        .profile-header {
+            text-align: center;
+            flex: 1;
+            max-width: 300px;
+        }
+
+        .profile-status {
+            margin: 1rem 0;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        .status-badge.investisseur {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .status-badge.entrepreneur {
+            background: rgba(67, 97, 238, 0.2);
+            color: #4361ee;
+            border: 1px solid rgba(67, 97, 238, 0.3);
+        }
+
+        .status-badge.admin {
+            background: rgba(236, 72, 153, 0.2);
+            color: #ec4899;
+            border: 1px solid rgba(236, 72, 153, 0.3);
+        }
+
+        .profile-details {
+            flex: 2;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+        }
+
+        .detail-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .detail-card:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-5px);
+        }
+
+        .detail-label {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .detail-value {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: white;
+        }
+
+        .profile-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 3rem;
+            justify-content: center;
+        }
+
+        @media (max-width: 992px) {
+            .profile-hero {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .profile-header {
+                max-width: 100%;
+            }
+
+            .profile-details {
+                grid-template-columns: 1fr;
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .profile-hero {
+                padding: 2rem;
+            }
+
+            .profile-actions {
+                flex-direction: column;
+            }
+        }
+        /* Enhanced Styling for "Mon compte" Dropdown */
+        .profile-menu-container {
+            position: relative;
+        }
+
+        .profile-menu-btn {
+            background: linear-gradient(135deg, #3a56d4, #10b981);
             color: white;
             border: none;
-            border-radius: 8px;
-            padding: 0.8rem 1rem;
+            border-radius: 50px;
+            padding: 0.75rem 1.5rem;
             font-size: 0.95rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23cbd5e1' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 1rem center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
-        .profile-menu:hover {
-            background-color: rgba(30, 60, 82, 0.9);
+        .profile-menu-btn:hover {
+            background: linear-gradient(135deg, #10b981, #3a56d4);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
         }
 
-        .profile-menu:focus {
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(0, 208, 156, 0.3);
+        .profile-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            list-style: none;
+            padding: 0.5rem 0;
+            margin: 0;
+            z-index: 10;
+            animation: fadeIn 0.3s ease;
         }
+
+        .profile-menu li {
+            padding: 0.5rem 1rem;
+            transition: background 0.3s ease;
+        }
+
+        .profile-menu li a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            display: block;
+            transition: color 0.3s ease, background 0.3s ease;
+        }
+
+        .profile-menu li:hover {
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .profile-menu li a:hover {
+            color: #10b981;
+        }
+
+        .profile-menu li a.logout {
+            color: #dc2626;
+            font-weight: 600;
+        }
+
+        .profile-menu li a.logout:hover {
+            color: white;
+            background: #dc2626;
+        }
+
+        .profile-menu-container:hover .profile-menu {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }        
     </style>
 </head>
 <body>
-    <div class="container">
-        <header class="navbar">
-            <img src="assets/logo.png" alt="FundFlow" height="60">
-            <nav>
-                <a href="apropos.html"><i class="fas fa-info-circle"></i> A propos</a>
-                <a href="contact.html">Contact </a>
-                <select onchange="if(this.value) window.location.href=this.value; this.selectedIndex = 0;" class="profile-menu">
-                    <option value="">Mon compte ▼</option>
-                    <option value="profiles.php">Profil</option>
-                    <option value="mesprojet.php">Mes projets</option>
-                    <option value="startup.php">StartUP</option>
-                    <option value="events.php">Evenements</option>
-                    <option value="partenaire.php">Partennaire</option>
-                    <option value="accueil.html">Déconnexion</option>
-                </select>
-            </nav>
-        </header>
+<div class="background-effect"></div>
+<div class="particles-container" id="particles-js"></div>
 
-        <main>
-            <div class="profile-container">
-                <h1>Mon Profil</h1>
-                <table class="profile-table">
-                    <tr>
-                        <th>Nom</th>
-                        <td><?= htmlspecialchars($user['nom']) ?></td>
-                    </tr>
-                    <tr>
-                        <th>Prénom</th>
-                        <td><?= htmlspecialchars($user['prenom']) ?></td>
-                    </tr>
-                    <tr>
-                        <th>Email</th>
-                        <td><?= htmlspecialchars($user['email']) ?></td>
-                    </tr>
-                    <tr>
-                        <th>Rôle</th>
-                        <td><?= htmlspecialchars($user['role']) ?></td>
-                    </tr>
-                    <tr>
-                        <th>Adresse</th>
-                        <td><?= htmlspecialchars($user['adresse']) ?></td>
-                    </tr>
-                    <tr>
-                        <th>Téléphone</th>
-                        <td><?= htmlspecialchars($user['tel']) ?></td>
-                    </tr>
-                    <tr>
-                        <th>Date d'inscription</th>
-                        <td><?= htmlspecialchars($user['date_creation']) ?></td>
-                    </tr>
-                    <tr>
-                        <th>Statut</th>
-                        <td><?= htmlspecialchars($user['status']) ?></td>
-                    </tr>
-                </table>
-
-                <div class="button-group">
-    <!-- Edit Button -->
-    <a href="edit_profile.php" class="btn">Modifier le Profil</a>
-    
-    <!-- Delete Form -->
-    <form method="post" action="accueil.html" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer votre compte définitivement ?');">
-        <input type="hidden" name="action" value="delete">
-        <button type="submit" class="btn btn-danger">Supprimer le Compte</button>
-    </form>
-</div>
-            </div>
+<div class="dashboard-container">
+<header class="navbar">
+        <div class="logo-container">
+            <a href="acceuil2.php">
+                <img src="assets/Logo_FundFlow.png" alt="FundFlow Logo" class="brand-logo">
+            </a>
+        </div>
+        
+        <div class="nav-links">
+            <a href="acceuil2.php" class="nav-link"><i class="fas fa-home"></i> Accueil</a>
+            <a href="apropos.html" class="nav-link"><i class="fas fa-info-circle"></i> À propos</a>
+            <a href="contact.html" class="nav-link"><i class="fas fa-envelope"></i> Contact</a>
+            <a href="events.php" class="nav-link"><i class="fas fa-calendar-alt"></i> Événements</a>
+            <a href="partenaire.php" class="nav-link"><i class="fas fa-handshake"></i> Partenariats</a>
             
-        </main>
+            <div class="profile-menu-container">
+                <button class="profile-menu-btn">Mon compte ▼</button>
+                <ul class="profile-menu">
+                    <li><a href="profiles.php">Profil</a></li>
+                    <?php if ($_SESSION['user']['role'] === 'investisseur'): ?>
+                        <li><a href="demands_list.php">Liste des demandes</a></li>
+                    <?php endif; ?>
+                    <?php if ($_SESSION['user']['role'] === 'entrepreneur'): ?>
+                        <li><a href="mesprojet.php">Mes projets</a></li>
+                        <li><a href="historique.php">mes demandes</a></li>
+                    <?php endif; ?>
+                    <li><a href="allconsult.php">Consultation</a></li>
+                    <li><a href="connexion.php?logout=1" class="logout">Déconnexion</a></li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <div class="page-header animate__animated animate__fadeInDown">
+        <h1><i class="fas fa-user-circle header-icon"></i> Profil Utilisateur</h1>
+        <p>Gérez vos informations personnelles et vos paramètres</p>
     </div>
 
-    
+    <div class="profile-hero">
+        <div class="profile-header">
+            <div class="profile-avatar">
+                <i class="fas fa-user-circle"></i>
+            </div>
+            <h2><?= htmlspecialchars($user['prenom']) ?> <?= htmlspecialchars($user['nom']) ?></h2>
+            <div class="profile-status">
+                <span class="status-badge <?= strtolower($user['status']) ?>">
+                    <?= htmlspecialchars($user['status']) ?>
+                </span>
+            </div>
+        </div>
+
+        <div class="profile-details">
+            <div class="detail-card">
+                <div class="detail-label"><i class="fas fa-envelope"></i> Email</div>
+                <div class="detail-value"><?= htmlspecialchars($user['email']) ?></div>
+            </div>
+            <div class="detail-card">
+                <div class="detail-label"><i class="fas fa-user-tag"></i> Rôle</div>
+                <div class="detail-value"><?= htmlspecialchars($user['role']) ?></div>
+            </div>
+            <div class="detail-card">
+                <div class="detail-label"><i class="fas fa-map-marker-alt"></i> Adresse</div>
+                <div class="detail-value"><?= htmlspecialchars($user['adresse']) ?></div>
+            </div>
+            <div class="detail-card">
+                <div class="detail-label"><i class="fas fa-phone"></i> Téléphone</div>
+                <div class="detail-value"><?= htmlspecialchars($user['tel']) ?></div>
+            </div>
+            <div class="detail-card">
+                <div class="detail-label"><i class="fas fa-calendar-plus"></i> Date d'inscription</div>
+                <div class="detail-value"><?= htmlspecialchars($user['date_creation']) ?></div>
+            </div>
+            <div class="detail-card">
+                <div class="detail-label"><i class="fas fa-id-card"></i> ID Utilisateur</div>
+                <div class="detail-value"><?= htmlspecialchars($user['id_utilisateur']) ?></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="profile-actions">
+        <a href="edit_profile.php" class="btn btn-primary"><i class="fas fa-edit"></i> Modifier le Profil</a>
+        <form method="post" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer votre compte définitivement ?');">
+            <input type="hidden" name="action" value="delete">
+            <button type="submit" class="btn btn-danger"><i class="fas fa-trash-alt"></i> Supprimer le Compte</button>
+        </form>
+    </div>
+</div>
+
+<footer class="footer">
+  <div class="footer-container">
+    <div class="footer-col logo-col">
+      <img src="assets/Logo_FundFlow.png" alt="Company Logo" class="footer-logo">
+      <p class="footer-description">Plateforme de financement collaboratif</p>
+    </div>
+    <div class="footer-col links-col">
+      <h4>Liens Rapides</h4>
+      <ul>
+        <li><a href="financemet.php">Accueil</a></li>
+        <li><a href="#">À propos</a></li>
+        <li><a href="#">Services</a></li>
+        <li><a href="#">Blog</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+    <div class="footer-col contact-col">
+      <h4>Contactez-nous</h4>
+      <p>123 Rue de Finance, Paris 75001</p>
+      <p>Email: <a href="mailto:contact@fundflow.com">contact@fundflow.com</a></p>
+      <p>Tél: +33 1 23 45 67 89</p>
+    </div>
+    <div class="footer-col social-col">
+      <h4>Suivez-nous</h4>
+      <div class="social-icons">
+        <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+        <a href="#" aria-label="Instagram"><i class="fas fa-instagram"></i></a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-legal">
+    <a href="#">Politique de confidentialité</a> |
+    <a href="#">Conditions d'utilisation</a> |
+    <span>&copy; 2025 FundFlow. Tous droits réservés.</span>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+<script>
+// Initialize particles.js
+particlesJS("particles-js", {
+    "particles": {
+        "number": {
+            "value": 60,
+            "density": {
+                "enable": true,
+                "value_area": 800
+            }
+        },
+        "color": {
+            "value": "#4cc9f0"
+        },
+        "shape": {
+            "type": "circle",
+            "stroke": {
+                "width": 0,
+                "color": "#000000"
+            }
+        },
+        "opacity": {
+            "value": 0.5,
+            "random": true,
+            "anim": {
+                "enable": true,
+                "speed": 1,
+                "opacity_min": 0.1,
+                "sync": false
+            }
+        },
+        "size": {
+            "value": 3,
+            "random": true,
+            "anim": {
+                "enable": true,
+                "speed": 2,
+                "size_min": 0.1,
+                "sync": false
+            }
+        },
+        "line_linked": {
+            "enable": true,
+            "distance": 150,
+            "color": "#4cc9f0",
+            "opacity": 0.4,
+            "width": 1
+        },
+        "move": {
+            "enable": true,
+            "speed": 1,
+            "direction": "none",
+            "random": true,
+            "straight": false,
+            "out_mode": "out",
+            "bounce": false,
+            "attract": {
+                "enable": true,
+                "rotateX": 600,
+                "rotateY": 1200
+            }
+        }
+    },
+    "interactivity": {
+        "detect_on": "canvas",
+        "events": {
+            "onhover": {
+                "enable": true,
+                "mode": "grab"
+            },
+            "onclick": {
+                "enable": true,
+                "mode": "push"
+            },
+            "resize": true
+        },
+        "modes": {
+            "grab": {
+                "distance": 140,
+                "line_linked": {
+                    "opacity": 1
+                }
+            },
+            "push": {
+                "particles_nb": 4
+            }
+        }
+    },
+    "retina_detect": true
+});
+
+function handleMenu(select) {
+    const value = select.value;
+    if (value === 'logout') {
+        window.location.href = 'connexion.php?logout=1';
+    } else if (value) {
+        window.location.href = value + '.php';
+    }
+    select.value = ''; // Réinitialiser la sélection
+}
+</script>
 </body>
 </html>

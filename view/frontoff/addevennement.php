@@ -1,6 +1,6 @@
 <?php
 include_once '../../control/EvennementC.php';
-include_once '../../model/Evennement.php';
+include_once '../../models/Evennement.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $id_startup = $_POST['id_startup'];

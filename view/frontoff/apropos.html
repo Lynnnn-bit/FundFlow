@@ -1,24 +1,348 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>À propos | FundFlow</title>
-  <link rel="stylesheet" href="css/stylepropo.css" />
+  <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* About Page Specific Styles */
+    body {
+      background: linear-gradient(135deg, #3a56d4 0%, #10b981 100%);
+      background-size: 200% 200%;
+      animation: gradientBG 12s ease infinite;
+      font-family: 'Montserrat', sans-serif;
+      color: white;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .background-effect {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 20% 30%, rgba(58, 86, 212, 0.3) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 70%, rgba(16, 185, 129, 0.3) 0%, transparent 50%);
+      z-index: -2;
+    }
+
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 3rem;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .logo-container {
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .logo-container:hover {
+      transform: scale(1.05);
+    }
+
+    .brand-logo {
+      height: 50px;
+      width: auto;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .nav-link {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.25rem;
+      border-radius: 50px;
+      transition: all 0.3s ease;
+    }
+
+    .nav-link:hover {
+      background: rgba(255,255,255,0.2);
+      transform: translateY(-2px);
+    }
+
+    .login-btn {
+      background: linear-gradient(to right, var(--secondary), var(--secondary-dark));
+      border-radius: 50px;
+      padding: 0.75rem 1.5rem;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    }
+
+    .login-btn:hover {
+      background: linear-gradient(to right, var(--secondary-dark), var(--secondary));
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+    }
+
+    .about-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 4rem 2rem;
+    }
+
+    .hero-section {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    .hero-section h1 {
+      font-size: 3.5rem;
+      font-family: 'Playfair Display', serif;
+      margin-bottom: 1.5rem;
+      background: linear-gradient(to right, var(--primary-light), var(--secondary));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-section p {
+      font-size: 1.25rem;
+      max-width: 800px;
+      margin: 0 auto;
+      opacity: 0.9;
+      line-height: 1.6;
+    }
+
+    .about-content {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 24px;
+      padding: 3rem;
+      margin-bottom: 3rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .about-row {
+      display: flex;
+      align-items: center;
+      gap: 3rem;
+    }
+
+    .about-text {
+      flex: 1;
+    }
+
+    .about-text h2 {
+      font-size: 2.5rem;
+      margin-bottom: 1.5rem;
+      font-family: 'Playfair Display', serif;
+      color: white;
+    }
+
+    .about-text p {
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+      opacity: 0.9;
+    }
+
+    .about-image {
+      flex: 1;
+      text-align: center;
+    }
+
+    .about-image img {
+      max-width: 100%;
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+
+    .values-section {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    .values-section h2 {
+      font-size: 2.5rem;
+      margin-bottom: 3rem;
+      font-family: 'Playfair Display', serif;
+      color: white;
+    }
+
+    .values-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+
+    .value-box {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 2rem;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .value-box:hover {
+      transform: translateY(-5px);
+      background: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+    }
+
+    .value-box h3 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      color: white;
+    }
+
+    .value-box p {
+      color: rgba(255,255,255,0.9);
+    }
+
+    .team-section {
+      margin-top: 4rem;
+    }
+
+    .team-section h2 {
+      font-size: 2.5rem;
+      text-align: center;
+      margin-bottom: 3rem;
+      font-family: 'Playfair Display', serif;
+      color: white;
+    }
+
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+
+    .team-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 2rem;
+      text-align: center;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .team-card:hover {
+      transform: translateY(-5px);
+      background: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+    }
+
+    .team-card img {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 1.5rem;
+      border: 3px solid rgba(255,255,255,0.3);
+    }
+
+    .team-card h4 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+      color: white;
+    }
+
+    .team-card p {
+      margin-bottom: 1rem;
+      opacity: 0.9;
+      line-height: 1.6;
+      color: rgba(255,255,255,0.9);
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem;
+      margin-top: 4rem;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    @media (max-width: 768px) {
+      .about-row {
+        flex-direction: column;
+      }
+      
+      .navbar {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1.5rem;
+      }
+      
+      .hero-section h1 {
+        font-size: 2.5rem;
+      }
+      
+      .about-content {
+        padding: 2rem;
+      }
+    }
+  </style>
 </head>
 <body>
-  <header>
-    <img src="assets/logo.png" alt="FundFlow" height="60">
-    <nav>
-      
-      
-      <a href="contact.html"><i class="fas fa-envelope"></i> Contact</a>
-      <a href="connexion.php" class="login">Connecter</a>
-    </nav>
-  </header>
+<div class="background-effect"></div>
 
-  <section class="about-hero">
+<header class="navbar">
+  <div class="logo-container">
+      <a href="acceuil2.php">
+          <img src="assets/Logo_FundFlow.png" alt="FundFlow Logo" class="brand-logo">
+      </a>
+  </div>
+  
+  <div class="nav-links">
+      <a href="acceuil2.php" class="nav-link"><i class="fas fa-home"></i> Accueil</a>
+      <a href="apropos.html" class="nav-link"><i class="fas fa-info-circle"></i> À propos</a>
+      <a href="contact.html" class="nav-link"><i class="fas fa-envelope"></i> Contact</a>
+      <a href="events.php" class="nav-link"><i class="fas fa-calendar-alt"></i> Événements</a>
+      <a href="partenaire.php" class="nav-link"><i class="fas fa-handshake"></i> Partenariats</a>
+      
+      <div class="profile-menu-container">
+          <button class="profile-menu-btn">Mon compte ▼</button>
+          <ul class="profile-menu">
+              <li><a href="profiles.php">Profil</a></li>
+              <?php if ($_SESSION['user']['role'] === 'investisseur'): ?>
+                  <li><a href="mesreponses.php">Mes réponses</a></li>
+                  <li><a href="demands_list.php">Liste des demandes</a></li>
+              <?php endif; ?>
+              <?php if ($_SESSION['user']['role'] === 'entrepreneur'): ?>
+                  <li><a href="historique.php">mes demandes</a></li>
+              <?php endif; ?>
+              <li><a href="allconsult.php">Consultation</a></li>
+              <li><a href="connexion.php?logout=1" class="logout">Déconnexion</a></li>
+          </ul>
+      </div>
+  </div>
+</header>
+
+<div class="about-container">
+  <section class="hero-section">
     <h1>À propos de FundFlow</h1>
     <p>Nous connectons les entrepreneurs innovants avec des investisseurs passionnés pour créer un écosystème financier plus inclusif et durable.</p>
   </section>
@@ -27,8 +351,8 @@
     <div class="about-row">
       <div class="about-text">
         <h2>Notre Histoire</h2>
-        <p>Fondée en 2020, FundFlow est née d’une conviction simple : l’accès au financement ne doit pas être un obstacle pour les entrepreneurs talentueux. Nos fondateurs, ayant travaillé dans le secteur bancaire, ont constaté les difficultés que rencontrent les porteurs de projets pour obtenir des financements, en particulier ceux issus de milieux sous-représentés.</p>
-        <p>Aujourd’hui, FundFlow est une plateforme de référence avec plus de 500 projets financés et une communauté de 50 000 investisseurs engagés.</p>
+        <p>Fondée en 2020, FundFlow est née d'une conviction simple : l'accès au financement ne doit pas être un obstacle pour les entrepreneurs talentueux. Nos fondateurs, ayant travaillé dans le secteur bancaire, ont constaté les difficultés que rencontrent les porteurs de projets pour obtenir des financements, en particulier ceux issus de milieux sous-représentés.</p>
+        <p>Aujourd'hui, FundFlow est une plateforme de référence avec plus de 500 projets financés et une communauté de 50 000 investisseurs engagés.</p>
       </div>
       <div class="about-image">
         <img src="assets/photo.png" alt="Notre équipe">
@@ -45,7 +369,7 @@
       </div>
       <div class="value-box">
         <h3>🌱 Durabilité</h3>
-        <p>Nous soutenons des projets durables et respectueux de l’environnement pour les générations futures.</p>
+        <p>Nous soutenons des projets durables et respectueux de l'environnement pour les générations futures.</p>
       </div>
       <div class="value-box">
         <h3>💡 Innovation</h3>
@@ -58,46 +382,54 @@
     <h2>Notre Équipe Dirigeante</h2>
     <div class="team-grid">
       <div class="team-card">
-        <img src="assets/sarra.jpg" alt="Marie Dubois">
+        <img src="assets/sarra.jpg" alt="Sarra aroua">
         <h4>Sarra aroua</h4>
         <p>Responsable Expérience Utilisateurs</p>
         <p>Avec son expertise en banque d'investissement et finance durable, elle optimise l'interface FundFlow pour une expérience client fluide et engageante.</p>
       </div>
       <div class="team-card">
-        <img src="assets/mariem.jpg" alt="Thomas Laurent">
+        <img src="assets/mariem.jpg" alt="Meriem Aissa">
         <h4>Meriem Aissa</h4>
         <p>Responsable des Projets</p>
         <p>Gestionnaire expérimentée, elle pilote et supervise les projets financés par FundFlow, assurant leur réussite et leur impact positif.</p>
       </div>
       <div class="team-card">
-        <img src="assets/azizz.jpg" alt="Amélie Morel">
+        <img src="assets/azizz.jpg" alt="Med aziz garwechi">
         <h4>Med aziz garwechi</h4>
         <p>Responsable des Financements</p>
         <p>Expert en structuration financière, il conçoit des solutions de financement innovantes pour maximiser l'impact des projets soutenus par FundFlow.</p>
       </div>
       <div class="team-card">
-        <img src="assets/ahmed.jpg" alt="Amélie Morel">
+        <img src="assets/ahmed.jpg" alt="Ahmed Salhi">
         <h4>Ahmed Salhi</h4>
         <p>Responsable des Événements</p>
         <p>Expert en organisation d'événements financiers et réseautage, il crée des opportunités uniques pour connecter investisseurs et porteurs de projets.</p>
       </div>
       <div class="team-card">
-        <img src="assets/hachem.jpg" alt="Amélie Morel">
+        <img src="assets/hachem.jpg" alt="Hachem Zitouni">
         <h4>Hachem Zitouni</h4>
         <p>Responsable des Partenariats</p>
         <p>Stratège en alliances commerciales, il développe des collaborations durables avec des institutions financières et acteurs clés du secteur.</p>
       </div>
       <div class="team-card">
-        <img src="assets/lynda.jpg" alt="Amélie Morel">
+        <img src="assets/lynda.jpg" alt="Lynda Chebbi">
         <h4>Lynda Chebbi</h4>
         <p>Responsable des Consultations</p>
         <p>Spécialiste en analyse stratégique, elle accompagne les clients dans l'optimisation de leurs projets et l'accès aux financements adaptés.</p>
       </div>
     </div>
   </section>
+</div>
 
-  <footer>
-    <p>© 2025 FundFlow. Tous droits réservés.</p>
-  </footer>
+<footer>
+  <p>© 2025 FundFlow. Tous droits réservés.</p>
+</footer>
+
+<script>
+  // Function to redirect to acceuil2.php when clicking the logo
+  document.querySelector('.logo-container').addEventListener('click', function() {
+    window.location.href = 'acceuil2.php';
+  });
+</script>
 </body>
 </html>
